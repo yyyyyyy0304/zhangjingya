@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12-1 CSS 变量</title>
+    <style>
+        :root {
+            --zhang-primary: #2d7c7a;
+            --zhang-primary-dark: #1f5a58;
+            --zhang-accent: #e96c55;
+            --zhang-bg: #f6f2ea;
+            --zhang-card: #fffdf8;
+            --zhang-text: #17212b;
+            --zhang-muted: #687681;
+            --zhang-line: #d9d2c5;
+            --zhang-radius: 10px;
+            --zhang-gap: 16px;
+        }
+
+        body.zhang_dark {
+            --zhang-primary: #7fd4d1;
+            --zhang-accent: #ffab8f;
+            --zhang-bg: #14202a;
+            --zhang-card: #1d2c38;
+            --zhang-text: #e8eef2;
+            --zhang-muted: #94a6b3;
+            --zhang-line: #33485a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 64px;
+            background: var(--zhang-bg);
+            color: var(--zhang-text);
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .zhang_wrap {
+            width: min(920px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zhang-primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: var(--zhang-accent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 8px;
+            color: var(--zhang-muted);
+            font-size: 14px;
+        }
+
+        h2 {
+            margin: 40px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zhang-primary);
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            color: var(--zhang-accent);
+        }
+
+        .zhang_note {
+            margin: 10px 0;
+            padding: 10px 14px;
+            background: var(--zhang-card);
+            border: 1px dashed var(--zhang-line);
+            font-size: 13px;
+            color: var(--zhang-muted);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--zhang-card);
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            border: 1px solid var(--zhang-line);
+            text-align: left;
+        }
+
+        th {
+            background: var(--zhang-primary);
+            color: var(--zhang-bg);
+            font-weight: normal;
+        }
+
+        pre {
+            margin: 12px 0;
+            padding: 14px;
+            background: var(--zhang-card);
+            border: 1px solid var(--zhang-line);
+            border-left: 4px solid var(--zhang-primary);
+            overflow-x: auto;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--zhang-text);
+        }
+
+        .zhang_toolbar {
+            display: flex;
+            align-items: center;
+            gap: var(--zhang-gap);
+            margin: 14px 0;
+            padding: 12px 14px;
+            background: var(--zhang-card);
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            font-size: 14px;
+        }
+
+        .zhang_btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-primary);
+            color: var(--zhang-bg);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .zhang_btn:hover {
+            background: var(--zhang-accent);
+        }
+
+        .zhang_btn:active {
+            transform: scale(0.96);
+        }
+
+        .zhang_swatch-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .zhang_swatch {
+            width: 130px;
+            padding: 12px 8px;
+            border-radius: var(--zhang-radius);
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .zhang_swatch b {
+            display: block;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .zhang_s1 { background: var(--zhang-primary); color: var(--zhang-bg); }
+        .zhang_s2 { background: var(--zhang-accent); color: var(--zhang-bg); }
+        .zhang_s3 { background: var(--zhang-card); color: var(--zhang-text); border: 1px solid var(--zhang-line); }
+        .zhang_s4 { background: var(--zhang-bg); color: var(--zhang-text); border: 1px dashed var(--zhang-line); }
+
+        .zhang_demo-card {
+            margin: 14px 0;
+            padding: 16px;
+            background: var(--zhang-card);
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .zhang_demo-card h3 {
+            margin: 0 0 6px;
+            color: var(--zhang-primary);
+            font-size: 17px;
+            font-weight: normal;
+        }
+
+        .zhang_demo-card p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--zhang-muted);
+        }
+
+        .zhang_scope-box {
+            padding: 14px;
+            border: 2px dashed var(--zhang-accent);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 14px;
+        }
+
+        .zhang_scope-box {
+            --zhang-primary: #8e5bbf;
+            --zhang-accent: #d4a017;
+        }
+
+        .zhang_inner {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--zhang-bg);
+            border-radius: var(--zhang-radius);
+        }
+
+        footer {
+            margin-top: 46px;
+            padding-top: 16px;
+            border-top: 1px solid var(--zhang-line);
+            display: flex;
+            justify-content: space-between;
+            color: var(--zhang-muted);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>CSS 变量（自定义属性）</h1>
+        <p class="zhang_sub">张婧雅 · 用 <code>--</code> 声明一次、用 <code>var()</code> 处处引用的样式管理方式。</p>
+
+        <h2>一、什么是 CSS 变量</h2>
+        <p>CSS 变量正式名称叫<strong>自定义属性</strong>：以两个减号 <code>--</code> 开头来声明，通过 <code>var()</code> 读取。它和 JS 变量一样可以被重新赋值，是目前最常用的"换肤 / 统一设计规范"手段。</p>
+        <pre>:root {
+    --zhang-primary: #2d7c7a;
+}
+
+h1 {
+    color: var(--zhang-primary);
+}</pre>
+        <table>
+            <tr>
+                <th>写法</th>
+                <th>作用</th>
+            </tr>
+            <tr>
+                <td><code>--zhang-primary: #2d7c7a;</code></td>
+                <td>声明一个自定义属性（必须以 <code>--</code> 开头）</td>
+            </tr>
+            <tr>
+                <td><code>var(--zhang-primary)</code></td>
+                <td>读取变量的值</td>
+            </tr>
+            <tr>
+                <td><code>var(--zhang-primary, #999)</code></td>
+                <td>变量不存在时使用回退值 <code>#999</code></td>
+            </tr>
+            <tr>
+                <td><code>--zhang-primary: var(--zhang-accent);</code></td>
+                <td>变量的值也可以引用另一个变量</td>
+            </tr>
+        </table>
+
+        <h2>二、定义位置与作用域</h2>
+        <p>变量和普通属性一样遵循作用域与继承规则：</p>
+        <table>
+            <tr>
+                <th>定义位置</th>
+                <th>生效范围</th>
+            </tr>
+            <tr>
+                <td><code>:root { }</code></td>
+                <td>整个文档（推荐写颜色、字号、间距等全局规范）</td>
+            </tr>
+            <tr>
+                <td>普通选择器 <code>.card { }</code></td>
+                <td>该元素及其子元素，子元素可重新赋值覆盖</td>
+            </tr>
+            <tr>
+                <td><code>@media</code> 内</td>
+                <td>媒体查询里改变量，即可整体换一套样式</td>
+            </tr>
+        </table>
+        <div class="zhang_scope-box">
+            这个区域里我把 <code>--zhang-primary</code> 改成了紫色、<code>--zhang-accent</code> 改成了金色（只写在本容器上）：
+            <div class="zhang_inner">
+                内部的标题 <span style="color: var(--zhang-primary);">← 这里是紫色</span>，边框虚线是金色；离开这个容器又恢复成页面默认的青色 / 橘色。
+            </div>
+        </div>
+        <p class="zhang_note">上面效果只靠一条规则 <code>.zhang_scope-box { --zhang-primary: #8e5bbf; }</code> 实现，内部所有用到变量的样式自动跟着变——这就是"一处修改、处处生效"。</p>
+
+        <h2>三、当前页面用到的变量</h2>
+        <p>本页所有颜色、圆角、间距都来自 <code>:root</code> 中的变量，色板直接用变量上色：</p>
+        <div class="zhang_swatch-row">
+            <div class="zhang_swatch zhang_s1"><b>主色</b>--zhang-primary</div>
+            <div class="zhang_swatch zhang_s2"><b>强调色</b>--zhang-accent</div>
+            <div class="zhang_swatch zhang_s3"><b>卡片背景</b>--zhang-card</div>
+            <div class="zhang_swatch zhang_s4"><b>页面背景</b>--zhang-bg</div>
+        </div>
+
+        <h2>四、实战：一键切换主题</h2>
+        <p>切换按钮只是给 <code>&lt;body&gt;</code> 加上 <code>zhang_dark</code> 类，在这个类里<strong>把变量重新赋值</strong>，页面所有元素自动换色，不需要逐条改样式：</p>
+        <pre>.zhang_dark {
+    --zhang-bg: #14202a;
+    --zhang-card: #1d2c38;
+    --zhang-text: #e8eef2;
+}</pre>
+        <div class="zhang_toolbar">
+            <button type="button" class="zhang_btn" id="zhang_themeBtn">切换深色 / 浅色主题</button>
+            <span id="zhang_themeText" style="font-size: 14px; color: var(--zhang-muted);">当前：浅色主题（--zhang-bg = #f6f2ea）</span>
+        </div>
+        <div class="zhang_demo-card">
+            <h3>张婧雅的变量卡片</h3>
+            <p>这张卡片的背景、边框、标题色、圆角、阴影全部来自变量，切换主题时整体跟随变化。</p>
+        </div>
+
+        <h2>五、注意事项</h2>
+        <table>
+            <tr>
+                <th>问题</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>变量名区分大小写</td>
+                <td><code>--Primary</code> 与 <code>--primary</code> 是两个不同变量</td>
+            </tr>
+            <tr>
+                <td>只能当"值"用</td>
+                <td>不能用变量拼出选择器名或属性名，如 <code>var(--name)-box</code> 不合法</td>
+            </tr>
+            <tr>
+                <td>未定义且无回退值</td>
+                <td>该条声明无效（属性取继承值或初始值），可在控制台看到黄色警告</td>
+            </tr>
+            <tr>
+                <td>大小写颜色值</td>
+                <td><code>#2D7C7A</code> 和 <code>#2d7c7a</code> 等价，回退值也不用加引号</td>
+            </tr>
+            <tr>
+                <td>不能写在 <code>&lt;img&gt;</code> 等替代内容上</td>
+                <td>变量只作用于文档树中的普通元素样式</td>
+            </tr>
+        </table>
+        <p class="zhang_note">兼容性：CSS 变量属于 CSS3 特性，IE11 不支持；现代浏览器（Chrome、Edge、Firefox、Safari 新版本）均已原生支持，无需任何外部库。</p>
+
+        <footer>
+            <span>115 · 张婧雅</span>
+            <span>高级网页设计 / 课堂实践</span>
+        </footer>
+    </div>
+
+    <script>
+        var zhang_isDark = false;
+        var zhang_btn = document.getElementById("zhang_themeBtn");
+        var zhang_text = document.getElementById("zhang_themeText");
+
+        zhang_btn.addEventListener("click", function () {
+            zhang_isDark = !zhang_isDark;
+            document.body.classList.toggle("zhang_dark", zhang_isDark);
+            zhang_text.textContent = zhang_isDark
+                ? "当前：深色主题（--zhang-bg = #14202a）"
+                : "当前：浅色主题（--zhang-bg = #f6f2ea）";
+        });
+    </script>
+</body>
+</html>
