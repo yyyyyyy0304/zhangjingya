@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex 嵌套盒子</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .flex{
+            display:flex;
+            /*容器，它的子元素在一行中显示*/
+        }
+        .flex li{
+            width:30%;
+            height:300px;
+            border:1px solid #333;
+            list-style:none;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+        }
+        .box{
+            width:70px;
+            height:70px;
+            background-color: #f2f3f4;
+            border:1px solid #333;
+            box-sizing:border-box;
+            margin:4px;
+        }
+        .flex li:nth-child(1){
+            align-items:center;
+            justify-content:center;
+            /*水平垂直对齐*/
+        }
+        .flex li:nth-child(1) .box{
+            width:90px;
+            height:90px;
+            background:#f06c75;
+        }
+        .flex li:nth-child(2) .box{
+            width:70px;
+            height:100px;
+            background:#f5a623;
+        }
+        .flex li:nth-child(3) .box{
+            width:60px;
+            height:82px;
+            background:#16a085;
+        }
+        .flex li:nth-child(3),
+        .flex li:nth-child(4){
+            flex-wrap:wrap;
+        }
+        .flex li:nth-child(3) .box,
+        .flex li:nth-child(4) .box{
+            flex:0 0 calc(40% - 8px);
+        }
+        .flex li:nth-child(4) .box{
+            width:44px;
+            height:88px;
+            background:#6c63ff;
+        }
+    </style>
+</head>
+<body>
+    <h2>张婧雅的flex</h2>
+    <ul class="flex">
+        <li>
+            <div class="box"></div>
+        </li>
+        <li>
+            <div class="box"></div>
+            <div class="box"></div>
+        </li>
+        <li>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </li>
+        <li>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </li>
+    </ul>
+</body>
+</html>

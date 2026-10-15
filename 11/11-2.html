@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-2 CSS3 3D 动画</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 64px;
+            background: #f6f2ea;
+            color: #17212b;
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .zhang_wrap {
+            width: min(920px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: #2d7c7a;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: #bd493c;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 8px;
+            color: #687681;
+            font-size: 14px;
+        }
+
+        h2 {
+            margin: 40px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid #2d7c7a;
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            color: #bd493c;
+        }
+
+        .zhang_note {
+            margin: 10px 0;
+            padding: 10px 14px;
+            background: #fffdf8;
+            border: 1px dashed #d9d2c5;
+            font-size: 13px;
+            color: #4b5559;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fffdf8;
+            font-size: 14px;
+            margin: 12px 0;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            border: 1px solid #d9d2c5;
+            text-align: left;
+        }
+
+        th {
+            background: #2d7c7a;
+            color: #f8f4e9;
+            font-weight: normal;
+        }
+
+        /* 一、悬停 3D 倾斜卡片 */
+        .zhang_tilt {
+            width: 260px;
+            height: 150px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2d7c7a;
+            color: #f8f4e9;
+            font-size: 17px;
+            border-radius: 10px;
+            box-shadow: 0 14px 30px rgba(46, 43, 36, 0.25);
+            transition: transform 0.45s ease;
+        }
+
+        .zhang_tilt:hover {
+            transform: perspective(700px) rotateX(14deg) rotateY(-20deg) translateZ(30px);
+        }
+
+        /* 二、旋转立方体 */
+        .zhang_scene {
+            width: 180px;
+            height: 180px;
+            margin: 24px auto;
+            perspective: 800px;
+        }
+
+        .zhang_cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: zhang_spin 9s linear infinite;
+        }
+
+        .zhang_scene:hover .zhang_cube {
+            animation-play-state: paused;
+        }
+
+        .zhang_face {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: rgba(45, 124, 122, 0.85);
+        }
+
+        .zhang_front {
+            transform: translateZ(90px);
+            background: rgba(233, 108, 85, 0.85);
+        }
+
+        .zhang_back {
+            transform: rotateY(180deg) translateZ(90px);
+            background: rgba(45, 124, 122, 0.85);
+        }
+
+        .zhang_right {
+            transform: rotateY(90deg) translateZ(90px);
+            background: rgba(91, 141, 184, 0.85);
+        }
+
+        .zhang_left {
+            transform: rotateY(-90deg) translateZ(90px);
+            background: rgba(217, 164, 65, 0.85);
+        }
+
+        .zhang_top {
+            transform: rotateX(90deg) translateZ(90px);
+            background: rgba(122, 186, 120, 0.85);
+        }
+
+        .zhang_bottom {
+            transform: rotateX(-90deg) translateZ(90px);
+            background: rgba(160, 120, 180, 0.85);
+        }
+
+        @keyframes zhang_spin {
+            from {
+                transform: rotateX(-18deg) rotateY(0deg);
+            }
+
+            to {
+                transform: rotateX(-18deg) rotateY(360deg);
+            }
+        }
+
+        /* 三、翻转卡片 */
+        .zhang_flip {
+            width: 260px;
+            height: 170px;
+            margin: 24px auto;
+            perspective: 800px;
+        }
+
+        .zhang_flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s ease;
+            transform-style: preserve-3d;
+        }
+
+        .zhang_flip:hover .zhang_flip-inner {
+            transform: rotateY(180deg);
+        }
+
+        .zhang_flip-face {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            color: #fff;
+            border-radius: 10px;
+            backface-visibility: hidden;
+        }
+
+        .zhang_flip-front {
+            background: #2d7c7a;
+        }
+
+        .zhang_flip-back {
+            background: #e96c55;
+            transform: rotateY(180deg);
+        }
+
+        /* 四、3D 旋转木马 */
+        .zhang_carousel-scene {
+            height: 290px;
+            margin: 20px auto;
+            perspective: 900px;
+        }
+
+        .zhang_carousel {
+            position: relative;
+            width: 150px;
+            height: 100px;
+            margin: 90px auto 0;
+            transform-style: preserve-3d;
+            animation: zhang_round 14s linear infinite;
+        }
+
+        .zhang_carousel-scene:hover .zhang_carousel {
+            animation-play-state: paused;
+        }
+
+        .zhang_panel {
+            position: absolute;
+            width: 150px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+            background: rgba(233, 108, 85, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .zhang_p1 {
+            transform: rotateY(0deg) translateZ(240px);
+        }
+
+        .zhang_p2 {
+            transform: rotateY(60deg) translateZ(240px);
+            background: rgba(217, 164, 65, 0.8);
+        }
+
+        .zhang_p3 {
+            transform: rotateY(120deg) translateZ(240px);
+            background: rgba(122, 186, 120, 0.8);
+        }
+
+        .zhang_p4 {
+            transform: rotateY(180deg) translateZ(240px);
+            background: rgba(45, 124, 122, 0.8);
+        }
+
+        .zhang_p5 {
+            transform: rotateY(240deg) translateZ(240px);
+            background: rgba(91, 141, 184, 0.8);
+        }
+
+        .zhang_p6 {
+            transform: rotateY(300deg) translateZ(240px);
+            background: rgba(160, 120, 180, 0.8);
+        }
+
+        @keyframes zhang_round {
+            from {
+                transform: rotateX(-8deg) rotateY(0deg);
+            }
+
+            to {
+                transform: rotateX(-8deg) rotateY(360deg);
+            }
+        }
+
+        footer {
+            margin-top: 46px;
+            padding-top: 16px;
+            border-top: 1px solid #d9d2c5;
+            display: flex;
+            justify-content: space-between;
+            color: #687681;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>CSS3 3D 动画</h1>
+        <p class="zhang_sub">perspective、preserve-3d、rotate3d 与 transition / @keyframes 组合出的立体效果。</p>
+
+        <h2>一、进入 3D 世界</h2>
+        <p>默认页面是 2D 平面（X 水平、Y 垂直）。<code>perspective</code> 为元素提供"视点距离"，元素沿 Z 轴（垂直屏幕向外）移动时才会出现近大远小的透视效果。</p>
+        <table>
+            <tr>
+                <th>属性</th>
+                <th>作用</th>
+            </tr>
+            <tr>
+                <td><code>perspective: 800px</code></td>
+                <td>观察者到 Z=0 平面的距离，数值越小透视越夸张</td>
+            </tr>
+            <tr>
+                <td><code>perspective-origin</code></td>
+                <td>视点位置，默认为元素中心（50% 50%）</td>
+            </tr>
+            <tr>
+                <td><code>transform-style: preserve-3d</code></td>
+                <td>让子元素保留在 3D 空间（默认 flat 会被压平）</td>
+            </tr>
+            <tr>
+                <td><code>backface-visibility: hidden</code></td>
+                <td>隐藏背面，翻转卡片必备</td>
+            </tr>
+        </table>
+        <div class="zhang_tilt">把鼠标放上来：倾斜并靠近你</div>
+        <p class="zhang_note">这张卡片把 <code>perspective()</code> 直接写在 <code>transform</code> 里，配合 <code>transition</code> 实现悬停过渡；下面的立方体则在父元素上统一设置 <code>perspective</code>。</p>
+
+        <h2>二、旋转立方体</h2>
+        <p>六个面各自先 <code>rotate</code> 定朝向，再 <code>translateZ(90px)</code> 推到立方体表面；容器用 <code>preserve-3d</code> + <code>@keyframes</code> 匀速旋转，悬停可暂停：</p>
+        <div class="zhang_scene">
+            <div class="zhang_cube">
+                <div class="zhang_face zhang_front">前</div>
+                <div class="zhang_face zhang_back">后</div>
+                <div class="zhang_face zhang_right">右</div>
+                <div class="zhang_face zhang_left">左</div>
+                <div class="zhang_face zhang_top">上</div>
+                <div class="zhang_face zhang_bottom">下</div>
+            </div>
+        </div>
+        <p class="zhang_note">顺序不能颠倒：先 <code>rotate</code> 决定朝向，后 <code>translateZ</code> 沿"该面新的 Z 轴"推出去。面是半透明的，所以能看见立方体内部。</p>
+
+        <h2>三、翻转卡片</h2>
+        <p>正面保持 <code>rotateY(0)</code>，背面先 <code>rotateY(180deg)</code> 转过去并隐藏；悬停时整个内层 <code>rotateY(180deg)</code>，靠 <code>backface-visibility: hidden</code> 防止"透视穿帮"：</p>
+        <div class="zhang_flip">
+            <div class="zhang_flip-inner">
+                <div class="zhang_flip-face zhang_flip-front">正面 · 把鼠标放上来</div>
+                <div class="zhang_flip-face zhang_flip-back">背面 · rotateY(180deg)</div>
+            </div>
+        </div>
+
+        <h2>四、3D 旋转木马</h2>
+        <p>六块面板各 <code>rotateY(n×60deg) translateZ(240px)</code>，均匀分布在圆周上，容器绕 Y 轴持续旋转（悬停暂停）：</p>
+        <div class="zhang_carousel-scene">
+            <div class="zhang_carousel">
+                <div class="zhang_panel zhang_p1">面板 1</div>
+                <div class="zhang_panel zhang_p2">面板 2</div>
+                <div class="zhang_panel zhang_p3">面板 3</div>
+                <div class="zhang_panel zhang_p4">面板 4</div>
+                <div class="zhang_panel zhang_p5">面板 5</div>
+                <div class="zhang_panel zhang_p6">面板 6</div>
+            </div>
+        </div>
+
+        <h2>五、常用 3D 变换函数</h2>
+        <table>
+            <tr>
+                <th>写法</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>rotateX(45deg)</code></td>
+                <td>绕水平轴上下翻转</td>
+            </tr>
+            <tr>
+                <td><code>rotateY(45deg)</code></td>
+                <td>绕垂直轴左右翻转</td>
+            </tr>
+            <tr>
+                <td><code>rotateZ(45deg)</code></td>
+                <td>绕屏幕法线旋转（等同 2D 的 rotate）</td>
+            </tr>
+            <tr>
+                <td><code>rotate3d(x, y, z, angle)</code></td>
+                <td>绕自定义轴旋转，如 <code>rotate3d(1, 1, 0, 45deg)</code></td>
+            </tr>
+            <tr>
+                <td><code>translateZ(100px)</code> / <code>translate3d(x, y, z)</code></td>
+                <td>沿 Z 轴推近拉远，3D 深度的来源</td>
+            </tr>
+            <tr>
+                <td><code>scale3d</code> / <code>matrix3d</code></td>
+                <td>3D 缩放与完整矩阵（一般由工具生成）</td>
+            </tr>
+        </table>
+        <p class="zhang_note">3D 动画三要素：<code>perspective</code>（空间） + <code>preserve-3d</code>（保留立体） + <code>transition</code> / <code>@keyframes</code>（时间）。悬停上面的演示可暂停，缩放窗口可观察透视变化。</p>
+
+        <footer>
+            <span>115 · 张婧雅</span>
+            <span>高级网页设计 / 课堂实践</span>
+        </footer>
+    </div>
+</body>
+</html>

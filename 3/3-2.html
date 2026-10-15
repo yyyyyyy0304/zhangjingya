@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>115 张婧雅</title>
+    <style>
+        h2{
+            color: white;
+            background-color: black;
+        }
+        h3{
+            color:red;
+        }
+        p{
+            color: blue;
+        }
+        #box p span:nth-child(1){
+            color: red;
+        }
+        #box p span:nth-child(2){
+            color: green;
+        }
+        #box p span:nth-child(3){
+            color: purple;
+        }
+        /* 标签选择器 */
+        #box{
+            width: 300px;
+            height: 300px;
+            background-color: yellow;
+        }
+        #student-id{
+            width: 300px;
+            height: 100px;
+            background-color: lightblue;
+        }
+        /* id选择器 */
+    </style>
+</head>
+<body>
+    <h2>层叠样式表css</h2>
+    <div id="box" >
+       <h3>css选择器</h3>
+        <p><span>张</span><span>婧</span><span>雅</span></p>
+        <p>css属性</p>
+    </div>
+    <div id="student-id">24005240115</div>
+    <!-- 扩展：
+     1.h2黑底白字
+     2.名字变成不同颜色并且在同一行
+     3.新加一个盒子 盒子里面的文字是学号24005240115，盒子有宽高背景 -->
+</body>
+</html>

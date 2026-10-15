@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>媒体查询与 rem</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			font-size: 16px;
+		}
+
+		body {
+			margin: 0;
+		}
+
+		.viewport-box {
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+			padding: 2rem;
+			background-color: #e76f51;
+			color: #fff;
+			font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+			text-align: center;
+			transition: background-color 300ms ease;
+		}
+
+		.viewport-box h1 {
+			margin: 0 0 1rem;
+			font-size: 3rem;
+		}
+
+		.viewport-box p {
+			margin: 0;
+			font-size: 1rem;
+		}
+
+		@media (min-width: 600px) {
+			html {
+				font-size: 20px;
+			}
+
+			.viewport-box {
+				background-color: #2a9d8f;
+			}
+		}
+
+		@media (min-width: 900px) {
+			html {
+				font-size: 24px;
+			}
+
+			.viewport-box {
+				background-color: #457b9d;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.viewport-box {
+				transition: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="viewport-box">
+		<div>
+			<h1>张婧雅</h1>
+			<p>视口变宽，根字号与 rem 尺寸同步变化</p>
+		</div>
+	</main>
+</body>
+</html>

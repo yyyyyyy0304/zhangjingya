@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>css3</title>
+    <style>
+        .main{
+            display: flex;/*在同一行*/
+            flex-wrap: wrap;/*换行*/
+        }
+        .box{
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            display: flex;
+            /*水平垂直居中*/
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            transition: all 0.6s;/*过渡效果*/
+            box-sizing: border-box;
+            /*width包含padding和border*/
+        }
+        .box:first-child:hover{
+            background-color: rgb(99, 197, 222);
+            color: white;
+            font-size: 140px;
+        }
+        .box:nth-child(2):hover{
+            border-radius: 50%;/*圆角*/ 
+            border-width: 10px;/*边框宽度*/
+        }
+        .box:nth-child(3):hover{
+           box-shadow: 10px 10px 10px 10px rgb(99, 197, 222);
+        }
+        .box:nth-of-type(4):hover{
+            text-shadow: 100px 10px 10px #63c5de;     
+        }
+        .box:nth-of-type(5):hover{
+           /*线性渐变*/
+           background: linear-gradient(#63c5de,#9ed1c2,#77bc0f);
+        }
+        .box:nth-of-type(5)+.box{
+            /*径向渐变*/
+            background: radial-gradient(#fff,#ccc,#000);
+        }/*相邻兄弟选择器
+        +：后面的那个兄弟
+        ~：后面的所有兄弟*/
+        .box:nth-of-type(7):hover{
+            transform: scale(0.5);
+        }
+        .box:nth-of-type(8):hover{
+            transform: translateX(-150px);
+        }
+        .box:nth-of-type(9):hover{
+            transform: rotateZ(-180deg);
+        }
+        .box:nth-of-type(10):hover{
+            transform: skewX(20deg) translateY(50px);
+        }
+        .box:nth-last-child(2):hover::before{
+            content: "*";
+            color: red;
+        }
+        .box.box:nth-child(12):hover::after{
+            content: "张婧雅";
+            /*黑底白字居中圆角的张婧雅，有距离*/
+            display: block;
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .box:nth-child(3n):hover{
+            border:3px solid rgb(99, 197, 222);
+        }
+        /*鼠标在偶数个盒子上时有变化，自定义变化*/
+        .box:nth-child(2n):hover{
+            background-color: #f5d06f;
+            color: #333;
+            transform: translateY(-10px) rotate(3deg);
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="box">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+        <div class="box">4</div>
+        <div class="box">5</div>
+        <div class="box">6</div>
+        <div class="box">7</div>
+        <div class="box">8</div>
+        <div class="box">9</div>
+        <div class="box">10</div>
+        <div class="box">11</div>
+        <div class="box">12</div>
+    </div>
+</body>
+</html>

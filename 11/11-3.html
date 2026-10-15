@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-3 猜数字小游戏</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 64px;
+            background: #fbf1e3;
+            color: #3d2b1f;
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zhang_wrap {
+            width: min(760px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: #c05a2e;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: #a03b1d;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+            color: #8a3b12;
+        }
+
+        .zhang_sub {
+            margin: 0 0 8px;
+            color: #9a7b5f;
+            font-size: 14px;
+        }
+
+        .zhang_card {
+            margin-top: 26px;
+            padding: 28px 26px 30px;
+            background: #fffaf2;
+            border: 1px solid #f0d9b8;
+            border-radius: 16px;
+            box-shadow: 0 16px 34px rgba(160, 110, 60, 0.16);
+        }
+
+        .zhang_rule {
+            margin: 0 0 20px;
+            font-size: 14px;
+            color: #6f5442;
+        }
+
+        .zhang_rule strong {
+            color: #c05a2e;
+            font-weight: bold;
+        }
+
+        .zhang_row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .zhang_input {
+            width: 170px;
+            padding: 11px 14px;
+            font-size: 18px;
+            font-family: inherit;
+            color: #3d2b1f;
+            background: #fff;
+            border: 2px solid #e8c39a;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .zhang_input:focus {
+            border-color: #e07b39;
+        }
+
+        .zhang_btn {
+            padding: 11px 22px;
+            font-size: 16px;
+            font-family: inherit;
+            color: #fffaf2;
+            background: linear-gradient(135deg, #e07b39, #d14d2b);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .zhang_btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(209, 77, 43, 0.35);
+        }
+
+        .zhang_btn:active {
+            transform: translateY(0);
+        }
+
+        .zhang_btn-reset {
+            background: #a5713c;
+        }
+
+        .zhang_btn-reset:hover {
+            box-shadow: 0 8px 18px rgba(165, 113, 60, 0.35);
+        }
+
+        .zhang_hint {
+            min-height: 1.7em;
+            margin: 20px 0 4px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #9a7b5f;
+        }
+
+        .zhang_hint-big {
+            color: #c0392b;
+        }
+
+        .zhang_hint-small {
+            color: #d97b1c;
+        }
+
+        .zhang_hint-ok {
+            color: #6f9a3c;
+        }
+
+        .zhang_stats {
+            display: flex;
+            gap: 26px;
+            margin-top: 18px;
+            padding: 12px 16px;
+            background: #fdf0dc;
+            border: 1px dashed #e3bd8f;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #6f5442;
+        }
+
+        .zhang_stats b {
+            color: #c05a2e;
+            font-size: 18px;
+        }
+
+        .zhang_tip {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #9a7b5f;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid #e8d5bc;
+            display: flex;
+            justify-content: space-between;
+            color: #9a7b5f;
+            font-size: 12px;
+        }
+
+        @media (max-width: 520px) {
+            .zhang_input {
+                width: 100%;
+            }
+
+            .zhang_stats {
+                flex-direction: column;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>猜数字小游戏</h1>
+        <p class="zhang_sub">暖色调练习页 · 系统随机生成 1–100 的数字，猜猜看是多少</p>
+
+        <div class="zhang_card">
+            <p class="zhang_rule">心里没底？页面会提示你<strong>「太大」</strong>还是<strong>「太小」</strong>，直到<strong>「猜对」</strong>为止；每次有效猜测都会计入次数，猜中后弹窗公布结果。</p>
+
+            <div class="zhang_row">
+                <input id="zhang_input" class="zhang_input" type="number" min="1" max="100" placeholder="输入 1–100 的数字">
+                <button id="zhang_guess-btn" class="zhang_btn" type="button">猜一下</button>
+                <button id="zhang_reset-btn" class="zhang_btn zhang_btn-reset" type="button">重新开始</button>
+            </div>
+
+            <p id="zhang_hint" class="zhang_hint">准备好了吗？输入数字开始猜测！</p>
+
+            <div class="zhang_stats">
+                <span>猜测次数：<b id="zhang_count">0</b> 次</span>
+                <span>本局状态：<b id="zhang_status">进行中</b></span>
+            </div>
+
+            <p class="zhang_tip">小技巧：按回车键也可以提交猜测；猜中后点「重新开始」生成新的数字。</p>
+        </div>
+
+        <footer>
+            <span>115 · 张婧雅</span>
+            <span>高级网页设计 / 课堂实践</span>
+        </footer>
+    </div>
+
+    <script>
+        let zhang_target = 0;
+        let zhang_count = 0;
+        let zhang_over = false;
+
+        let zhang_input = document.getElementById('zhang_input');
+        let zhang_hint = document.getElementById('zhang_hint');
+        let zhang_countEl = document.getElementById('zhang_count');
+        let zhang_statusEl = document.getElementById('zhang_status');
+
+        function zhang_setHint(text, type) {
+            zhang_hint.textContent = text;
+            zhang_hint.className = 'zhang_hint zhang_hint-' + type;
+        }
+
+        function zhang_reset() {
+            zhang_target = Math.floor(Math.random() * 100) + 1;
+            zhang_count = 0;
+            zhang_over = false;
+            zhang_countEl.textContent = '0';
+            zhang_statusEl.textContent = '进行中';
+            zhang_input.value = '';
+            zhang_setHint('已生成新的 1–100 数字，开始猜测吧！', 'idle');
+            zhang_input.focus();
+        }
+
+        function zhang_guess() {
+            if (zhang_over) {
+                alert('本局已经猜中啦，请点击「重新开始」再来一局');
+                return;
+            }
+
+            let zhang_value = Number(zhang_input.value);
+
+            if (!Number.isInteger(zhang_value) || zhang_value < 1 || zhang_value > 100) {
+                alert('请输入 1–100 之间的整数');
+                zhang_input.select();
+                return;
+            }
+
+            zhang_count++;
+            zhang_countEl.textContent = String(zhang_count);
+
+            if (zhang_value > zhang_target) {
+                zhang_setHint('太大了 ↓ 再往小一点猜', 'big');
+                zhang_input.select();
+            } else if (zhang_value < zhang_target) {
+                zhang_setHint('太小了 ↑ 再往大一点猜', 'small');
+                zhang_input.select();
+            } else {
+                zhang_over = true;
+                zhang_statusEl.textContent = '已猜对';
+                zhang_setHint('猜对了！答案就是 ' + zhang_target, 'ok');
+                alert('猜对了！\n正确答案是 ' + zhang_target + '\n你一共猜了 ' + zhang_count + ' 次');
+                zhang_input.value = '';
+            }
+        }
+
+        document.getElementById('zhang_guess-btn').addEventListener('click', zhang_guess);
+        document.getElementById('zhang_reset-btn').addEventListener('click', zhang_reset);
+        zhang_input.addEventListener('keydown', function (zhang_event) {
+            if (zhang_event.key === 'Enter') {
+                zhang_guess();
+            }
+        });
+
+        zhang_reset();
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>媒体查询背景变化</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+		}
+
+		.viewport-box {
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+			background-color: #e76f51;
+			color: #fff;
+			font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+			transition: background-color 300ms ease;
+		}
+
+		.viewport-box h1 {
+			margin: 0;
+			font-size: 48px;
+		}
+
+		@media (min-width: 600px) {
+			.viewport-box {
+				background-color: #2a9d8f;
+			}
+		}
+
+		@media (min-width: 900px) {
+			.viewport-box {
+				background-color: #457b9d;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.viewport-box {
+				transition: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="viewport-box">
+		<h1>张婧雅</h1>
+	</main>
+</body>
+</html>

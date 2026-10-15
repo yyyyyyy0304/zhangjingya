@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-1 CSS 长度单位</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 64px;
+            background: #f6f2ea;
+            color: #17212b;
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .wrap {
+            width: min(920px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: #2d7c7a;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: #bd493c;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .sub {
+            margin: 0 0 8px;
+            color: #687681;
+            font-size: 14px;
+        }
+
+        h2 {
+            margin: 40px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid #2d7c7a;
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            color: #bd493c;
+        }
+
+        .note {
+            margin: 10px 0;
+            padding: 10px 14px;
+            background: #fffdf8;
+            border: 1px dashed #d9d2c5;
+            font-size: 13px;
+            color: #4b5559;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fffdf8;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            border: 1px solid #d9d2c5;
+            text-align: left;
+        }
+
+        th {
+            background: #2d7c7a;
+            color: #f8f4e9;
+            font-weight: normal;
+        }
+
+        /* 绝对单位演示：所有色条长度完全相同 */
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 8px 0;
+        }
+
+        .bar {
+            height: 26px;
+            background: #2d7c7a;
+            border: 1px solid #1f5a58;
+        }
+
+        /* em 与 rem 对比演示 */
+        .font-demo {
+            margin: 12px 0;
+            padding: 14px;
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+        }
+
+        .font-demo .small {
+            font-size: 14px;
+        }
+
+        .font-demo .big {
+            font-size: 28px;
+        }
+
+        .font-demo p {
+            margin: 10px 0 4px;
+            font-size: 13px;
+            color: #687681;
+        }
+
+        .em-box,
+        .rem-box {
+            display: block;
+            margin: 5px 0;
+            padding: 4px 8px;
+            color: #17212b;
+        }
+
+        .em-box {
+            width: 10em;
+            background: rgba(233, 108, 85, 0.22);
+            border: 2px solid #e96c55;
+        }
+
+        .rem-box {
+            width: 10rem;
+            background: rgba(45, 124, 122, 0.18);
+            border: 2px solid #2d7c7a;
+        }
+
+        /* 视口单位演示 */
+        .vw-box {
+            margin: 8px 0;
+            padding: 5px 10px;
+            background: #e96c55;
+            color: #fffdf8;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        /* 百分比嵌套演示 */
+        .pct-outer {
+            width: 80%;
+            padding: 12px;
+            background: rgba(45, 124, 122, 0.1);
+            border: 2px dashed #2d7c7a;
+        }
+
+        .pct-mid {
+            width: 50%;
+            padding: 12px;
+            background: rgba(233, 108, 85, 0.15);
+            border: 2px solid #e96c55;
+        }
+
+        .pct-inner {
+            width: 50%;
+            padding: 12px;
+            background: #fffdf8;
+            border: 2px solid #17212b;
+            font-size: 13px;
+        }
+
+        /* fr 网格演示 */
+        .grid-demo {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 8px;
+        }
+
+        .grid-demo div {
+            padding: 16px 8px;
+            background: #2d7c7a;
+            color: #f8f4e9;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        footer {
+            margin-top: 46px;
+            padding-top: 16px;
+            border-top: 1px solid #d9d2c5;
+            display: flex;
+            justify-content: space-between;
+            color: #687681;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>CSS 长度单位</h1>
+        <p class="sub">Web 前端里给尺寸赋值的各种单位：绝对单位、相对字体单位、视口单位、百分比与 fr。</p>
+
+        <h2>一、绝对单位</h2>
+        <p>与固定物理尺寸绑定，换算关系固定，不随字体、视口变化。屏幕上 1 英寸按 96 像素计算。</p>
+        <table>
+            <tr>
+                <th>单位</th>
+                <th>含义</th>
+                <th>换算</th>
+            </tr>
+            <tr>
+                <td><code>px</code></td>
+                <td>像素（最常用）</td>
+                <td>1in = 96px</td>
+            </tr>
+            <tr>
+                <td><code>in</code></td>
+                <td>英寸</td>
+                <td>1in = 2.54cm</td>
+            </tr>
+            <tr>
+                <td><code>cm</code> / <code>mm</code></td>
+                <td>厘米 / 毫米</td>
+                <td>1cm ≈ 37.8px</td>
+            </tr>
+            <tr>
+                <td><code>q</code></td>
+                <td>1/4 毫米</td>
+                <td>4q = 1mm</td>
+            </tr>
+            <tr>
+                <td><code>pt</code></td>
+                <td>磅（印刷单位）</td>
+                <td>1pt = 1/72 in ≈ 1.33px</td>
+            </tr>
+            <tr>
+                <td><code>pc</code></td>
+                <td>派卡</td>
+                <td>1pc = 12pt = 16px</td>
+            </tr>
+        </table>
+        <p class="note">下面六条色条写法不同，实际长度完全一样（都是 96px），拖动窗口也不会变：</p>
+        <div class="row"><span class="bar" style="width: 96px;"></span><code>width: 96px</code></div>
+        <div class="row"><span class="bar" style="width: 1in;"></span><code>width: 1in</code></div>
+        <div class="row"><span class="bar" style="width: 2.54cm;"></span><code>width: 2.54cm</code></div>
+        <div class="row"><span class="bar" style="width: 25.4mm;"></span><code>width: 25.4mm</code></div>
+        <div class="row"><span class="bar" style="width: 72pt;"></span><code>width: 72pt</code></div>
+        <div class="row"><span class="bar" style="width: 12pc;"></span><code>width: 12pc</code></div>
+
+        <h2>二、相对字体单位（em、rem、ex、ch）</h2>
+        <table>
+            <tr>
+                <th>单位</th>
+                <th>参照对象</th>
+            </tr>
+            <tr>
+                <td><code>em</code></td>
+                <td>当前元素自己的 <code>font-size</code>（逐层嵌套会叠加）</td>
+            </tr>
+            <tr>
+                <td><code>rem</code></td>
+                <td>根元素 <code>html</code> 的 <code>font-size</code>（默认 16px，永远不叠加）</td>
+            </tr>
+            <tr>
+                <td><code>ex</code></td>
+                <td>当前字体中小写 x 的高度</td>
+            </tr>
+            <tr>
+                <td><code>ch</code></td>
+                <td>当前字体中数字 0 的宽度</td>
+            </tr>
+        </table>
+        <p class="note">同一个 <code>width: 10em</code>，父级字号变了结果就变；<code>width: 10rem</code> 在两组里始终一样：</p>
+
+        <div class="font-demo small">
+            <p>父级 font-size: 14px</p>
+            <span class="em-box">10em = 140px（跟随字号）</span>
+            <span class="rem-box">10rem = 160px（只看根字号）</span>
+        </div>
+        <div class="font-demo big">
+            <p>父级 font-size: 28px</p>
+            <span class="em-box">10em = 280px（跟随字号）</span>
+            <span class="rem-box">10rem = 160px（只看根字号）</span>
+        </div>
+        <p class="note"><code>em</code> 写在 <code>padding</code>、<code>border</code>、<code>margin</code> 上时，同样按当前元素的 <code>font-size</code> 计算；这就是它适合写"跟文字一起缩放的间距"的原因。</p>
+
+        <h2>三、相对视口单位（vw、vh、vmin、vmax）</h2>
+        <table>
+            <tr>
+                <th>单位</th>
+                <th>参照对象</th>
+            </tr>
+            <tr>
+                <td><code>vw</code></td>
+                <td>视口宽度的 1%（1vw = 视口宽 / 100）</td>
+            </tr>
+            <tr>
+                <td><code>vh</code></td>
+                <td>视口高度的 1%</td>
+            </tr>
+            <tr>
+                <td><code>vmin</code></td>
+                <td>vw 和 vh 中较小的那个</td>
+            </tr>
+            <tr>
+                <td><code>vmax</code></td>
+                <td>vw 和 vh 中较大的那个</td>
+            </tr>
+        </table>
+        <div class="vw-box" style="width: 25vw;">width: 25vw（视口的 1/4）</div>
+        <div class="vw-box" style="width: 50vw;">width: 50vw（视口的一半）</div>
+        <div class="vw-box" style="width: 75vw;">width: 75vw（视口的 3/4）</div>
+        <p class="note">拖动浏览器窗口宽度，上面三条会跟着伸缩——这就是响应式布局的基础。注意 <code>100vw</code> 包含滚动条宽度，可能比内容区略宽。</p>
+
+        <h2>四、百分比（%）</h2>
+        <p>相对"父元素"计算：宽、宽相关属性按父元素宽度，高度按父元素高度（父级没有确定高度时无效）。</p>
+        <div class="pct-outer">
+            外层 width: 80%（页面的 80%）
+            <div class="pct-mid">
+                中层 width: 50%（父级的 50% = 页面的 40%）
+                <div class="pct-inner">
+                    内层 width: 50%（父级的 50% = 页面的 20%）
+                </div>
+            </div>
+        </div>
+        <p class="note"><code>margin</code>、<code>padding</code> 写百分比时，参照的也是父元素的<strong>宽度</strong>，与高度无关。</p>
+
+        <h2>五、fr（网格轨道份额）</h2>
+        <p>只在 <code>display: grid</code> 的 <code>grid-template-columns/rows</code> 中使用，表示"剩余空间按比例分配"。</p>
+        <div class="grid-demo">
+            <div>1fr</div>
+            <div>2fr</div>
+            <div>1fr</div>
+        </div>
+        <p class="note">三列比例 1 : 2 : 1，中间一列的宽度是两侧的两倍；<code>gap</code> 会先扣掉，再分 fr。</p>
+
+        <h2>六、常用换算速查</h2>
+        <table>
+            <tr>
+                <th>写法</th>
+                <th>换算结果</th>
+            </tr>
+            <tr>
+                <td><code>1in</code></td>
+                <td>96px</td>
+            </tr>
+            <tr>
+                <td><code>1pt</code></td>
+                <td>≈ 1.333px</td>
+            </tr>
+            <tr>
+                <td><code>1pc</code></td>
+                <td>16px</td>
+            </tr>
+            <tr>
+                <td><code>10em</code>（当前字号 16px 时）</td>
+                <td>160px</td>
+            </tr>
+            <tr>
+                <td><code>10rem</code>（根字号 16px 时）</td>
+                <td>160px</td>
+            </tr>
+            <tr>
+                <td><code>50vw</code> / <code>50vh</code></td>
+                <td>视口宽 / 高的一半</td>
+            </tr>
+            <tr>
+                <td>数字 <code>0</code></td>
+                <td>可以不带单位，如 <code>margin: 0</code></td>
+            </tr>
+        </table>
+        <p class="note">实际开发中最常用 <code>px</code> 与 <code>rem</code>；做流式、响应式布局用 <code>%</code>、<code>vw</code>、<code>fr</code>；需要"跟字号联动"的间距用 <code>em</code>。</p>
+
+        <footer>
+            <span>115 · 张婧雅</span>
+            <span>高级网页设计 / 课堂实践</span>
+        </footer>
+    </div>
+</body>
+</html>

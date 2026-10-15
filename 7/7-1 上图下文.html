@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>115 张婧雅</title>
+    <style>
+        /*全局CSS*/
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        ul {
+            list-style: none;
+        }
+        img { 
+            display: block;
+        }
+        .slist{ 
+            display: flex;
+            margin: 8px;
+        } 
+        .slist li{
+            width:  30%;
+            margin-right: 3px;
+            flex-grow: 1;
+            position: relative;/*相对定位*/
+        }
+        .slist li img{
+            width: 100%;
+        }
+        .slist li p{
+            font-size: 20px;
+            text-align: center;
+            line-height: 36px;
+            position: absolute;/*绝对定位*/
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0,0,0,0.5);
+            color: #fff;    
+            font-weight: bold;/*加粗*/
+        }
+    </style>
+</head>
+<body>
+    <ul class="slist">  
+        <li>
+            <img src="./img/11.png">
+            <p>张婧雅的标题1</p>
+        </li>
+                <li>
+            <img src="./img/22.png">
+            <p>张婧雅的标题2</p>
+        </li>
+                <li>
+            <img src="./img/33.png">
+            <p>张婧雅的标题3</p>
+        </li>
+    </ul>
+</body>
+</html>
