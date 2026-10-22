@@ -27,3 +27,9 @@
 ## 2026-10-15-16:31
 - model: opencode/mimo-v2.6-flash-free
 - prompt: 创建网页12-1展示css变量，然后提交项目。页面中包含文字张婧雅
+2026-10-19-00:00
+model: opencode/mimo-v2.6-flash-free
+prompt: 编写两个网页13-1.html和13.2.html.分别显示font awesome图标和lucide图标，前者采用字体图标的形式，后者使用svg的形式。 下载相关cdn文件到该文件夹cdn目录下
+- time: 2026-10-19-00:00
+- model: opencode/mimo-v2.6-flash-free
+- prompt: 根据font目录下的iconfont的图标，分别完成13-3.html和13-4.html，使用字体图标和svg的方法完成移动端的自适应宽度的固定的下导航，下导航有4项的内容，包括首页，发现，收藏，我的。导航项包括数字徽章和右上角的红点，全屏宽度。

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13.2 Lucide SVG 图标</title>
+    <style>
+        :root {
+            --zhang-primary: #2d7c7a;
+            --zhang-accent: #e96c55;
+            --zhang-bg: #f6f2ea;
+            --zhang-card: #fffdf8;
+            --zhang-text: #17212b;
+            --zhang-muted: #687681;
+            --zhang-line: #d9d2c5;
+            --zhang-code: #22303c;
+            --zhang-radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 70px;
+            background: var(--zhang-bg);
+            color: var(--zhang-text);
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zhang_wrap {
+            width: min(960px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zhang-primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: var(--zhang-accent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 6px;
+            color: var(--zhang-muted);
+            font-size: 14px;
+        }
+
+        .zhang_note {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        h2 {
+            margin: 44px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zhang-primary);
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .zhang_cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 10px 14px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .zhang_cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(46, 43, 36, 0.12);
+        }
+
+        .zhang_icon {
+            width: 32px;
+            height: 32px;
+            color: var(--zhang-primary);
+        }
+
+        .zhang_cell:nth-child(3n) .zhang_icon {
+            color: var(--zhang-accent);
+        }
+
+        .zhang_name {
+            font-size: 13px;
+        }
+
+        .zhang_code {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            color: var(--zhang-muted);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 11px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .zhang_row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 26px;
+            padding: 22px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+        }
+
+        .zhang_row p {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        .zhang_size-demo,
+        .zhang_style-demo {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 26px;
+            color: var(--zhang-primary);
+        }
+
+        .zhang_btn {
+            padding: 7px 16px;
+            border: 1px solid var(--zhang-line);
+            border-radius: 999px;
+            background: var(--zhang-card);
+            color: var(--zhang-text);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .zhang_btn.zhang_on {
+            border-color: var(--zhang-accent);
+            background: var(--zhang-accent);
+            color: #fff;
+        }
+
+        .zhang_ctrls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .zhang_ctrl-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zhang_ctrl-group > span {
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        .zhang_swatches {
+            display: flex;
+            gap: 10px;
+        }
+
+        .zhang_swatch {
+            width: 28px;
+            height: 28px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .zhang_swatch.zhang_on {
+            border-color: var(--zhang-text);
+        }
+
+        .zhang_static-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--zhang-accent);
+            flex: none;
+        }
+
+        .zhang_demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            margin-top: 14px;
+            padding: 20px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+        }
+
+        .zhang_range {
+            width: 150px;
+        }
+
+        pre {
+            margin: 14px 0 0;
+            padding: 16px 18px;
+            overflow-x: auto;
+            border-radius: 10px;
+            background: var(--zhang-code);
+            color: #e6edf3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .zhang_fallback {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-left: 4px solid var(--zhang-accent);
+            background: var(--zhang-card);
+            color: var(--zhang-accent);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Lucide SVG 图标</h1>
+        <p class="zhang_sub">SVG 图标：脚本把 &lt;i data-lucide="..."&gt; 替换为真正的 &lt;svg&gt; 元素</p>
+        <p class="zhang_note">本地文件：./cdn/lucide/lucide.min.js，图标以矢量 SVG 内联进页面，颜色与大小用属性控制</p>
+        <p class="zhang_fallback" id="zhang_fallback">脚本没有加载成功，请检查 ./cdn/lucide/lucide.min.js 是否存在。</p>
+
+        <h2>1. 常用图标</h2>
+        <ul class="zhang_grid" id="zhang_iconGrid">
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="house"></i><span class="zhang_name">house</span><code class="zhang_code">data-lucide="house"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="heart"></i><span class="zhang_name">heart</span><code class="zhang_code">data-lucide="heart"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="user"></i><span class="zhang_name">user</span><code class="zhang_code">data-lucide="user"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="search"></i><span class="zhang_name">search</span><code class="zhang_code">data-lucide="search"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="bell"></i><span class="zhang_name">bell</span><code class="zhang_code">data-lucide="bell"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="star"></i><span class="zhang_name">star</span><code class="zhang_code">data-lucide="star"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="mail"></i><span class="zhang_name">mail</span><code class="zhang_code">data-lucide="mail"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="settings"></i><span class="zhang_name">settings</span><code class="zhang_code">data-lucide="settings"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="camera"></i><span class="zhang_name">camera</span><code class="zhang_code">data-lucide="camera"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="music"></i><span class="zhang_name">music</span><code class="zhang_code">data-lucide="music"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="map-pin"></i><span class="zhang_name">map-pin</span><code class="zhang_code">data-lucide="map-pin"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="calendar"></i><span class="zhang_name">calendar</span><code class="zhang_code">data-lucide="calendar"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="download"></i><span class="zhang_name">download</span><code class="zhang_code">data-lucide="download"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="triangle-alert"></i><span class="zhang_name">alert</span><code class="zhang_code">data-lucide="triangle-alert"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="circle-check"></i><span class="zhang_name">check</span><code class="zhang_code">data-lucide="circle-check"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="trash-2"></i><span class="zhang_name">trash-2</span><code class="zhang_code">data-lucide="trash-2"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="eye"></i><span class="zhang_name">eye</span><code class="zhang_code">data-lucide="eye"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="code"></i><span class="zhang_name">code</span><code class="zhang_code">data-lucide="code"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="palette"></i><span class="zhang_name">palette</span><code class="zhang_code">data-lucide="palette"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="globe"></i><span class="zhang_name">globe</span><code class="zhang_code">data-lucide="globe"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="cloud"></i><span class="zhang_name">cloud</span><code class="zhang_code">data-lucide="cloud"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="zap"></i><span class="zhang_name">zap</span><code class="zhang_code">data-lucide="zap"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="lock"></i><span class="zhang_name">lock</span><code class="zhang_code">data-lucide="lock"</code></li>
+            <li class="zhang_cell"><i class="zhang_icon" data-lucide="link"></i><span class="zhang_name">link</span><code class="zhang_code">data-lucide="link"</code></li>
+        </ul>
+
+        <h2>2. 尺寸：width / height 属性</h2>
+        <div class="zhang_row">
+            <div class="zhang_size-demo" id="zhang_sizeRow">
+                <i data-lucide="house" width="16" height="16"></i>
+                <i data-lucide="house" width="24" height="24"></i>
+                <i data-lucide="house" width="36" height="36"></i>
+                <i data-lucide="house" width="52" height="52"></i>
+                <i data-lucide="house" width="72" height="72"></i>
+            </div>
+            <p>同一个图标，只改 width / height</p>
+        </div>
+
+        <h2>3. 颜色与描边粗细</h2>
+        <div class="zhang_row">
+            <div class="zhang_style-demo" id="zhang_styleRow">
+                <i data-lucide="heart" width="40" height="40" stroke="#e96c55"></i>
+                <i data-lucide="heart" width="40" height="40" stroke="#2d7c7a" stroke-width="1"></i>
+                <i data-lucide="heart" width="40" height="40" stroke="#8b5cf6" stroke-width="3"></i>
+                <i data-lucide="heart" width="40" height="40" fill="#e96c55" stroke="#e96c55"></i>
+                <i data-lucide="heart" width="40" height="40" stroke="#17212b" stroke-width="4" stroke-linecap="round"></i>
+            </div>
+            <p>stroke 控制描边色，stroke-width 控制粗细，fill 控制填充</p>
+        </div>
+
+        <h2>4. 互动调试</h2>
+        <div class="zhang_ctrls">
+            <div class="zhang_ctrl-group">
+                <span>大小 <b id="zhang_sizeVal">48</b>px</span>
+                <input class="zhang_range" id="zhang_size" type="range" min="16" max="96" value="48">
+            </div>
+            <div class="zhang_ctrl-group">
+                <span>描边 <b id="zhang_strokeVal">2</b></span>
+                <input class="zhang_range" id="zhang_stroke" type="range" min="1" max="4" step="0.5" value="2">
+            </div>
+            <div class="zhang_ctrl-group">
+                <span>颜色</span>
+                <div class="zhang_swatches" id="zhang_swatches">
+                    <button class="zhang_swatch zhang_on" type="button" data-zhang-color="#17212b" style="background:#17212b" aria-label="黑"></button>
+                    <button class="zhang_swatch" type="button" data-zhang-color="#2d7c7a" style="background:#2d7c7a" aria-label="青"></button>
+                    <button class="zhang_swatch" type="button" data-zhang-color="#e96c55" style="background:#e96c55" aria-label="橙"></button>
+                    <button class="zhang_swatch" type="button" data-zhang-color="#8b5cf6" style="background:#8b5cf6" aria-label="紫"></button>
+                </div>
+            </div>
+            <div class="zhang_ctrl-group">
+                <span>换一个图标</span>
+                <button class="zhang_btn zhang_on" type="button" data-zhang-lucide="camera">camera</button>
+                <button class="zhang_btn" type="button" data-zhang-lucide="zap">zap</button>
+                <button class="zhang_btn" type="button" data-zhang-lucide="rocket">rocket</button>
+                <button class="zhang_btn" type="button" data-zhang-lucide="sun">sun</button>
+            </div>
+        </div>
+        <div class="zhang_demo" id="zhang_demo" style="color:#17212b"></div>
+        <pre id="zhang_svgCode"></pre>
+
+        <h2>5. 静态内联 SVG（不依赖脚本）</h2>
+        <div class="zhang_row">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="zhang_static-icon" aria-hidden="true">
+                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <p>直接把 Lucide 输出的 &lt;svg&gt; 写进 HTML，用 CSS 的 color 即可换色（stroke: currentColor）</p>
+        </div>
+
+        <h2>6. 引入方式</h2>
+        <pre>&lt;script src="./cdn/lucide/lucide.min.js"&gt;&lt;/script&gt;
+
+&lt;i data-lucide="house"&gt;&lt;/i&gt;
+&lt;i data-lucide="heart" width="40" height="40" stroke="#e96c55"&gt;&lt;/i&gt;
+
+&lt;script&gt;
+  lucide.createIcons();   // 把所有 [data-lucide] 替换成 &lt;svg&gt;
+&lt;/script&gt;</pre>
+    </div>
+
+    <script src="./cdn/lucide/lucide.min.js"></script>
+    <script>
+        var zhang_demo = document.getElementById("zhang_demo");
+        var zhang_codeBox = document.getElementById("zhang_svgCode");
+        var zhang_sizeInput = document.getElementById("zhang_size");
+        var zhang_strokeInput = document.getElementById("zhang_stroke");
+        var zhang_sizeVal = document.getElementById("zhang_sizeVal");
+        var zhang_strokeVal = document.getElementById("zhang_strokeVal");
+        var zhang_swatches = document.getElementById("zhang_swatches");
+        var zhang_name = "camera";
+        var zhang_color = "#17212b";
+
+        function zhang_render() {
+            var zhang_w = zhang_sizeInput.value;
+            var zhang_s = zhang_strokeInput.value;
+            zhang_sizeVal.textContent = zhang_w;
+            zhang_strokeVal.textContent = zhang_s;
+            zhang_demo.style.color = zhang_color;
+            zhang_demo.innerHTML = '<i data-lucide="' + zhang_name + '"></i>';
+            lucide.createIcons({
+                root: zhang_demo,
+                attrs: {
+                    width: zhang_w,
+                    height: zhang_w,
+                    "stroke-width": zhang_s
+                }
+            });
+            var zhang_svg = zhang_demo.querySelector("svg");
+            zhang_codeBox.textContent = zhang_svg ? zhang_svg.outerHTML : "";
+        }
+
+        if (typeof lucide === "undefined") {
+            document.getElementById("zhang_fallback").style.display = "block";
+        } else {
+            lucide.createIcons();
+
+            zhang_sizeInput.addEventListener("input", zhang_render);
+            zhang_strokeInput.addEventListener("input", zhang_render);
+
+            zhang_swatches.addEventListener("click", function (zhang_event) {
+                var zhang_btn = zhang_event.target.closest(".zhang_swatch");
+                if (!zhang_btn) return;
+                zhang_color = zhang_btn.getAttribute("data-zhang-color");
+                Array.prototype.forEach.call(zhang_swatches.children, function (zhang_el) {
+                    zhang_el.classList.toggle("zhang_on", zhang_el === zhang_btn);
+                });
+                zhang_render();
+            });
+
+            Array.prototype.forEach.call(document.querySelectorAll("[data-zhang-lucide]"), function (zhang_btn) {
+                zhang_btn.addEventListener("click", function () {
+                    zhang_name = zhang_btn.getAttribute("data-zhang-lucide");
+                    Array.prototype.forEach.call(document.querySelectorAll("[data-zhang-lucide]"), function (zhang_el) {
+                        zhang_el.classList.toggle("zhang_on", zhang_el === zhang_btn);
+                    });
+                    zhang_render();
+                });
+            });
+
+            zhang_render();
+        }
+    </script>
+</body>
+</html>

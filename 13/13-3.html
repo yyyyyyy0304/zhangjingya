@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>13-3 字体图标移动端底部导航</title>
+    <link rel="stylesheet" href="../font/iconfont.css">
+    <style>
+        :root {
+            --zhang-primary: #2d7c7a;
+            --zhang-accent: #e96c55;
+            --zhang-bg: #f6f2ea;
+            --zhang-card: #fffdf8;
+            --zhang-text: #17212b;
+            --zhang-muted: #687681;
+            --zhang-line: #d9d2c5;
+            --zhang-code: #22303c;
+            --zhang-radius: 10px;
+            --zhang-badge: #ff3b30;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 120px;
+            background: var(--zhang-bg);
+            color: var(--zhang-text);
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zhang_wrap {
+            width: min(960px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zhang-primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: var(--zhang-accent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 6px;
+            color: var(--zhang-muted);
+            font-size: 14px;
+        }
+
+        .zhang_note {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        h2 {
+            margin: 44px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zhang-primary);
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .zhang_status {
+            display: inline-block;
+            margin: 16px 0 0;
+            padding: 8px 16px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: 999px;
+            background: var(--zhang-card);
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        .zhang_status b {
+            color: var(--zhang-primary);
+            font-weight: normal;
+        }
+
+        .zhang_list {
+            margin: 0;
+            padding: 18px 20px 18px 38px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 14px;
+        }
+
+        .zhang_list li {
+            margin: 6px 0;
+        }
+
+        .zhang_list code,
+        .zhang_sub code {
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(45, 124, 122, 0.1);
+            color: var(--zhang-primary);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .zhang_cell {
+            padding: 16px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 13px;
+        }
+
+        .zhang_cell b {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--zhang-primary);
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        pre {
+            margin: 14px 0 0;
+            padding: 16px 18px;
+            overflow-x: auto;
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-code);
+            color: #e6edf3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* 手机外框预览 */
+        .zhang_phone {
+            position: relative;
+            width: min(375px, 100%);
+            height: 520px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 10px solid #17212b;
+            border-radius: 34px;
+            background: var(--zhang-bg);
+            box-shadow: 0 18px 40px rgba(23, 33, 43, 0.18);
+        }
+
+        .zhang_phone-screen {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            padding: 22px 14px 120px;
+        }
+
+        .zhang_phone-screen h3 {
+            margin: 0 0 10px;
+            font-size: 17px;
+            font-weight: normal;
+        }
+
+        .zhang_phone-card {
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 13px;
+        }
+
+        .zhang_phone-card span {
+            display: block;
+            margin-top: 4px;
+            color: var(--zhang-muted);
+            font-size: 12px;
+        }
+
+        .zhang_phone .zhang_nav {
+            position: absolute;
+            padding-bottom: 0;
+        }
+
+        /* 底部导航：固定 + 全屏宽度 + 4 等分自适应 */
+        .zhang_nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: stretch;
+            background: var(--zhang-card);
+            border-top: 1px solid var(--zhang-line);
+            box-shadow: 0 -6px 18px rgba(23, 33, 43, 0.08);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .zhang_tab {
+            position: relative;
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 10px 0 8px;
+            color: var(--zhang-muted);
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .zhang_tab.zhang_active {
+            color: var(--zhang-primary);
+        }
+
+        .zhang_tab-ico {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 30px;
+        }
+
+        .zhang_tab .zhang_tab-icon {
+            font-size: 26px;
+            line-height: 1;
+            color: currentColor;
+        }
+
+        .zhang_tab-text {
+            line-height: 1.25;
+        }
+
+        .zhang_badge {
+            position: absolute;
+            top: -7px;
+            right: 2px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border: 1.5px solid var(--zhang-card);
+            border-radius: 999px;
+            background: var(--zhang-badge);
+            color: #fff;
+            font-size: 10px;
+            line-height: 13px;
+            text-align: center;
+        }
+
+        .zhang_dot {
+            position: absolute;
+            top: -4px;
+            right: -10px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--zhang-badge);
+            box-shadow: 0 0 0 2px var(--zhang-card);
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>移动端底部导航（字体图标）</h1>
+        <p class="zhang_sub">固定在屏幕底部、占满全屏宽度的 4 项导航：首页 / 发现 / 收藏 / 我的，每项带数字徽章与右上角红点</p>
+        <p class="zhang_note">本地文件：../font/iconfont.css（字体文件 ../font/iconfont.woff2 / woff / ttf），无 CDN</p>
+        <p class="zhang_status">当前选中：<b id="zhang_current">首页</b></p>
+
+        <h2>1. 手机预览（宽度 100% 自适应）</h2>
+        <div class="zhang_phone">
+            <div class="zhang_phone-screen">
+                <h3>发现</h3>
+                <div class="zhang_phone-card">今天推荐 6 篇文章<span>导航固定在底部，内容区可独立滚动</span></div>
+                <div class="zhang_phone-card">字体图标 icon-31shouye<span>首页 · 徽章 8</span></div>
+                <div class="zhang_phone-card">字体图标 icon-faxian<span>发现 · 徽章 5</span></div>
+                <div class="zhang_phone-card">字体图标 icon-shoucang<span>收藏 · 徽章 12</span></div>
+                <div class="zhang_phone-card">字体图标 icon-wode<span>我的 · 徽章 99+</span></div>
+                <div class="zhang_phone-card">把浏览器窗口调窄试试<span>4 个项目 flex 等分，宽度随屏幕变化</span></div>
+            </div>
+            <nav class="zhang_nav" aria-label="手机端底部导航">
+                <a class="zhang_tab zhang_active" href="#" data-zhang-label="首页">
+                    <span class="zhang_tab-ico">
+                        <i class="iconfont icon-31shouye zhang_tab-icon" aria-hidden="true"></i>
+                        <span class="zhang_badge">8</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">首页</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="发现">
+                    <span class="zhang_tab-ico">
+                        <i class="iconfont icon-faxian zhang_tab-icon" aria-hidden="true"></i>
+                        <span class="zhang_badge">5</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">发现</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="收藏">
+                    <span class="zhang_tab-ico">
+                        <i class="iconfont icon-shoucang zhang_tab-icon" aria-hidden="true"></i>
+                        <span class="zhang_badge">12</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">收藏</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="我的">
+                    <span class="zhang_tab-ico">
+                        <i class="iconfont icon-wode zhang_tab-icon" aria-hidden="true"></i>
+                        <span class="zhang_badge">99+</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">我的</span>
+                </a>
+            </nav>
+        </div>
+
+        <h2>2. 实现要点</h2>
+        <ul class="zhang_list">
+            <li><code>position: fixed; left: 0; right: 0; bottom: 0; width: 100%</code> —— 导航始终贴在视口底部，且占满全屏宽度</li>
+            <li><code>display: flex</code> + 每项 <code>flex: 1 1 0</code> —— 4 个导航项等分整行，宽度随屏幕自适应，不写死像素</li>
+            <li>图标来自 <code>../font/iconfont.css</code>：<code>&lt;i class="iconfont icon-31shouye"&gt;</code>，颜色用 <code>color</code> 继承，选中项换主色</li>
+            <li>数字徽章 <code>.zhang_badge</code> 与红点 <code>.zhang_dot</code> 用 <code>position: absolute</code> 定位在图标的右上角</li>
+            <li><code>env(safe-area-inset-bottom)</code> 预留 iPhone 底部安全区（小横条）</li>
+            <li>正文 <code>padding-bottom</code> 加大，避免最后的内容被固定导航遮住</li>
+        </ul>
+
+        <h2>3. 关键代码</h2>
+        <pre>&lt;link rel="stylesheet" href="../font/iconfont.css"&gt;
+
+.zhang_nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  width: 100%;                 /* 全屏宽度 */
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.zhang_tab { flex: 1 1 0; }    /* 4 项等分，宽度自适应 */
+.zhang_tab-ico { position: relative; }
+.zhang_badge  { position: absolute; top: -7px; right: 2px; }
+.zhang_dot    { position: absolute; top: -4px; right: -10px; }
+
+&lt;a class="zhang_tab zhang_active" href="#"&gt;
+  &lt;span class="zhang_tab-ico"&gt;
+    &lt;i class="iconfont icon-31shouye zhang_tab-icon"&gt;&lt;/i&gt;
+    &lt;span class="zhang_badge"&gt;8&lt;/span&gt;
+    &lt;span class="zhang_dot"&gt;&lt;/span&gt;
+  &lt;/span&gt;
+  &lt;span class="zhang_tab-text"&gt;首页&lt;/span&gt;
+&lt;/a&gt;</pre>
+
+        <h2>4. 页面示例内容</h2>
+        <ul class="zhang_grid">
+            <li class="zhang_cell"><b>首页 icon-31shouye</b>字体图标通过 @font-face 加载，用 class 显示对应字符</li>
+            <li class="zhang_cell"><b>发现 icon-faxian</b>颜色跟随外层 color，选中态直接换色即可</li>
+            <li class="zhang_cell"><b>收藏 icon-shoucang</b>字号由 .zhang_tab-icon 的 font-size 控制</li>
+            <li class="zhang_cell"><b>我的 icon-wode</b>矢量字体在任何分辨率下都清晰</li>
+            <li class="zhang_cell"><b>数字徽章</b>min-width + padding，99+ 这类长数字会自动撑开</li>
+            <li class="zhang_cell"><b>右上角红点</b>8px 圆点 + 2px 底色描边，压在图标右上方</li>
+            <li class="zhang_cell"><b>全屏宽度</b>left/right 归零 + width:100%，横竖屏都铺满</li>
+            <li class="zhang_cell"><b>自适应</b>把窗口拉窄，4 项始终均分整行</li>
+        </ul>
+        <p class="zhang_note">向下滚动页面：底部导航保持固定不动。</p>
+    </div>
+
+    <nav class="zhang_nav" id="zhang_nav" aria-label="底部导航">
+        <a class="zhang_tab zhang_active" href="#" data-zhang-label="首页">
+            <span class="zhang_tab-ico">
+                <i class="iconfont icon-31shouye zhang_tab-icon" aria-hidden="true"></i>
+                <span class="zhang_badge">8</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">首页</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="发现">
+            <span class="zhang_tab-ico">
+                <i class="iconfont icon-faxian zhang_tab-icon" aria-hidden="true"></i>
+                <span class="zhang_badge">5</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">发现</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="收藏">
+            <span class="zhang_tab-ico">
+                <i class="iconfont icon-shoucang zhang_tab-icon" aria-hidden="true"></i>
+                <span class="zhang_badge">12</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">收藏</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="我的">
+            <span class="zhang_tab-ico">
+                <i class="iconfont icon-wode zhang_tab-icon" aria-hidden="true"></i>
+                <span class="zhang_badge">99+</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">我的</span>
+        </a>
+    </nav>
+
+    <script>
+        var zhang_tabs = document.querySelectorAll(".zhang_nav .zhang_tab");
+        var zhang_current = document.getElementById("zhang_current");
+
+        Array.prototype.forEach.call(zhang_tabs, function (zhang_tab) {
+            zhang_tab.addEventListener("click", function (zhang_event) {
+                zhang_event.preventDefault();
+                var zhang_nav = zhang_tab.closest(".zhang_nav");
+                Array.prototype.forEach.call(zhang_nav.querySelectorAll(".zhang_tab"), function (zhang_item) {
+                    zhang_item.classList.toggle("zhang_active", zhang_item === zhang_tab);
+                });
+                if (zhang_current) {
+                    zhang_current.textContent = zhang_tab.getAttribute("data-zhang-label");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>13-4 SVG 移动端底部导航</title>
+    <style>
+        :root {
+            --zhang-primary: #2d7c7a;
+            --zhang-accent: #e96c55;
+            --zhang-bg: #f6f2ea;
+            --zhang-card: #fffdf8;
+            --zhang-text: #17212b;
+            --zhang-muted: #687681;
+            --zhang-line: #d9d2c5;
+            --zhang-code: #22303c;
+            --zhang-radius: 10px;
+            --zhang-badge: #ff3b30;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 120px;
+            background: var(--zhang-bg);
+            color: var(--zhang-text);
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zhang_wrap {
+            width: min(960px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zhang-primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: var(--zhang-accent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 6px;
+            color: var(--zhang-muted);
+            font-size: 14px;
+        }
+
+        .zhang_note {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        h2 {
+            margin: 44px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zhang-primary);
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .zhang_status {
+            display: inline-block;
+            margin: 16px 0 0;
+            padding: 8px 16px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: 999px;
+            background: var(--zhang-card);
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        .zhang_status b {
+            color: var(--zhang-primary);
+            font-weight: normal;
+        }
+
+        .zhang_list {
+            margin: 0;
+            padding: 18px 20px 18px 38px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 14px;
+        }
+
+        .zhang_list li {
+            margin: 6px 0;
+        }
+
+        .zhang_list code,
+        .zhang_sub code {
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(45, 124, 122, 0.1);
+            color: var(--zhang-primary);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .zhang_cell {
+            padding: 16px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 13px;
+        }
+
+        .zhang_cell b {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--zhang-primary);
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        pre {
+            margin: 14px 0 0;
+            padding: 16px 18px;
+            overflow-x: auto;
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-code);
+            color: #e6edf3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* 手机外框预览 */
+        .zhang_phone {
+            position: relative;
+            width: min(375px, 100%);
+            height: 520px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 10px solid #17212b;
+            border-radius: 34px;
+            background: var(--zhang-bg);
+            box-shadow: 0 18px 40px rgba(23, 33, 43, 0.18);
+        }
+
+        .zhang_phone-screen {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            padding: 22px 14px 120px;
+        }
+
+        .zhang_phone-screen h3 {
+            margin: 0 0 10px;
+            font-size: 17px;
+            font-weight: normal;
+        }
+
+        .zhang_phone-card {
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius);
+            background: var(--zhang-card);
+            font-size: 13px;
+        }
+
+        .zhang_phone-card span {
+            display: block;
+            margin-top: 4px;
+            color: var(--zhang-muted);
+            font-size: 12px;
+        }
+
+        .zhang_phone .zhang_nav {
+            position: absolute;
+            padding-bottom: 0;
+        }
+
+        /* 底部导航：固定 + 全屏宽度 + 4 等分自适应 */
+        .zhang_nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: stretch;
+            background: var(--zhang-card);
+            border-top: 1px solid var(--zhang-line);
+            box-shadow: 0 -6px 18px rgba(23, 33, 43, 0.08);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .zhang_tab {
+            position: relative;
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 10px 0 8px;
+            color: var(--zhang-muted);
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .zhang_tab.zhang_active {
+            color: var(--zhang-primary);
+        }
+
+        .zhang_tab-ico {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 30px;
+        }
+
+        .zhang_tab .zhang_tab-icon {
+            display: block;
+            width: 26px;
+            height: 26px;
+            fill: currentColor;
+        }
+
+        .zhang_tab-text {
+            line-height: 1.25;
+        }
+
+        .zhang_badge {
+            position: absolute;
+            top: -7px;
+            right: 2px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border: 1.5px solid var(--zhang-card);
+            border-radius: 999px;
+            background: var(--zhang-badge);
+            color: #fff;
+            font-size: 10px;
+            line-height: 13px;
+            text-align: center;
+        }
+
+        .zhang_dot {
+            position: absolute;
+            top: -4px;
+            right: -10px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--zhang-badge);
+            box-shadow: 0 0 0 2px var(--zhang-card);
+        }
+
+        .zhang_sprite {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <svg class="zhang_sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+        <symbol id="zhang_icon_shouye" viewBox="0 0 1024 1024"><path d="M939.175079 484.343103 557.721321 107.755166c-1.927909-2.290159-5.950526-6.025227-11.568477-9.730619-10.06217-6.627954-20.757766-10.001795-31.783891-10.001795-11.855002 0-22.820752 3.40454-32.597419 10.092869-6.477528 4.458545-9.942443 8.465812-11.4334 10.454096L89.606831 484.373803c-6.522554 6.417153-10.107195 14.973016-10.107195 24.071232 0 9.06854 3.584642 17.624403 10.107195 24.041556 11.990079 11.900028 29.494755 8.495488 46.169529-7.92346l25.592888-25.306362 354.068038-342.966189 2.15406 2.109034 375.428531 369.146455c11.508102 7.531534 21.842471 11.538801 30.217209 11.538801 6.236028 0 11.44875-2.169409 15.936971-6.598278 6.507204-6.417153 10.092869-14.94334 10.122545-24.041556C949.297624 499.346819 945.712983 490.789932 939.175079 484.343103z" fill="currentColor" ></path><path d="M796.885376 464.880843c-15.72617 0-28.590152 12.68388-28.681226 28.259624l0 351.311251c0 19.191084-15.816221 34.796504-35.278481 34.796504l-87.458911 0L645.466758 683.423231c0-48.143487-39.617299-87.308485-88.317465-87.308485l-85.531002 0c-48.700165 0-88.317465 39.164998-88.317465 87.308485L383.300826 879.248222 295.841915 879.248222c-19.462261 0-35.30918-15.60542-35.30918-34.796504L260.532735 493.230518c-0.029676-15.636119-12.863982-28.349675-28.620851-28.349675-15.741519 0-28.605501 12.713556-28.650527 28.318976l0 355.468944c0 48.143487 39.617299 87.308485 88.317465 87.308485l148.993382 0L440.572204 687.670975c0-19.160385 15.84692-34.736129 35.30918-34.736129l77.020164 0c19.47761 0 35.293831 15.575744 35.293831 34.736129l0 248.307296 149.008732 0c48.685839 0 88.332814-39.164998 88.332814-87.308485L825.536926 493.170143C825.415153 477.594399 812.580846 464.880843 796.885376 464.880843z" fill="currentColor" ></path></symbol>
+        <symbol id="zhang_icon_faxian" viewBox="0 0 1024 1024"><path d="M514.1 904c-8.5 0-17.1-0.3-25.8-0.8-39.1-2.4-76-10.2-109.9-23.1C270.3 838.7 193.3 763.7 149.6 657c-14.3-34.9-23.1-72.6-26.1-111.9-0.7-6.2-1.2-12.4-1.7-18.6-0.1-0.6-0.1-1.3-0.1-1.9v-22.9c0-1 0.1-2 0.2-2.9 0.1-1 0.3-2.1 0.4-3.1 0.1-0.6 0.2-1.1 0.2-1.7 0.7-5.9 1.3-11.8 1.9-18 1.4-13.7 2.8-27.8 5.6-42 12.3-60.9 38.5-116.7 77.9-165.7 42.2-52.5 95.2-92 157.6-117.6 37.5-15.4 77-24.7 117.1-27.6 2.9-0.2 6-0.5 9.1-0.7 3.2-0.3 6.4-0.5 9.5-0.8 0.6 0 1.3-0.1 1.9-0.1h20.5c0.8 0 1.7 0 2.5 0.1 1.1 0.1 2.2 0.3 3.2 0.4 0.4 0.1 1 0.1 1.2 0.2 35.6 1.4 70.7 7.7 104.4 18.8 72.1 23.7 132.9 65.2 180.8 123.4 51 62 80.5 134 87.7 214 3.3 37.3 1.3 74.7-6 111.3-8.5 42.8-24.1 83.7-46.4 121.4-37.2 62.7-88.2 111.8-151.7 146.1-57.6 31.1-119.9 46.8-185.2 46.8zM171.7 523.6c0.4 5.5 1 11.1 1.5 16.6 0 0.3 0.1 0.5 0.1 0.8 2.6 34.2 10.2 66.8 22.6 97 38.3 93.4 105.8 159.1 200.5 195.3 29.1 11.1 61.1 17.8 95.1 19.9 65.4 4 127.4-9.4 184.3-40 55.4-29.9 99.9-72.8 132.4-127.5 19.4-32.8 33-68.4 40.4-105.7 6.4-32 8.1-64.6 5.3-97.1-6.3-69.8-32-132.6-76.5-186.7-41.8-50.8-94.9-87-157.8-107.7-29.4-9.6-60.1-15.1-91.1-16.3h-0.3c-2.2-0.1-4.2-0.4-5.6-0.6h-18.3c-2.7 0.2-5.5 0.4-8.3 0.7-3.2 0.3-6.4 0.5-9.5 0.8-35 2.5-69.2 10.6-101.9 24C330.1 219.5 283.8 254 247 299.8c-34.3 42.7-57.2 91.2-67.8 144.2-2.4 11.8-3.6 24-4.9 37-0.6 6.2-1.3 12.6-2 19-0.1 1-0.3 2-0.4 3 0 0.1 0 0.3-0.1 0.4v20.2z m165.2 212.8h-0.7c-16.2-0.4-31-8.8-39.4-22.2-8.5-13.5-9.6-30.3-2.9-45.2 6.6-14.6 13.3-29.4 19.8-43.7 4.7-10.3 9.4-20.6 14-30.9l12.2-26.8c20.5-45 41.7-91.6 62.4-137.4 5.8-13 15.3-22.6 28.3-28.5 0 0 0.1 0 0.1-0.1 77.2-34.9 155.7-70.5 231.6-105l6.2-2.8c14.2-6.5 29.8-6.5 42.8-0.1 12.4 6.1 21.4 17.7 24.6 31.7 3.6 15.4-2.3 28.1-4.3 32.4-24.5 53.7-49.4 108.4-73.4 161.2l-24.6 54c-1.3 2.9-2.7 5.8-4 8.8-2.3 4.9-4.4 9.6-6.5 14.3-5.1 11.6-13.9 20.5-25.5 25.7-40 18.1-80.1 36.3-120.1 54.5-40.1 18.2-80.1 36.4-120.2 54.5-4.3 2.1-8.2 3.2-11.2 3.9l-2.1 0.6c-2.1 0.7-4.6 1.1-7.1 1.1z m114.5-289.3c-1.9 0.9-2.5 1.5-3.4 3.5 0 0 0 0.1-0.1 0.1-20.8 45.9-42 92.5-62.5 137.6L373.2 615c-4.7 10.3-9.4 20.6-14.1 31-5.5 12-11.1 24.4-16.6 36.6 38.2-17.3 76.3-34.6 114.4-51.9 40-18.2 80.1-36.4 120.2-54.5h0.1c0.1 0 0.1 0 0.1-0.1 0 0 0-0.1 0.1-0.2 2.3-5.1 4.6-10.1 6.8-15 1.3-2.9 2.6-5.7 3.9-8.6l24.6-54.1c23.4-51.4 47.5-104.5 71.4-156.7l-1.2 0.5c-75.8 34.6-154.3 70.3-231.5 105.1z m125.9 129.2z m0.3-0.3z" fill="currentColor" ></path><path d="M528.6 512.4c-0.1 6.6-7 11.7-15.5 11.6-8.4-0.1-15-5.3-15-11.8 0-6.5 7-11.8 15.4-11.8 8.4 0.1 15.2 5.4 15.1 12z"  ></path><path d="M513.5 549h-0.8c-22.2-0.4-39.6-16.5-39.6-36.8 0-9.3 3.8-18.1 10.6-24.9 7.7-7.6 18.6-11.9 30-11.9h0.1c22.5 0.3 40.1 16.6 39.9 37.2-0.1 9.3-3.9 18.1-10.8 24.8-7.6 7.4-18.3 11.6-29.4 11.6z m-0.1-36.8l-0.1 13.2c1.9 0 3.8-0.9 5.5-2.6 2.6-2.6 4.1-6.4 4.2-10.4l-9.6-0.2z m-9.8-0.1c-0.1 7.4 5.1 13.2 9.6 13.2l0.2-13.2h-9.8z m9.8 0.1l9.7 0.1v-0.1c0-8-5.7-13.1-9.5-13.2-1.8 0-3.8 0.9-5.6 2.7-2.7 2.6-4.3 6.5-4.3 10.5h9.7l0.1-11.8-0.1 11.8z" fill="currentColor" ></path></symbol>
+        <symbol id="zhang_icon_shoucang" viewBox="0 0 1024 1024"><path d="M324.906667 785.493333l165.76-87.253333 165.76 87.253333-31.658667-184.832 134.101333-130.858666-185.344-26.965334L490.666667 274.645333 407.808 442.88l-185.344 26.965333 134.101333 130.858667-31.658666 184.832zM213.802667 938.666667l52.864-308.736L42.666667 411.264l309.546666-45.013333L490.666667 85.333333l138.453333 280.917334L938.666667 411.264l-224 218.666667L767.573333 938.666667l-276.906666-145.749334L213.76 938.666667z" fill="currentColor" ></path></symbol>
+        <symbol id="zhang_icon_wode" viewBox="0 0 1024 1024"><path d="M970.142125 887.350303c-0.271515-3.84-0.827475-9.671111-1.82303-17.260606-1.848889-14.157576-4.615758-29.853737-8.494546-46.713535-11.080404-48.122828-28.935758-96.271515-55.169292-141.433536-68.926061-118.600404-181.772929-194.314343-344.901819-206.62303 95.883636-21.837576 167.421414-107.545859 167.421415-209.945859 0-118.923636-96.504242-215.337374-215.544243-215.337373-119.04 0-215.544242 96.413737-215.544242 215.337373 0 102.412929 71.550707 188.108283 167.434343 209.958788-163.128889 12.308687-275.975758 88.048485-344.914747 206.674748-26.233535 45.16202-44.088889 93.323636-55.182223 141.459394-3.878788 16.859798-6.658586 32.568889-8.507474 46.726464-1.021414 7.848081-1.590303 13.808485-1.83596 17.635556-6.270707 48.032323 29.013333 88.177778 77.795556 88.177778h761.483636c49.027879 0 85.061818-40.572121 77.782626-88.656162zM353.570004 265.373737c0-87.22101 70.76202-157.918384 158.060606-157.918383 87.298586 0 158.060606 70.697374 158.060606 157.918383S598.916267 423.292121 511.63061 423.292121c-87.285657 0-158.060606-70.697374-158.060606-157.918384z m538.815354 653.213738H130.888792c-14.235152 0-22.794343-9.865051-20.751515-23.815758l0.193939-1.292929 0.064647-1.305859c0.025859-0.426667 0.103434-1.564444 0.271515-3.361616 0.284444-3.180606 0.698182-6.930101 1.254141-11.196768 1.616162-12.373333 4.059798-26.259394 7.511919-41.257373 9.87798-42.873535 25.755152-85.721212 48.885657-125.517576 65.512727-112.756364 175.127273-179.872323 343.311515-179.872323 168.197172 0 277.798788 67.10303 343.311515 179.820606 23.117576 39.770505 38.994747 82.605253 48.872728 125.478788 3.452121 14.985051 5.908687 28.858182 7.511919 41.244444 0.55596 4.266667 0.969697 8.016162 1.241212 11.196768 0.168081 1.797172 0.245657 2.92202 0.271515 3.361616l0.090505 1.667879 0.284444 1.64202c2.301414 13.239596-6.412929 23.208081-20.82909 23.208081z m0 0"  ></path></symbol>
+    </svg>
+
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>移动端底部导航（SVG 图标）</h1>
+        <p class="zhang_sub">固定在屏幕底部、占满全屏宽度的 4 项导航：首页 / 发现 / 收藏 / 我的，每项带数字徽章与右上角红点</p>
+        <p class="zhang_note">图标取自 ../font/iconfont.js 中的 symbol（viewBox 0 0 1024 1024），内联为页面里的 SVG sprite，fill 统一改为 currentColor</p>
+        <p class="zhang_status">当前选中：<b id="zhang_current">首页</b></p>
+
+        <h2>1. 手机预览（宽度 100% 自适应）</h2>
+        <div class="zhang_phone">
+            <div class="zhang_phone-screen">
+                <h3>发现</h3>
+                <div class="zhang_phone-card">今天推荐 6 篇文章<span>导航固定在底部，内容区可独立滚动</span></div>
+                <div class="zhang_phone-card">SVG symbol #zhang_icon_shouye<span>首页 · 徽章 8</span></div>
+                <div class="zhang_phone-card">SVG symbol #zhang_icon_faxian<span>发现 · 徽章 5</span></div>
+                <div class="zhang_phone-card">SVG symbol #zhang_icon_shoucang<span>收藏 · 徽章 12</span></div>
+                <div class="zhang_phone-card">SVG symbol #zhang_icon_wode<span>我的 · 徽章 99+</span></div>
+                <div class="zhang_phone-card">把浏览器窗口调窄试试<span>4 个项目 flex 等分，宽度随屏幕变化</span></div>
+            </div>
+            <nav class="zhang_nav" aria-label="手机端底部导航">
+                <a class="zhang_tab zhang_active" href="#" data-zhang-label="首页">
+                    <span class="zhang_tab-ico">
+                        <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_shouye"></use></svg>
+                        <span class="zhang_badge">8</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">首页</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="发现">
+                    <span class="zhang_tab-ico">
+                        <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_faxian"></use></svg>
+                        <span class="zhang_badge">5</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">发现</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="收藏">
+                    <span class="zhang_tab-ico">
+                        <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_shoucang"></use></svg>
+                        <span class="zhang_badge">12</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">收藏</span>
+                </a>
+                <a class="zhang_tab" href="#" data-zhang-label="我的">
+                    <span class="zhang_tab-ico">
+                        <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_wode"></use></svg>
+                        <span class="zhang_badge">99+</span>
+                        <span class="zhang_dot"></span>
+                    </span>
+                    <span class="zhang_tab-text">我的</span>
+                </a>
+            </nav>
+        </div>
+
+        <h2>2. 实现要点</h2>
+        <ul class="zhang_list">
+            <li>把 iconfont 的 4 个 symbol 内联成一份 SVG sprite，<code>&lt;use href="#zhang_icon_shouye"&gt;</code> 复用同一份路径</li>
+            <li>路径上的 <code>fill="#272536"</code> 改成 <code>fill="currentColor"</code>，配合 <code>.zhang_tab-icon { fill: currentColor }</code>，颜色跟随外层 <code>color</code>，选中项直接换色</li>
+            <li><code>viewBox="0 0 1024 1024"</code> + 固定 26×26 显示尺寸，矢量缩放任意分辨率都清晰</li>
+            <li><code>position: fixed; left: 0; right: 0; bottom: 0; width: 100%</code> —— 导航始终贴在视口底部，且占满全屏宽度</li>
+            <li><code>display: flex</code> + 每项 <code>flex: 1 1 0</code> —— 4 个导航项等分整行，宽度随屏幕自适应</li>
+            <li>数字徽章 <code>.zhang_badge</code> 与红点 <code>.zhang_dot</code> 用 <code>position: absolute</code> 定位在图标的右上角</li>
+            <li><code>env(safe-area-inset-bottom)</code> 预留 iPhone 底部安全区（小横条）</li>
+        </ul>
+
+        <h2>3. 关键代码</h2>
+        <pre>&lt;svg class="zhang_sprite"&gt;                      &lt;!-- 图标仓库，只出现一次 --&gt;
+  &lt;symbol id="zhang_icon_shouye" viewBox="0 0 1024 1024"&gt;
+    &lt;path d="M939.17..." fill="currentColor"&gt;&lt;/path&gt;
+  &lt;/symbol&gt;
+  ...
+&lt;/svg&gt;
+
+.zhang_nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  width: 100%;                 /* 全屏宽度 */
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.zhang_tab { flex: 1 1 0; }    /* 4 项等分，宽度自适应 */
+.zhang_tab-icon { width: 26px; height: 26px; fill: currentColor; }
+.zhang_badge { position: absolute; top: -7px; right: 2px; }
+.zhang_dot   { position: absolute; top: -4px; right: -10px; }
+
+&lt;a class="zhang_tab zhang_active" href="#"&gt;
+  &lt;span class="zhang_tab-ico"&gt;
+    &lt;svg class="zhang_tab-icon" viewBox="0 0 1024 1024"&gt;
+      &lt;use href="#zhang_icon_shouye"&gt;&lt;/use&gt;
+    &lt;/svg&gt;
+    &lt;span class="zhang_badge"&gt;8&lt;/span&gt;
+    &lt;span class="zhang_dot"&gt;&lt;/span&gt;
+  &lt;/span&gt;
+  &lt;span class="zhang_tab-text"&gt;首页&lt;/span&gt;
+&lt;/a&gt;</pre>
+
+        <h2>4. 页面示例内容</h2>
+        <ul class="zhang_grid">
+            <li class="zhang_cell"><b>首页 zhang_icon_shouye</b>SVG 路径直接写在 HTML 里，不依赖任何字体文件</li>
+            <li class="zhang_cell"><b>发现 zhang_icon_faxian</b>symbol + use 让 4 处引用共用同一份 path</li>
+            <li class="zhang_cell"><b>收藏 zhang_icon_shoucang</b>换色只改 color，SVG 自动跟随</li>
+            <li class="zhang_cell"><b>我的 zhang_icon_wode</b>缩放、旋转、改描边都不影响清晰度</li>
+            <li class="zhang_cell"><b>数字徽章</b>min-width + padding，99+ 这类长数字会自动撑开</li>
+            <li class="zhang_cell"><b>右上角红点</b>8px 圆点 + 2px 底色描边，压在图标右上方</li>
+            <li class="zhang_cell"><b>全屏宽度</b>left/right 归零 + width:100%，横竖屏都铺满</li>
+            <li class="zhang_cell"><b>自适应</b>把窗口拉窄，4 项始终均分整行</li>
+        </ul>
+        <p class="zhang_note">向下滚动页面：底部导航保持固定不动。</p>
+    </div>
+
+    <nav class="zhang_nav" id="zhang_nav" aria-label="底部导航">
+        <a class="zhang_tab zhang_active" href="#" data-zhang-label="首页">
+            <span class="zhang_tab-ico">
+                <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_shouye"></use></svg>
+                <span class="zhang_badge">8</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">首页</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="发现">
+            <span class="zhang_tab-ico">
+                <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_faxian"></use></svg>
+                <span class="zhang_badge">5</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">发现</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="收藏">
+            <span class="zhang_tab-ico">
+                <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_shoucang"></use></svg>
+                <span class="zhang_badge">12</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">收藏</span>
+        </a>
+        <a class="zhang_tab" href="#" data-zhang-label="我的">
+            <span class="zhang_tab-ico">
+                <svg class="zhang_tab-icon" viewBox="0 0 1024 1024" aria-hidden="true"><use href="#zhang_icon_wode"></use></svg>
+                <span class="zhang_badge">99+</span>
+                <span class="zhang_dot"></span>
+            </span>
+            <span class="zhang_tab-text">我的</span>
+        </a>
+    </nav>
+
+    <script>
+        var zhang_tabs = document.querySelectorAll(".zhang_nav .zhang_tab");
+        var zhang_current = document.getElementById("zhang_current");
+
+        Array.prototype.forEach.call(zhang_tabs, function (zhang_tab) {
+            zhang_tab.addEventListener("click", function (zhang_event) {
+                zhang_event.preventDefault();
+                var zhang_nav = zhang_tab.closest(".zhang_nav");
+                Array.prototype.forEach.call(zhang_nav.querySelectorAll(".zhang_tab"), function (zhang_item) {
+                    zhang_item.classList.toggle("zhang_active", zhang_item === zhang_tab);
+                });
+                if (zhang_current) {
+                    zhang_current.textContent = zhang_tab.getAttribute("data-zhang-label");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

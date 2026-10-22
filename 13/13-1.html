@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13-1 Font Awesome 字体图标</title>
+    <link rel="stylesheet" href="./cdn/fontawesome/css/all.min.css">
+    <style>
+        :root {
+            --zhang-primary: #2d7c7a;
+            --zhang-accent: #e96c55;
+            --zhang-bg: #f6f2ea;
+            --zhang-card: #fffdf8;
+            --zhang-text: #17212b;
+            --zhang-muted: #687681;
+            --zhang-line: #d9d2c5;
+            --zhang-code: #22303c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 36px 16px 70px;
+            background: var(--zhang-bg);
+            color: var(--zhang-text);
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zhang_wrap {
+            width: min(960px, 100%);
+            margin: 0 auto;
+        }
+
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zhang-primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zhang_home-link:hover {
+            color: var(--zhang-accent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .zhang_sub {
+            margin: 0 0 6px;
+            color: var(--zhang-muted);
+            font-size: 14px;
+        }
+
+        .zhang_note {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        h2 {
+            margin: 44px 0 14px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zhang-primary);
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .zhang_cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 10px 14px;
+            border: 1px solid var(--zhang-line);
+            border-radius: var(--zhang-radius, 10px);
+            background: var(--zhang-card);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .zhang_cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(46, 43, 36, 0.12);
+        }
+
+        .zhang_icon {
+            font-size: 30px;
+            color: var(--zhang-primary);
+        }
+
+        .zhang_cell:nth-child(3n) .zhang_icon {
+            color: var(--zhang-accent);
+        }
+
+        .zhang_name {
+            font-size: 13px;
+        }
+
+        .zhang_code {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            color: var(--zhang-muted);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 11px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .zhang_row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 22px;
+            padding: 22px;
+            border: 1px dashed var(--zhang-line);
+            border-radius: 10px;
+            background: var(--zhang-card);
+        }
+
+        .zhang_row p {
+            margin: 0;
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+
+        .zhang_size-demo {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 26px;
+            color: var(--zhang-primary);
+        }
+
+        .zhang_style-demo {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 26px;
+            padding: 18px 4px;
+            color: var(--zhang-primary);
+        }
+
+        .zhang_btn {
+            padding: 7px 16px;
+            border: 1px solid var(--zhang-line);
+            border-radius: 999px;
+            background: var(--zhang-card);
+            color: var(--zhang-text);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .zhang_btn.zhang_on {
+            border-color: var(--zhang-accent);
+            background: var(--zhang-accent);
+            color: #fff;
+        }
+
+        .zhang_swatches {
+            display: flex;
+            gap: 10px;
+        }
+
+        .zhang_swatch {
+            width: 28px;
+            height: 28px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .zhang_swatch.zhang_on {
+            border-color: var(--zhang-text);
+        }
+
+        .zhang_stack {
+            color: var(--zhang-primary);
+        }
+
+        pre {
+            margin: 14px 0 0;
+            padding: 16px 18px;
+            overflow-x: auto;
+            border-radius: 10px;
+            background: var(--zhang-code);
+            color: #e6edf3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .zhang_ctrls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .zhang_ctrl-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zhang_ctrl-group span {
+            color: var(--zhang-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_wrap">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Font Awesome 字体图标</h1>
+        <p class="zhang_sub">字体图标：通过 @font-face 加载图标字体，再用 class 显示对应字符</p>
+        <p class="zhang_note">本地文件：./cdn/fontawesome/css/all.min.css（相对路径 ../webfonts/ 下为 woff2 / ttf 字体）</p>
+
+        <h2>1. 实心图标（fa-solid）</h2>
+        <ul class="zhang_grid" id="zhang_solidGrid">
+            <li class="zhang_cell"><i class="fa-solid fa-house zhang_icon"></i><span class="zhang_name">house</span><code class="zhang_code">&lt;i class="fa-solid fa-house"&gt;</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-heart zhang_icon"></i><span class="zhang_name">heart</span><code class="zhang_code">&lt;i class="fa-solid fa-heart"&gt;</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-user zhang_icon"></i><span class="zhang_name">user</span><code class="zhang_code">&lt;i class="fa-solid fa-user"&gt;</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-magnifying-glass zhang_icon"></i><span class="zhang_name">search</span><code class="zhang_code">fa-magnifying-glass</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-bell zhang_icon"></i><span class="zhang_name">bell</span><code class="zhang_code">fa-bell</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-star zhang_icon"></i><span class="zhang_name">star</span><code class="zhang_code">fa-star</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-envelope zhang_icon"></i><span class="zhang_name">envelope</span><code class="zhang_code">fa-envelope</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-gear zhang_icon"></i><span class="zhang_name">gear</span><code class="zhang_code">fa-gear</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-camera zhang_icon"></i><span class="zhang_name">camera</span><code class="zhang_code">fa-camera</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-music zhang_icon"></i><span class="zhang_name">music</span><code class="zhang_code">fa-music</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-location-dot zhang_icon"></i><span class="zhang_name">location</span><code class="zhang_code">fa-location-dot</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-calendar zhang_icon"></i><span class="zhang_name">calendar</span><code class="zhang_code">fa-calendar</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-download zhang_icon"></i><span class="zhang_name">download</span><code class="zhang_code">fa-download</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-triangle-exclamation zhang_icon"></i><span class="zhang_name">warning</span><code class="zhang_code">fa-triangle-exclamation</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-circle-check zhang_icon"></i><span class="zhang_name">check</span><code class="zhang_code">fa-circle-check</code></li>
+            <li class="zhang_cell"><i class="fa-solid fa-trash zhang_icon"></i><span class="zhang_name">trash</span><code class="zhang_code">fa-trash</code></li>
+        </ul>
+
+        <h2>2. 线性图标（fa-regular）与品牌图标（fa-brands）</h2>
+        <ul class="zhang_grid">
+            <li class="zhang_cell"><i class="fa-regular fa-heart zhang_icon"></i><span class="zhang_name">heart</span><code class="zhang_code">fa-regular fa-heart</code></li>
+            <li class="zhang_cell"><i class="fa-regular fa-user zhang_icon"></i><span class="zhang_name">user</span><code class="zhang_code">fa-regular fa-user</code></li>
+            <li class="zhang_cell"><i class="fa-regular fa-star zhang_icon"></i><span class="zhang_name">star</span><code class="zhang_code">fa-regular fa-star</code></li>
+            <li class="zhang_cell"><i class="fa-regular fa-comment zhang_icon"></i><span class="zhang_name">comment</span><code class="zhang_code">fa-regular fa-comment</code></li>
+            <li class="zhang_cell"><i class="fa-regular fa-bookmark zhang_icon"></i><span class="zhang_name">bookmark</span><code class="zhang_code">fa-regular fa-bookmark</code></li>
+            <li class="zhang_cell"><i class="fa-regular fa-clock zhang_icon"></i><span class="zhang_name">clock</span><code class="zhang_code">fa-regular fa-clock</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-github zhang_icon"></i><span class="zhang_name">github</span><code class="zhang_code">fa-brands fa-github</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-x-twitter zhang_icon"></i><span class="zhang_name">x-twitter</span><code class="zhang_code">fa-brands fa-x-twitter</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-weixin zhang_icon"></i><span class="zhang_name">weixin</span><code class="zhang_code">fa-brands fa-weixin</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-youtube zhang_icon"></i><span class="zhang_name">youtube</span><code class="zhang_code">fa-brands fa-youtube</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-instagram zhang_icon"></i><span class="zhang_name">instagram</span><code class="zhang_code">fa-brands fa-instagram</code></li>
+            <li class="zhang_cell"><i class="fa-brands fa-figma zhang_icon"></i><span class="zhang_name">figma</span><code class="zhang_code">fa-brands fa-figma</code></li>
+        </ul>
+
+        <h2>3. 尺寸调节</h2>
+        <div class="zhang_row">
+            <div class="zhang_size-demo" id="zhang_sizeDemo">
+                <i class="fa-solid fa-rocket"></i>
+                <i class="fa-solid fa-rocket fa-lg"></i>
+                <i class="fa-solid fa-rocket fa-2x"></i>
+                <i class="fa-solid fa-rocket fa-3x"></i>
+                <i class="fa-solid fa-rocket fa-5x"></i>
+            </div>
+            <p>使用 fa-2xs ~ fa-2xl 或 fa-2x ~ fa-10x 控制大小</p>
+        </div>
+
+        <h2>4. 样式变化</h2>
+        <div class="zhang_row">
+            <div class="zhang_style-demo">
+                <i class="fa-solid fa-arrows-rotate fa-spin"></i>
+                <i class="fa-solid fa-heart fa-beat"></i>
+                <i class="fa-solid fa-bell fa-ring"></i>
+                <i class="fa-solid fa-arrow-right fa-rotate-90"></i>
+                <i class="fa-solid fa-paper-plane fa-flip-horizontal"></i>
+                <i class="fa-solid fa-certificate fa-fw"></i>
+                <i class="fa-solid fa-camera fa-border"></i>
+            </div>
+            <p>fa-spin / fa-beat / fa-ring / fa-rotate-90 / fa-flip-horizontal / fa-fw / fa-border</p>
+        </div>
+
+        <div class="zhang_row">
+            <div class="fa-stack zhang_stack">
+                <i class="fa-solid fa-camera fa-stack-2x"></i>
+                <i class="fa-solid fa-circle fa-stack-1x" style="color: #e96c55;"></i>
+                <i class="fa-solid fa-plus fa-stack-1x" style="color: #fff;"></i>
+            </div>
+            <p>fa-stack 多层图标叠加</p>
+        </div>
+
+        <h2>5. 互动调色与放大</h2>
+        <div class="zhang_row">
+            <i class="fa-solid fa-palette fa-3x" id="zhang_playIcon"></i>
+            <div class="zhang_ctrls">
+                <div class="zhang_ctrl-group">
+                    <span>颜色</span>
+                    <div class="zhang_swatches" id="zhang_swatches">
+                        <button class="zhang_swatch zhang_on" type="button" data-zhang-color="#2d7c7a" style="background:#2d7c7a" aria-label="青"></button>
+                        <button class="zhang_swatch" type="button" data-zhang-color="#e96c55" style="background:#e96c55" aria-label="橙"></button>
+                        <button class="zhang_swatch" type="button" data-zhang-color="#8b5cf6" style="background:#8b5cf6" aria-label="紫"></button>
+                        <button class="zhang_swatch" type="button" data-zhang-color="#17212b" style="background:#17212b" aria-label="黑"></button>
+                    </div>
+                </div>
+                <div class="zhang_ctrl-group" id="zhang_sizes">
+                    <span>大小</span>
+                    <button class="zhang_btn zhang_on" type="button" data-zhang-size="fa-3x">3x</button>
+                    <button class="zhang_btn" type="button" data-zhang-size="fa-5x">5x</button>
+                    <button class="zhang_btn" type="button" data-zhang-size="fa-1x">1x</button>
+                </div>
+            </div>
+        </div>
+
+        <h2>6. 引入方式</h2>
+        <pre>&lt;link rel="stylesheet" href="./cdn/fontawesome/css/all.min.css"&gt;
+
+&lt;i class="fa-solid fa-house"&gt;&lt;/i&gt;          实心
+&lt;i class="fa-regular fa-heart"&gt;&lt;/i&gt;       线性
+&lt;i class="fa-brands fa-github"&gt;&lt;/i&gt;       品牌
+&lt;i class="fa-solid fa-star fa-2x" style="color:#e96c55"&gt;&lt;/i&gt;  大小与颜色</pre>
+    </div>
+
+    <script>
+        var zhang_icon = document.getElementById("zhang_playIcon");
+        var zhang_swatchBox = document.getElementById("zhang_swatches");
+        var zhang_sizeBox = document.getElementById("zhang_sizes");
+        var zhang_currentSize = "fa-3x";
+
+        zhang_swatchBox.addEventListener("click", function (zhang_event) {
+            var zhang_btn = zhang_event.target.closest(".zhang_swatch");
+            if (!zhang_btn) return;
+            zhang_icon.style.color = zhang_btn.getAttribute("data-zhang-color");
+            Array.prototype.forEach.call(zhang_swatchBox.children, function (zhang_el) {
+                zhang_el.classList.toggle("zhang_on", zhang_el === zhang_btn);
+            });
+        });
+
+        zhang_sizeBox.addEventListener("click", function (zhang_event) {
+            var zhang_btn = zhang_event.target.closest("[data-zhang-size]");
+            if (!zhang_btn) return;
+            var zhang_next = zhang_btn.getAttribute("data-zhang-size");
+            zhang_icon.classList.remove(zhang_currentSize);
+            zhang_icon.classList.add(zhang_next);
+            zhang_currentSize = zhang_next;
+            Array.prototype.forEach.call(zhang_sizeBox.querySelectorAll("[data-zhang-size]"), function (zhang_el) {
+                zhang_el.classList.toggle("zhang_on", zhang_el === zhang_btn);
+            });
+        });
+    </script>
+</body>
+</html>
