@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 六种基础数据类型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+        .zhang_container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_type-card {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-left: 5px solid #e96c55;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(46, 43, 36, 0.06);
+        }
+        .zhang_type-card:nth-child(even) {
+            border-left-color: #2d7c7a;
+        }
+        .zhang_type-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #bd493c;
+            margin-bottom: 6px;
+        }
+        .zhang_type-en {
+            color: #687681;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .zhang_code-block {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            margin: 8px 0;
+        }
+        .zhang_result {
+            background: #e96c55;
+            color: #fff;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .zhang_result-val {
+            background: #2d7c7a;
+            color: #fff;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .zhang_note {
+            background: #fff8e1;
+            border-left: 4px solid #ffb300;
+            padding: 14px 18px;
+            margin-top: 30px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .zhang_note h3 {
+            color: #e65100;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JavaScript 六种基础数据类型</h1>
+        <p class="zhang_subtitle">张婧雅 · JavaScript 数据类型练习</p>
+
+        <div id="zhang_cards"></div>
+
+        <div class="zhang_note">
+            <h3>补充说明</h3>
+            <p>以上为 JavaScript 的 6 种<strong>原始数据类型</strong>（Primitive Types）。另外还有 <strong>Object</strong>（对象）属于<strong>引用数据类型</strong>，包括普通对象、数组、函数等。</p>
+            <p style="margin-top:8px;">注意：<code>typeof null</code> 返回 <code>"object"</code>，这是 JavaScript 早期设计遗留的历史 bug，不代表 null 是对象。</p>
+        </div>
+    </div>
+
+    <script>
+        var zhang_cards = document.getElementById('zhang_cards');
+
+        var zhang_stringVar = '张婧雅，你好 JavaScript！';
+        var zhang_numberVar = 2026;
+        var zhang_booleanVar = true;
+        var zhang_undefinedVar;
+        var zhang_nullVar = null;
+        var zhang_symbolVar = Symbol('zhang');
+
+        var zhang_types = [
+            {
+                name: '字符串',
+                en: 'String',
+                varName: 'zhang_stringVar',
+                value: zhang_stringVar,
+                code: "var zhang_stringVar = '张婧雅，你好 JavaScript！';",
+                desc: '由引号包裹的文本，可以用单引号、双引号或反引号定义。'
+            },
+            {
+                name: '数字',
+                en: 'Number',
+                varName: 'zhang_numberVar',
+                value: zhang_numberVar,
+                code: 'var zhang_numberVar = 2026;',
+                desc: '包括整数和浮点数，还有特殊值 NaN（非数字）、Infinity（无穷大）。'
+            },
+            {
+                name: '布尔值',
+                en: 'Boolean',
+                varName: 'zhang_booleanVar',
+                value: zhang_booleanVar,
+                code: 'var zhang_booleanVar = true;',
+                desc: '只有两个值：true（真）和 false（假），常用于条件判断。'
+            },
+            {
+                name: '未定义',
+                en: 'Undefined',
+                varName: 'zhang_undefinedVar',
+                value: zhang_undefinedVar,
+                code: 'var zhang_undefinedVar;',
+                desc: '声明了变量但没有赋值时，默认值就是 undefined。'
+            },
+            {
+                name: '空值',
+                en: 'Null',
+                varName: 'zhang_nullVar',
+                value: zhang_nullVar,
+                code: 'var zhang_nullVar = null;',
+                desc: '表示"没有值"或"空对象引用"，需要主动赋值 null。'
+            },
+            {
+                name: '符号',
+                en: 'Symbol (ES6)',
+                varName: 'zhang_symbolVar',
+                value: zhang_symbolVar.toString(),
+                code: "var zhang_symbolVar = Symbol('zhang');",
+                desc: 'ES6 新增的类型，用于创建唯一标识符，常作为对象的私有属性键。'
+            }
+        ];
+
+        var zhang_html = '';
+        for (var i = 0; i < zhang_types.length; i++) {
+            var zhang_t = zhang_types[i];
+            var zhang_typeofResult = typeof zhang_t.value !== 'undefined' && zhang_t.value !== null
+                ? typeof (zhang_t.varName === 'zhang_symbolVar' ? zhang_symbolVar : eval(zhang_t.varName))
+                : (zhang_t.varName === 'zhang_nullVar' ? 'object (历史遗留)' : typeof undefined);
+
+            if (zhang_t.varName === 'zhang_stringVar') zhang_typeofResult = typeof zhang_stringVar;
+            if (zhang_t.varName === 'zhang_numberVar') zhang_typeofResult = typeof zhang_numberVar;
+            if (zhang_t.varName === 'zhang_booleanVar') zhang_typeofResult = typeof zhang_booleanVar;
+            if (zhang_t.varName === 'zhang_undefinedVar') zhang_typeofResult = typeof zhang_undefinedVar;
+            if (zhang_t.varName === 'zhang_nullVar') zhang_typeofResult = 'object (历史遗留 bug)';
+            if (zhang_t.varName === 'zhang_symbolVar') zhang_typeofResult = typeof zhang_symbolVar;
+
+            zhang_html += '<div class="zhang_type-card">';
+            zhang_html += '  <div class="zhang_type-name">' + zhang_t.name + '</div>';
+            zhang_html += '  <div class="zhang_type-en">' + zhang_t.en + '</div>';
+            zhang_html += '  <div class="zhang_code-block">' + zhang_t.code + '</div>';
+            zhang_html += '  <div>typeof 结果：<span class="zhang_result">' + zhang_typeofResult + '</span></div>';
+            zhang_html += '  <div>变量值：<span class="zhang_result-val">' + String(zhang_t.value) + '</span></div>';
+            zhang_html += '  <p style="margin-top:10px;color:#687681;font-size:13px;">' + zhang_t.desc + '</p>';
+            zhang_html += '</div>';
+        }
+
+        zhang_cards.innerHTML = zhang_html;
+
+        console.log('====== JavaScript 六种基础数据类型演示 ======');
+        console.log('String 字符串:', zhang_stringVar, '| typeof:', typeof zhang_stringVar);
+        console.log('Number 数字:', zhang_numberVar, '| typeof:', typeof zhang_numberVar);
+        console.log('Boolean 布尔:', zhang_booleanVar, '| typeof:', typeof zhang_booleanVar);
+        console.log('Undefined 未定义:', zhang_undefinedVar, '| typeof:', typeof zhang_undefinedVar);
+        console.log('Null 空值:', zhang_nullVar, '| typeof:', typeof zhang_nullVar);
+        console.log('Symbol 符号:', zhang_symbolVar.toString(), '| typeof:', typeof zhang_symbolVar);
+    </script>
+</body>
+</html>
