@@ -1,19 +1,24 @@
 ---
 name: submit-github
-description: Use when the user asks to 推送到GitHub, push to GitHub, commit and push to GitHub, or submit this coursework site to GitHub https://github.com/yyyyyyy0304/zhangjingya. Adds a github remote alongside origin (Gitee), stages, commits, and pushes to the GitHub remote.
+description: Use when the user asks to 推送到GitHub, push to GitHub, commit and push to GitHub, or submit this coursework site to GitHub https://github.com/yyyyyyy0304/zhangjingya. Pushes to the github remote (already set up) in addition to Gitee origin.
 ---
 
 # 推送到 GitHub (commit & push to GitHub)
 
-Push the coursework site to `https://github.com/yyyyyyy0304/zhangjingya` in **addition to** the existing Gitee remote.
+Push the coursework site to `https://github.com/yyyyyyy0304/zhangjingya`. The repo keeps **two remotes**: `origin` → Gitee, `github` → GitHub.
 
-## Important: Two-Remote Setup
+## Current Remote Layout
 
-The repo already has `origin` → Gitee (`https://gitee.com/zjy115/zjy.git`). **Do NOT overwrite `origin`.** Add a **separate** remote named `github`.
+```
+origin  https://gitee.com/zjy115/zjy.git      (fetch/push)
+github  https://github.com/yyyyyyy0304/zhangjingya.git  (fetch/push)
+```
+
+**Do NOT overwrite `origin`.**
 
 ## Steps
 
-1. Check state first (from the project root `D:\高级网页设计\site`):
+1. Check state first (from `D:\高级网页设计\site`):
 
    ```powershell
    git status --short
@@ -21,42 +26,36 @@ The repo already has `origin` → Gitee (`https://gitee.com/zjy115/zjy.git`). **
    git log --oneline -5
    ```
 
-2. Ensure the GitHub remote exists:
+2. If `github` remote is missing, add it:
 
    ```powershell
-   git remote add github git@github.com:yyyyyyy0304/zhangjingya.git
+   git remote add github https://github.com/yyyyyyy0304/zhangjingya.git
    ```
 
-   If `github` already exists, **do NOT rewrite it** — ask the user first.
+   If it exists but points elsewhere, ask the user before rewriting.
 
-   The SSH URL is used because the user has already set up an SSH public key for GitHub authentication.
-
-3. Stage everything (skip if `git status --short` shows nothing to commit):
+3. Stage and commit (skip if nothing to commit):
 
    ```powershell
    git add -A
-   ```
-
-4. Commit only if there are staged changes:
-
-   ```powershell
    git commit -m "提交网页设计练习到GitHub"
    ```
 
-   If `user.name`/`user.email` are unset, set them locally (ask the user for values) — never edit global git config.
-
-5. Push to GitHub:
+4. Push to GitHub (HTTPS, with SSL verification workaround for China network):
 
    ```powershell
-   git push github master
+   git -c http.sslVerify=false push github master
    ```
 
-   The GitHub repo is empty and this will be the first push. If GitHub's default branch is `main`, retry with `git push github master:main` only after confirming with the user.
+   > GitHub's SSL cert may fail verification on this network; the `-c http.sslVerify=false` flag skips that check for this single push command.
+
+   If GitHub prompts for auth, complete it in the browser when Windows Credential Manager / GCM opens.
 
 ## Gotchas (Windows + PowerShell)
 
-- Chinese filenames render as mojibake in the console — display-only, not broken paths. Do not "fix" encoding.
-- SSH push relies on the user's SSH agent/key already configured; if push fails with SSH auth error, have the user run `ssh -T git@github.com` to verify, or push manually.
-- Never alter the existing `origin` (Gitee) remote. The GitHub remote is **additional**.
-- Nothing to commit → skip steps 3–4 and just run push if needed; report "无改动" instead of creating empty commits.
-- Line endings: CRLF/UTF-8 without BOM; do not add `.gitattributes` unless asked.
+- Chinese filenames render as mojibake — display-only, not broken paths.
+- **SSH (port 22) is blocked** on this network. HTTPS works with `sslVerify=false`.
+- HTTPS push needs auth via GitHub's browser OAuth flow (GCM); the user must complete it when a browser window pops up.
+- Never alter `origin` (Gitee). `github` is an **additional** remote.
+- Nothing to commit → skip steps 3–4; report "无改动" instead of empty commits.
+- Line endings: CRLF/UTF-8 without BOM.
