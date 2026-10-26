@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 条件与循环</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 820px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_output {
+            padding: 12px 18px;
+            font-size: 13px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+        .zhang_output-item {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            padding: 3px 10px;
+            display: inline-block;
+            margin: 2px 4px 2px 0;
+            border-radius: 3px;
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 13px;
+        }
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 8px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JavaScript 条件 &amp; 循环</h1>
+        <p class="zhang_subtitle">张婧雅 · JS 程序结构练习</p>
+
+        <!-- ===== 条件结构 ===== -->
+        <h2 class="zhang_section-title">① 条件结构 (Conditionals)</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">if / else 判断温度 <span class="zhang_tag">if · else</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_temp = prompt_zjya();
+<span class="zhang_k">var</span> zhang_msg;
+<span class="zhang_k">if</span> (zhang_temp >= 35) {
+    zhang_msg = <span class="zhang_s">'高温，注意防暑 ☀'</span>;
+} <span class="zhang_k">else</span> {
+    zhang_msg = <span class="zhang_s">'温度正常 🌤'</span>;
+}
+document.write(zhang_msg);</pre>
+            <div class="zhang_output" id="zhang_out_if"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">if / else if / else 多段成绩评级 <span class="zhang_tag">if · else if · else</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_score = <span class="zhang_n">85</span>;
+<span class="zhang_k">var</span> zhang_grade;
+<span class="zhang_k">if</span> (zhang_score >= <span class="zhang_n">90</span>) {
+    zhang_grade = <span class="zhang_s">'优秀 A'</span>;
+} <span class="zhang_k">else if</span> (zhang_score >= <span class="zhang_n">80</span>) {
+    zhang_grade = <span class="zhang_s">'良好 B'</span>;
+} <span class="zhang_k">else if</span> (zhang_score >= <span class="zhang_n">60</span>) {
+    zhang_grade = <span class="zhang_s">'及格 C'</span>;
+} <span class="zhang_k">else</span> {
+    zhang_grade = <span class="zhang_s">'不及格 D'</span>;
+}</pre>
+            <div class="zhang_output" id="zhang_out_elseif"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">switch 根据星期几输出活动 <span class="zhang_tag">switch · case</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_day = <span class="zhang_n">3</span>;
+<span class="zhang_k">var</span> zhang_plan;
+<span class="zhang_k">switch</span> (zhang_day) {
+    <span class="zhang_k">case</span> <span class="zhang_n">1</span>: zhang_plan = <span class="zhang_s">'周一：上课'</span>; <span class="zhang_k">break</span>;
+    <span class="zhang_k">case</span> <span class="zhang_n">2</span>: zhang_plan = <span class="zhang_s">'周二：自习'</span>; <span class="zhang_k">break</span>;
+    <span class="zhang_k">case</span> <span class="zhang_n">3</span>: zhang_plan = <span class="zhang_s">'周三：交作业 ✍'</span>; <span class="zhang_k">break</span>;
+    <span class="zhang_k">case</span> <span class="zhang_n">6</span>:
+    <span class="zhang_k">case</span> <span class="zhang_n">7</span>: zhang_plan = <span class="zhang_s">'周末：休息 🎉'</span>; <span class="zhang_k">break</span>;
+    <span class="zhang_k">default</span>:  zhang_plan = <span class="zhang_s">'普通日程'</span>;
+}</pre>
+            <div class="zhang_output" id="zhang_out_switch"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">三元运算符 (a ? b : c) 判断奇偶 <span class="zhang_tag">ternary</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_nums = [<span class="zhang_n">7</span>, <span class="zhang_n">10</span>, <span class="zhang_n">13</span>, <span class="zhang_n">22</span>];
+<span class="zhang_k">for</span> (...) {
+    <span class="zhang_k">var</span> zhang_res = (n % <span class="zhang_n">2</span> === <span class="zhang_n">0</span>)
+        ? <span class="zhang_s">'偶数'</span> : <span class="zhang_s">'奇数'</span>;
+}</pre>
+            <div class="zhang_output" id="zhang_out_ternary"></div>
+        </div>
+
+        <!-- ===== 循环结构 ===== -->
+        <h2 class="zhang_section-title">② 循环结构 (Loops)</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">for 循环：输出 1~5 <span class="zhang_tag">for</span></div>
+            <pre class="zhang_code"><span class="zhang_k">for</span> (<span class="zhang_k">var</span> i = <span class="zhang_n">1</span>; i <= <span class="zhang_n">5</span>; i++) {
+    console.log(i);
+}</pre>
+            <div class="zhang_output" id="zhang_out_for"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">while 循环：累加 1~100 <span class="zhang_tag">while</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_sum = <span class="zhang_n">0</span>, i = <span class="zhang_n">1</span>;
+<span class="zhang_k">while</span> (i <= <span class="zhang_n">100</span>) {
+    zhang_sum += i;
+    i++;
+}</pre>
+            <div class="zhang_output" id="zhang_out_while"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">do…while 循环：至少执行一次 <span class="zhang_tag">do · while</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_c = <span class="zhang_n">5</span>;
+<span class="zhang_k">do</span> {
+    console.log(zhang_c);
+    zhang_c++;
+} <span class="zhang_k">while</span> (zhang_c < <span class="zhang_n">3</span>);
+<span class="zhang_comment">// 即使条件一开始就 false，循环体也执行一次</span></pre>
+            <div class="zhang_output" id="zhang_out_dowhile"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">for…in 遍历对象属性 <span class="zhang_tag">for…in</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_info = { name: <span class="zhang_s">'张婧雅'</span>, class: <span class="zhang_s">'高级网页设计'</span>, score: <span class="zhang_n">95</span> };
+<span class="zhang_k">for</span> (<span class="zhang_k">var</span> key <span class="zhang_k">in</span> zhang_info) {
+    console.log(key + <span class="zhang_s">' = '</span> + zhang_info[key]);
+}</pre>
+            <div class="zhang_output" id="zhang_out_forin"></div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">for…of 遍历数组元素 <span class="zhang_tag">for…of</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_fruits = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>, <span class="zhang_s">'🍓'</span>];
+<span class="zhang_k">for</span> (<span class="zhang_k">var</span> f <span class="zhang_k">of</span> zhang_fruits) {
+    console.log(f);
+}</pre>
+            <div class="zhang_output" id="zhang_out_forof"></div>
+        </div>
+    </div>
+
+    <script>
+        // ======== 条件结构 ========
+
+        // 1. if / else 温度
+        var zhang_temp = 38;
+        var zhang_msg;
+        if (zhang_temp >= 35) {
+            zhang_msg = '高温 ' + zhang_temp + '℃，注意防暑 ☀';
+        } else {
+            zhang_msg = '温度 ' + zhang_temp + '℃，正常 🌤';
+        }
+        document.getElementById('zhang_out_if').innerHTML =
+            '<span class="zhang_output-item">' + zhang_msg + '</span>';
+
+        // 2. if / else if / else 成绩评级
+        var zhang_score = 85;
+        var zhang_grade;
+        if (zhang_score >= 90) {
+            zhang_grade = '优秀 A';
+        } else if (zhang_score >= 80) {
+            zhang_grade = '良好 B';
+        } else if (zhang_score >= 60) {
+            zhang_grade = '及格 C';
+        } else {
+            zhang_grade = '不及格 D';
+        }
+        document.getElementById('zhang_out_elseif').innerHTML =
+            '<span class="zhang_output-item">成绩：' + zhang_score + ' → ' + zhang_grade + '</span>';
+
+        // 3. switch 星期活动
+        var zhang_day = 3;
+        var zhang_plan;
+        switch (zhang_day) {
+            case 1: zhang_plan = '周一：上课'; break;
+            case 2: zhang_plan = '周二：自习'; break;
+            case 3: zhang_plan = '周三：交作业 ✍'; break;
+            case 6:
+            case 7: zhang_plan = '周末：休息 🎉'; break;
+            default: zhang_plan = '普通日程';
+        }
+        document.getElementById('zhang_out_switch').innerHTML =
+            '<span class="zhang_output-item">周' + zhang_day + ' → ' + zhang_plan + '</span>';
+
+        // 4. 三元运算符
+        var zhang_nums = [7, 10, 13, 22];
+        var zhang_ternaryHtml = '';
+        for (var i = 0; i < zhang_nums.length; i++) {
+            var zhang_res = (zhang_nums[i] % 2 === 0) ? '偶数' : '奇数';
+            zhang_ternaryHtml += '<span class="zhang_output-item">' + zhang_nums[i] + ' 是 ' + zhang_res + '</span>';
+        }
+        document.getElementById('zhang_out_ternary').innerHTML = zhang_ternaryHtml;
+
+        // ======== 循环结构 ========
+
+        // 5. for 循环 1~5
+        var zhang_forHtml = '';
+        for (var i = 1; i <= 5; i++) {
+            zhang_forHtml += '<span class="zhang_output-item">' + i + '</span>';
+        }
+        document.getElementById('zhang_out_for').innerHTML = zhang_forHtml;
+
+        // 6. while 累加 1~100
+        var zhang_sum = 0;
+        var i = 1;
+        while (i <= 100) {
+            zhang_sum += i;
+            i++;
+        }
+        document.getElementById('zhang_out_while').innerHTML =
+            '<span class="zhang_output-item">1 + 2 + … + 100 = <strong>' + zhang_sum + '</strong></span>';
+
+        // 7. do…while
+        var zhang_c = 5;
+        var zhang_doHtml = '';
+        do {
+            zhang_doHtml += '<span class="zhang_output-item">执行：' + zhang_c + '</span>';
+            zhang_c++;
+        } while (zhang_c < 3);
+        document.getElementById('zhang_out_dowhile').innerHTML = zhang_doHtml +
+            '<span class="zhang_output-item" style="color:#bd493c;">条件初始为 false 仍执行了 1 次</span>';
+
+        // 8. for…in
+        var zhang_info = { name: '张婧雅', class: '高级网页设计', score: 95 };
+        var zhang_forinHtml = '';
+        for (var key in zhang_info) {
+            zhang_forinHtml += '<span class="zhang_output-item">' + key + ' = ' + zhang_info[key] + '</span>';
+        }
+        document.getElementById('zhang_out_forin').innerHTML = zhang_forinHtml;
+
+        // 9. for…of
+        var zhang_fruits = ['🍎', '🍌', '🍇', '🍓'];
+        var zhang_forofHtml = '';
+        for (var f of zhang_fruits) {
+            zhang_forofHtml += '<span class="zhang_output-item">' + f + '</span>';
+        }
+        document.getElementById('zhang_out_forof').innerHTML = zhang_forofHtml;
+
+        console.log('====== 条件 & 循环 控制台输出 ======');
+        console.log('[if/else]', zhang_msg);
+        console.log('[else if]', zhang_score + ' → ' + zhang_grade);
+        console.log('[switch]', zhang_plan);
+        console.log('[for 1~5]', [1,2,3,4,5]);
+        console.log('[while sum]', zhang_sum);
+        console.log('[for…in]', zhang_info);
+        console.log('[for…of]', zhang_fruits);
+    </script>
+</body>
+</html>
