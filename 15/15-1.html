@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数7游戏 · 100 个盒子</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.6;
+        }
+        .zhang_container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+        .zhang_rule-box {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #4b5559;
+        }
+        .zhang_rule-box strong { color: #bd493c; }
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            background: #d9d2c5;
+            padding: 6px;
+            border-radius: 8px;
+        }
+        .zhang_box {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #17212b;
+            transition: transform 0.15s ease;
+            cursor: default;
+        }
+        .zhang_box:hover { transform: scale(1.08); }
+        .zhang_box-empty {
+            background: #e96c55;
+            border-color: #bd493c;
+            color: transparent;
+            position: relative;
+        }
+        .zhang_box-empty::after {
+            content: "×";
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .zhang_box-empty:hover::after {
+            content: attr(data-reason);
+            color: #fff;
+            font-size: 10px;
+            line-height: 1.2;
+            text-align: center;
+            font-weight: normal;
+        }
+        .zhang_legend {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #4b5559;
+        }
+        .zhang_legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zhang_legend-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            border: 1px solid #d9d2c5;
+        }
+        .zhang_legend-box.filled { background: #fffdf8; }
+        .zhang_legend-box.empty { background: #e96c55; border-color: #bd493c; }
+        .zhang_stat {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #687681;
+        }
+        @media (max-width: 520px) {
+            .zhang_box { font-size: 14px; }
+            h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>数 7 游 戏</h1>
+        <p class="zhang_subtitle">张婧雅 · JavaScript 练习</p>
+
+        <div class="zhang_rule-box">
+            <strong>规则：</strong>1 ~ 100 按顺序排列，遇到 <strong>7 的倍数</strong>（如 7、14、21…）或 <strong>含数字 7</strong>（如 17、70、77…）的盒子 → 输出空盒子。其余盒子显示数字。
+        </div>
+
+        <div class="zhang_grid" id="zhang_grid"></div>
+
+        <div class="zhang_legend">
+            <div class="zhang_legend-item">
+                <span class="zhang_legend-box filled"></span> 普通盒子（显示数字）
+            </div>
+            <div class="zhang_legend-item">
+                <span class="zhang_legend-box empty"></span> 命中规则（空盒子）
+            </div>
+        </div>
+        <div class="zhang_stat" id="zhang_stat"></div>
+    </div>
+
+    <script>
+        var zhang_grid = document.getElementById('zhang_grid');
+        var zhang_stat = document.getElementById('zhang_stat');
+        var zhang_emptyCount = 0;
+        var zhang_emptyList = [];
+
+        for (var i = 1; i <= 100; i++) {
+            var zhang_isMultiple = i % 7 === 0;
+            var zhang_contains7 = String(i).indexOf('7') !== -1;
+            var zhang_hit = zhang_isMultiple || zhang_contains7;
+
+            var zhang_box = document.createElement('div');
+            zhang_box.className = 'zhang_box';
+
+            if (zhang_hit) {
+                zhang_box.classList.add('zhang_box-empty');
+                zhang_emptyCount++;
+                zhang_emptyList.push(i);
+                var zhang_reason = [];
+                if (zhang_isMultiple) zhang_reason.push('7倍');
+                if (zhang_contains7) zhang_reason.push('含7');
+                zhang_box.setAttribute('data-reason', zhang_reason.join(','));
+            } else {
+                zhang_box.textContent = i;
+            }
+
+            zhang_grid.appendChild(zhang_box);
+        }
+
+        zhang_stat.textContent = '共 ' + zhang_emptyCount + ' 个空盒子：' + zhang_emptyList.join('、');
+        console.log('数7命中的数字：', zhang_emptyList);
+    </script>
+</body>
+</html>
