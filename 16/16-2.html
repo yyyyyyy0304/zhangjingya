@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 对象</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 860px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_code .zhang_c { color: #7f8f7f; }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+        .zhang_result-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #d9d2c5;
+        }
+
+        /* ===== 对象属性表 ===== */
+        .zhang_obj {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            max-width: 520px;
+        }
+        .zhang_obj-head {
+            background: #efe8da;
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d9d2c5;
+        }
+        .zhang_obj-name { color: #2d7c7a; font-weight: bold; }
+        .zhang_obj-type { font-size: 11px; color: #687681; }
+        .zhang_obj-row {
+            display: flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-bottom: 1px solid #f0ece2;
+            transition: background 0.3s ease;
+        }
+        .zhang_obj-row:last-child { border-bottom: none; }
+        .zhang_obj-row.zhang_hit { background: #fff3e0; }
+        .zhang_obj-row.zhang_fresh { background: #e8f5e9; animation: zhang_pop 0.45s ease; }
+        .zhang_obj-row.zhang_gone { background: #fbe9e7; animation: zhang_fade 0.6s ease; }
+        .zhang_obj-key {
+            color: #bd493c;
+            min-width: 110px;
+            flex-shrink: 0;
+        }
+        .zhang_obj-key::after { content: " :"; color: #9aa6ac; }
+        .zhang_obj-val { word-break: break-all; }
+        .zhang_val-str { color: #2e7d4f; }
+        .zhang_val-num { color: #b26a00; }
+        .zhang_val-bool { color: #1565c0; }
+        .zhang_val-fn { color: #b0443a; font-style: italic; }
+        .zhang_val-obj { color: #6a4fa3; }
+        .zhang_indent { padding-left: 22px; }
+        @keyframes zhang_pop {
+            0%   { transform: scale(0.9); opacity: 0; }
+            60%  { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes zhang_fade {
+            0%   { opacity: 1; }
+            100% { opacity: 0.35; }
+        }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+        .zhang_btn.zhang_ghost {
+            background: transparent;
+            color: #bd493c;
+            border: 1px solid #e0b4ab;
+        }
+        .zhang_btn.zhang_ghost:hover { background: #fbe9e7; }
+
+        /* ===== 输出标签 ===== */
+        .zhang_output {
+            padding: 12px 18px;
+            font-size: 13px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+            font-family: "Consolas", "Courier New", monospace;
+            min-height: 20px;
+        }
+        .zhang_output-item {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            padding: 3px 10px;
+            display: inline-block;
+            margin: 2px 4px 2px 0;
+            border-radius: 3px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+        }
+        .zhang_output-item.zhang_ok { background: #e8f5e9; border-color: #66bb6a; }
+        .zhang_output-item.zhang_bad { background: #fbe9e7; border-color: #ef5350; }
+        .zhang_json {
+            background: #17212b;
+            color: #b7d9d0;
+            padding: 10px 14px;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12.5px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        /* ===== 图例 ===== */
+        .zhang_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #687681;
+        }
+        .zhang_legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .zhang_legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #d9d2c5;
+        }
+
+        /* ===== 创建方式网格 ===== */
+        .zhang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            padding: 16px 18px;
+        }
+        .zhang_grid-card {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 5px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+        .zhang_grid-card h4 {
+            font-size: 13px;
+            color: #2d7c7a;
+            margin-bottom: 4px;
+        }
+        .zhang_grid-card code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+            background: #f6f2ea;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        .zhang_grid-card p { font-size: 12px; color: #687681; }
+
+        /* ===== 数组 vs 对象 对比 ===== */
+        .zhang_compare {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 16px 18px;
+        }
+        .zhang_compare-col {
+            flex: 1 1 240px;
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 5px;
+            padding: 12px 14px;
+            font-size: 13px;
+        }
+        .zhang_compare-col h4 {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #bd493c;
+        }
+        .zhang_chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 30px;
+            padding: 0 9px;
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            margin: 2px 3px 2px 0;
+        }
+        .zhang_chip.zhang_kv {
+            background: #fff8e1;
+            border-color: #e0c88a;
+        }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+
+        /* ===== 编辑器 ===== */
+        .zhang_form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px 18px;
+            align-items: flex-end;
+        }
+        .zhang_field { font-size: 12px; color: #687681; }
+        .zhang_field input {
+            display: block;
+            margin-top: 4px;
+            padding: 6px 10px;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            background: #fff;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            color: #17212b;
+            width: 150px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .zhang_field input:focus { border-color: #2d7c7a; }
+        .zhang_field input[type="range"] { padding: 0; border: none; }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_section-title { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JavaScript 对象</h1>
+        <p class="zhang_subtitle">张婧雅 · Object 可视化演示</p>
+
+        <div class="zhang_intro">
+            数组用 <b>下标</b> 存一串数据，对象用 <b>属性名</b> 存一组描述。一个对象就像一张身份证：每一条信息都有名字（key），也都有内容（value）。
+        </div>
+
+        <!-- 图例 -->
+        <div class="zhang_legend">
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#e8f5e9;border-color:#66bb6a"></span> 字符串 String</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#fff3e0;border-color:#ffa726"></span> 数字 Number</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#e3f2fd;border-color:#42a5f5"></span> 布尔 Boolean</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#fbe9e7;border-color:#ef5350"></span> 函数 Function</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#ede7f6;border-color:#7e57c2"></span> 嵌套对象 Object</div>
+        </div>
+
+        <!-- ==================== ① 认识对象 ==================== -->
+        <h2 class="zhang_section-title">① 对象是什么 — 键值对的集合</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">对象字面量 <span class="zhang_tag">key : value</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_person = {
+    name: <span class="zhang_s">'张婧雅'</span>,          <span class="zhang_c">// 字符串</span>
+    age: <span class="zhang_n">20</span>,                <span class="zhang_c">// 数字</span>
+    isStudent: <span class="zhang_k">true</span>,        <span class="zhang_c">// 布尔</span>
+    hobbies: [<span class="zhang_s">'摄影'</span>, <span class="zhang_s">'前端'</span>],
+    sayHi: <span class="zhang_k">function</span>() {      <span class="zhang_c">// 函数 → 叫「方法」</span>
+        <span class="zhang_k">return</span> <span class="zhang_s">'你好，我是'</span> + <span class="zhang_k">this</span>.name;
+    }
+};</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">在浏览器里看到的结构：</div>
+                <div id="zhang_v_struct"></div>
+                <div class="zhang_tips">
+                    左边的 <b>name / age / isStudent</b> 叫 <b>属性名（键）</b>，冒号右边的叫 <b>属性值</b>；
+                    属性值是函数时，这个属性被称为 <b>方法</b>。
+                </div>
+            </div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">对象 vs 数组 <span class="zhang_tag">取值方式不同</span></div>
+            <div class="zhang_compare">
+                <div class="zhang_compare-col">
+                    <h4>数组：靠数字下标</h4>
+                    <span class="zhang_chip">[0] 张婧雅</span>
+                    <span class="zhang_chip">[1] 20</span>
+                    <span class="zhang_chip">[2] true</span>
+                    <p style="margin-top:8px;font-size:12px;color:#687681;">
+                        换个人写程序就不知道 <code>[1]</code> 是什么了。
+                    </p>
+                </div>
+                <div class="zhang_compare-col">
+                    <h4>对象：靠属性名</h4>
+                    <span class="zhang_chip zhang_kv">name: '张婧雅'</span>
+                    <span class="zhang_chip zhang_kv">age: 20</span>
+                    <span class="zhang_chip zhang_kv">isStudent: true</span>
+                    <p style="margin-top:8px;font-size:12px;color:#687681;">
+                        每一份数据都有名字，看一眼就懂。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ② 创建对象 ==================== -->
+        <h2 class="zhang_section-title">② 创建对象的四种方式</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">从最常用到最特殊 <span class="zhang_tag">推荐字面量</span></div>
+            <div class="zhang_grid">
+                <div class="zhang_grid-card">
+                    <h4>① 字面量 { }</h4>
+                    <code>var o = { a: 1 };</code>
+                    <p>最常用、最直观，日常开发首选。</p>
+                </div>
+                <div class="zhang_grid-card">
+                    <h4>② new Object()</h4>
+                    <code>var o = new Object();</code>
+                    <p>创建空对象，再逐个添加属性，等价于 { }。</p>
+                </div>
+                <div class="zhang_grid-card">
+                    <h4>③ 构造函数 + new</h4>
+                    <code>new Person('张婧雅')</code>
+                    <p>批量创建同结构对象时用，相当于模板。</p>
+                </div>
+                <div class="zhang_grid-card">
+                    <h4>④ Object.create()</h4>
+                    <code>Object.create(proto)</code>
+                    <p>指定原型创建，进阶用法，了解即可。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">构造函数 — 批量造对象 <span class="zhang_tag">new</span></div>
+            <pre class="zhang_code"><span class="zhang_k">function</span> Person(name, age) {
+    <span class="zhang_k">this</span>.name = name;      <span class="zhang_c">// this 指向新建出来的对象</span>
+    <span class="zhang_k">this</span>.age = age;
+}
+<span class="zhang_k">var</span> zhang_a = <span class="zhang_k">new</span> Person(<span class="zhang_s">'张婧雅'</span>, <span class="zhang_n">20</span>);
+<span class="zhang_k">var</span> zhang_b = <span class="zhang_k">new</span> Person(<span class="zhang_s">'李同学'</span>, <span class="zhang_n">21</span>);
+<span class="zhang_c">// 同一个模板，造出两份独立的数据</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">同一个构造函数产出的两个对象：</div>
+                <div style="display:flex;flex-wrap:wrap;gap:14px;">
+                    <div id="zhang_v_new_a"></div>
+                    <div id="zhang_v_new_b"></div>
+                </div>
+                <button class="zhang_btn zhang_alt" onclick="zhang_animNew()">▶ 动画演示 new 的过程</button>
+                <div class="zhang_output" id="zhang_out_new" style="background:transparent;border:none;padding:10px 0 0;"></div>
+            </div>
+        </div>
+
+        <!-- ==================== ③ 访问属性 ==================== -->
+        <h2 class="zhang_section-title">③ 访问属性 — 点语法 与 方括号</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">两种写法，结果一样 <span class="zhang_tag">动态键用方括号</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_book = { title: <span class="zhang_s">'高级网页设计'</span>, price: <span class="zhang_n">59</span> };
+
+zhang_book.title;          <span class="zhang_c">// ✅ 点语法：简单直接</span>
+zhang_book[<span class="zhang_s">'title'</span>];      <span class="zhang_c">// ✅ 方括号：键名写成字符串</span>
+
+<span class="zhang_k">var</span> zhang_key = <span class="zhang_s">'price'</span>;
+zhang_book[zhang_key];     <span class="zhang_c">// ✅ 方括号能放变量（点语法不行）</span>
+zhang_book.zhang_key;      <span class="zhang_c">// ❌ undefined：会去找名为 zhang_key 的属性</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">点下面的按钮，看哪一行被点亮：</div>
+                <div id="zhang_v_book"></div>
+                <div>
+                    <button class="zhang_btn" onclick="zhang_tryAccess('dot')">book.title</button>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_tryAccess('bracket')">book['title']</button>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_tryAccess('var')">book[key]</button>
+                    <button class="zhang_btn zhang_ghost" onclick="zhang_tryAccess('wrong')">book.key</button>
+                </div>
+                <div class="zhang_output" id="zhang_out_access" style="background:transparent;border:none;padding:12px 0 0;"></div>
+                <div class="zhang_tips">
+                    属性名里有空格、横杠，或者要 <b>用变量当键名</b>、键名是数字时，只能用方括号。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ④ 增删改 ==================== -->
+        <h2 class="zhang_section-title">④ 增、删、改 — 对象是活的</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">直接赋值就能新增或修改 <span class="zhang_tag">delete 删属性</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_user = { name: <span class="zhang_s">'张婧雅'</span>, age: <span class="zhang_n">20</span> };
+
+zhang_user.email = <span class="zhang_s">'zjy@example.com'</span>;  <span class="zhang_c">// 新增：属性不存在就是加</span>
+zhang_user.age = <span class="zhang_n">21</span>;                    <span class="zhang_c">// 修改：属性存在就是改</span>
+<span class="zhang_k">delete</span> zhang_user.age;                <span class="zhang_c">// 删除属性（连同值一起消失）</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">当前对象状态：</div>
+                <div id="zhang_v_user"></div>
+                <div>
+                    <button class="zhang_btn" onclick="zhang_stepUser('add')">+ 新增 email</button>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_stepUser('mod')">✎ 修改 age → 21</button>
+                    <button class="zhang_btn zhang_ghost" onclick="zhang_stepUser('del')">✕ delete age</button>
+                    <button class="zhang_btn zhang_ghost" onclick="zhang_stepUser('reset')">↺ 重置</button>
+                </div>
+                <div class="zhang_output" id="zhang_out_user" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑤ 方法 与 this ==================== -->
+        <h2 class="zhang_section-title">⑤ 方法 与 this — 对象自己的函数</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">属性值是函数 = 方法 <span class="zhang_tag">this 指向调用者</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_person = {
+    name: <span class="zhang_s">'张婧雅'</span>,
+    age: <span class="zhang_n">20</span>,
+    introduce: <span class="zhang_k">function</span>() {
+        <span class="zhang_k">return</span> <span class="zhang_s">'我是'</span> + <span class="zhang_k">this</span>.name + <span class="zhang_s">'，今年'</span> + <span class="zhang_k">this</span>.age + <span class="zhang_s">'岁'</span>;
+    },
+    growUp: <span class="zhang_k">function</span>() {
+        <span class="zhang_k">this</span>.age++;              <span class="zhang_c">// 方法内部改自己的属性</span>
+        <span class="zhang_k">return</span> <span class="zhang_k">this</span>.age;
+    }
+};
+
+zhang_person.introduce();   <span class="zhang_c">// "我是张婧雅，今年20岁"</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">对象：</div>
+                <div id="zhang_v_method"></div>
+                <div>
+                    <button class="zhang_btn" onclick="zhang_callIntroduce()">▶ 调用 introduce()</button>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_callGrow()">▶ 调用 growUp()</button>
+                </div>
+                <div class="zhang_output" id="zhang_out_method" style="background:transparent;border:none;padding:12px 0 0;"></div>
+                <div class="zhang_tips">
+                    <b>this</b> 不看函数写在谁里面，只看 <b>谁在调用它</b>：<code>zhang_person.introduce()</code> 里的 this 就是 zhang_person。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑥ 遍历对象 ==================== -->
+        <h2 class="zhang_section-title">⑥ 遍历对象 — 把每个属性走一遍</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">for...in <span class="zhang_tag">拿到的是键名</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_score = { 语文: <span class="zhang_n">92</span>, 数学: <span class="zhang_n">88</span>, 英语: <span class="zhang_n">95</span> };
+
+<span class="zhang_k">for</span> (<span class="zhang_k">var</span> zhang_k <span class="zhang_k">in</span> zhang_score) {
+    console.log(zhang_k + <span class="zhang_s">': '</span> + zhang_score[zhang_k]);
+}
+<span class="zhang_c">// ⚠ 注意：for...in 遍历数组拿到的是字符串下标，数组请用 for...of</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">点击按钮逐行执行（当前行高亮）：</div>
+                <div id="zhang_v_iter"></div>
+                <button class="zhang_btn" onclick="zhang_runForIn()">▶ for...in 逐步遍历</button>
+                <div class="zhang_output" id="zhang_out_iter" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">Object.keys / values / entries <span class="zhang_tag">把对象拆成数组</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_score = { 语文: <span class="zhang_n">92</span>, 数学: <span class="zhang_n">88</span>, 英语: <span class="zhang_n">95</span> };
+
+Object.keys(zhang_score);     <span class="zhang_c">// ['语文','数学','英语'] — 所有键</span>
+Object.values(zhang_score);   <span class="zhang_c">// [92, 88, 95] — 所有值</span>
+Object.entries(zhang_score);  <span class="zhang_c">// [['语文',92], ...] — 键值对数组</span>
+Object.keys(zhang_score).length;  <span class="zhang_c">// 3 — 数属性的个数</span></pre>
+            <div class="zhang_output" id="zhang_out_static"></div>
+        </div>
+
+        <!-- ==================== ⑦ 嵌套对象 ==================== -->
+        <h2 class="zhang_section-title">⑦ 嵌套与解构 — 对象里套对象</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">一层层往里取 <span class="zhang_tag">?. 可选链</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_student = {
+    name: <span class="zhang_s">'张婧雅'</span>,
+    contact: {
+        phone: <span class="zhang_s">'138****8888'</span>,
+        address: { city: <span class="zhang_s">'西安'</span>, school: <span class="zhang_s">'某某大学'</span> }
+    }
+};
+
+zhang_student.contact.address.city;    <span class="zhang_c">// '西安'</span>
+zhang_student.contact.qq;              <span class="zhang_c">// undefined（没这属性，不报错）</span>
+zhang_student.abc.def;                 <span class="zhang_c">// ❌ TypeError：undefined 上再取属性</span>
+zhang_student.abc?.def;                <span class="zhang_c">// ✅ undefined（?. 短路，不报错）</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">嵌套结构：</div>
+                <div id="zhang_v_nested"></div>
+                <div>
+                    <button class="zhang_btn" onclick="zhang_tryNested('city')">取 city</button>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_tryNested('miss')">取不存在的 qq</button>
+                    <button class="zhang_btn zhang_ghost" onclick="zhang_tryNested('safe')">用 ?. 安全取值</button>
+                </div>
+                <div class="zhang_output" id="zhang_out_nested" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">解构赋值 <span class="zhang_tag">一行拆出变量</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> { name, age } = zhang_person;       <span class="zhang_c">// name = '张婧雅'，age = 20</span>
+<span class="zhang_k">var</span> { name: zhang_nick } = zhang_person; <span class="zhang_c">// 重命名为 zhang_nick</span>
+<span class="zhang_k">var</span> { gender = <span class="zhang_s">'女'</span> } = zhang_person;   <span class="zhang_c">// 默认值：属性不存在时用</span></pre>
+            <div class="zhang_output" id="zhang_out_destructure"></div>
+        </div>
+
+        <!-- ==================== ⑧ Object 常用静态方法 ==================== -->
+        <h2 class="zhang_section-title">⑧ Object 的常用工具方法</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">合并 / 冻结 / 判断 <span class="zhang_tag">Object.assign 等</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_base = { name: <span class="zhang_s">'张婧雅'</span>, age: <span class="zhang_n">20</span>, city: <span class="zhang_s">'西安'</span> };
+<span class="zhang_k">var</span> zhang_patch = { age: <span class="zhang_n">21</span>, email: <span class="zhang_s">'zjy@example.com'</span> };
+
+Object.assign({}, zhang_base, zhang_patch);
+<span class="zhang_c">// 后面的同名属性覆盖前面 → { name:'张婧雅', age:21, city:'西安', email:'...' }</span>
+
+Object.freeze(zhang_base);   <span class="zhang_c">// 冻结：之后改属性无效（严格模式报错）</span>
+<span class="zhang_s">'age'</span> <span class="zhang_k">in</span> zhang_base;          <span class="zhang_c">// true — 判断属性是否存在</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">合并结果（黄色为被覆盖，绿色为新增）：</div>
+                <div id="zhang_v_assign"></div>
+                <button class="zhang_btn" onclick="zhang_tryFreeze()">▶ 试试冻结后修改 age</button>
+                <div class="zhang_output" id="zhang_out_freeze" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑨ 动手试 ==================== -->
+        <h2 class="zhang_section-title">⑨ 动手试 — 改输入，看对象变化</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">实时编辑一个对象 <span class="zhang_tag">数据驱动视图</span></div>
+            <div class="zhang_form">
+                <label class="zhang_field">name
+                    <input type="text" id="zhang_in_name" value="张婧雅" oninput="zhang_syncDemo()">
+                </label>
+                <label class="zhang_field">age
+                    <input type="text" id="zhang_in_age" value="20" oninput="zhang_syncDemo()">
+                </label>
+                <label class="zhang_field">city
+                    <input type="text" id="zhang_in_city" value="西安" oninput="zhang_syncDemo()">
+                </label>
+                <label class="zhang_field">isStudent
+                    <input type="checkbox" id="zhang_in_student" checked onchange="zhang_syncDemo()" style="width:auto;transform:scale(1.2);">
+                </label>
+            </div>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">对象：</div>
+                <div id="zhang_v_live"></div>
+                <div class="zhang_visual-label" style="margin-top:12px;">JSON.stringify(对象, null, 2) 的结果：</div>
+                <div class="zhang_json" id="zhang_v_json"></div>
+            </div>
+        </div>
+
+        <div class="zhang_tips" style="margin-top:26px;">
+            小结：数组是 <b>有序的列表</b>，对象是 <b>有名字的集合</b>。
+            记住三件事就够用 —— 用 <code>{ }</code> 造对象、用 <code>.属性名</code> 取值改值、用 <code>for...in</code> 或 <code>Object.keys()</code> 遍历。
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           辅助函数：把普通对象渲染成「属性表」
+           ================================================================ */
+        function zhang_typeOf(val) {
+            if (val === null) return 'null';
+            if (Array.isArray(val)) return 'array';
+            return typeof val;
+        }
+
+        function zhang_valHtml(val) {
+            var t = zhang_typeOf(val);
+            var txt;
+            if (t === 'string') {
+                return '<span class="zhang_obj-val zhang_val-str">\'' + zhang_escape(val) + '\'</span>';
+            }
+            if (t === 'number') {
+                return '<span class="zhang_obj-val zhang_val-num">' + val + '</span>';
+            }
+            if (t === 'boolean') {
+                return '<span class="zhang_obj-val zhang_val-bool">' + val + '</span>';
+            }
+            if (t === 'function') {
+                return '<span class="zhang_obj-val zhang_val-fn">function ( ) { … }</span>';
+            }
+            if (t === 'array') {
+                return '<span class="zhang_obj-val zhang_val-obj">[ ' + val.join(', ') + ' ]</span>';
+            }
+            if (t === 'object') {
+                return '<span class="zhang_obj-val zhang_val-obj">{ … }</span>';
+            }
+            return '<span class="zhang_obj-val">' + String(val) + '</span>';
+        }
+
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // opts: { name, rows: [{key, val, indent, state}] }
+        function zhang_renderObj(containerId, name, obj, opts) {
+            opts = opts || {};
+            var html = '<div class="zhang_obj">';
+            html += '<div class="zhang_obj-head"><span class="zhang_obj-name">' + name + '</span>';
+            html += '<span class="zhang_obj-type">' + (opts.type || 'object') + '</span></div>';
+            var stateMap = opts.stateMap || {};
+            var keys = Object.keys(obj);
+            if (keys.length === 0) {
+                html += '<div class="zhang_obj-row"><span class="zhang_obj-val" style="color:#999;">（空对象）</span></div>';
+            }
+            keys.forEach(function(k) {
+                var st = stateMap[k] ? ' ' + stateMap[k] : '';
+                html += '<div class="zhang_obj-row' + st + '">';
+                html += '<span class="zhang_obj-key">' + zhang_escape(k) + '</span>';
+                html += zhang_valHtml(obj[k]);
+                html += '</div>';
+            });
+            html += '</div>';
+            var el = document.getElementById(containerId);
+            if (el) el.innerHTML = html;
+        }
+
+        function zhang_out(containerId, items) {
+            var el = document.getElementById(containerId);
+            if (!el) return;
+            var html = '';
+            items.forEach(function(it) {
+                if (typeof it === 'string') {
+                    html += '<span class="zhang_output-item">' + it + '</span>';
+                } else {
+                    html += '<span class="zhang_output-item ' + (it.cls || '') + '">' + it.text + '</span>';
+                }
+            });
+            el.innerHTML = html;
+        }
+
+        /* ================================================================
+           ① 结构展示
+           ================================================================ */
+        var zhang_person = {
+            name: '张婧雅',
+            age: 20,
+            isStudent: true,
+            hobbies: ['摄影', '前端'],
+            sayHi: function() {
+                return '你好，我是' + this.name;
+            }
+        };
+        zhang_renderObj('zhang_v_struct', 'zhang_person', zhang_person, { type: 'object' });
+
+        /* ================================================================
+           ② 构造函数
+           ================================================================ */
+        function ZhangPerson(name, age) {
+            this.name = name;
+            this.age = age;
+        }
+        var zhang_newA = new ZhangPerson('张婧雅', 20);
+        var zhang_newB = new ZhangPerson('李同学', 21);
+        zhang_renderObj('zhang_v_new_a', 'zhang_a', zhang_newA, { type: 'Person' });
+        zhang_renderObj('zhang_v_new_b', 'zhang_b', zhang_newB, { type: 'Person' });
+
+        function zhang_animNew() {
+            var el = document.getElementById('zhang_out_new');
+            var steps = [
+                '① 创建一个全新的空对象 { }',
+                '② this 指向这个新对象',
+                '③ 执行 this.name = name → 写入 name',
+                '④ 执行 this.age = age → 写入 age',
+                '⑤ 返回这个对象，赋给 zhang_a'
+            ];
+            el.innerHTML = '';
+            var i = 0;
+            var timer = setInterval(function() {
+                if (i >= steps.length) { clearInterval(timer); return; }
+                el.innerHTML += '<span class="zhang_output-item">' + steps[i] + '</span>';
+                i++;
+            }, 420);
+        }
+
+        /* ================================================================
+           ③ 属性访问
+           ================================================================ */
+        var zhang_book = { title: '高级网页设计', price: 59 };
+        zhang_renderObj('zhang_v_book', 'zhang_book', zhang_book, { type: 'object' });
+
+        function zhang_tryAccess(kind) {
+            var key = 'price';
+            var rowMap = { title: 0, price: 1 };
+            if (kind === 'dot') {
+                zhang_renderObj('zhang_v_book', 'zhang_book', zhang_book, {
+                    type: 'object', stateMap: { title: 'zhang_hit' }
+                });
+                zhang_out('zhang_out_access', [
+                    { text: 'zhang_book.title → \'' + zhang_book.title + '\'', cls: 'zhang_ok' }
+                ]);
+            } else if (kind === 'bracket') {
+                zhang_renderObj('zhang_v_book', 'zhang_book', zhang_book, {
+                    type: 'object', stateMap: { title: 'zhang_hit' }
+                });
+                zhang_out('zhang_out_access', [
+                    { text: 'zhang_book[\'title\'] → \'' + zhang_book['title'] + '\'', cls: 'zhang_ok' }
+                ]);
+            } else if (kind === 'var') {
+                zhang_renderObj('zhang_v_book', 'zhang_book', zhang_book, {
+                    type: 'object', stateMap: { price: 'zhang_hit' }
+                });
+                zhang_out('zhang_out_access', [
+                    { text: 'zhang_key = \'price\'，zhang_book[zhang_key] → ' + zhang_book[key], cls: 'zhang_ok' }
+                ]);
+            } else {
+                zhang_renderObj('zhang_v_book', 'zhang_book', zhang_book, { type: 'object' });
+                zhang_out('zhang_out_access', [
+                    { text: 'zhang_book.zhang_key → undefined（没有这个属性）', cls: 'zhang_bad' }
+                ]);
+            }
+        }
+
+        /* ================================================================
+           ④ 增删改
+           ================================================================ */
+        var zhang_user = { name: '张婧雅', age: 20 };
+        zhang_renderObj('zhang_v_user', 'zhang_user', zhang_user, { type: 'object' });
+
+        function zhang_stepUser(action) {
+            if (action === 'add') {
+                zhang_user.email = 'zjy@example.com';
+                zhang_renderObj('zhang_v_user', 'zhang_user', zhang_user, {
+                    type: 'object', stateMap: { email: 'zhang_fresh' }
+                });
+                zhang_out('zhang_out_user', ['zhang_user.email = \'zjy@example.com\' → 新增成功']);
+            } else if (action === 'mod') {
+                zhang_user.age = 21;
+                zhang_renderObj('zhang_v_user', 'zhang_user', zhang_user, {
+                    type: 'object', stateMap: { age: 'zhang_hit' }
+                });
+                zhang_out('zhang_out_user', ['zhang_user.age = 21 → 原值 20 被覆盖']);
+            } else if (action === 'del') {
+                if ('age' in zhang_user) {
+                    delete zhang_user.age;
+                    zhang_renderObj('zhang_v_user', 'zhang_user', zhang_user, { type: 'object' });
+                    zhang_out('zhang_out_user', ['delete zhang_user.age → 属性已消失，"age" in zhang_user = ' + ('age' in zhang_user)]);
+                } else {
+                    zhang_out('zhang_out_user', ['age 已经删掉了，先点重置吧']);
+                }
+            } else {
+                zhang_user = {};
+                zhang_user.name = '张婧雅';
+                zhang_user.age = 20;
+                zhang_renderObj('zhang_v_user', 'zhang_user', zhang_user, { type: 'object' });
+                zhang_out('zhang_out_user', ['已重置为 { name: \'张婧雅\', age: 20 }']);
+            }
+        }
+
+        /* ================================================================
+           ⑤ 方法与 this
+           ================================================================ */
+        var zhang_methodObj = {
+            name: '张婧雅',
+            age: 20,
+            introduce: function() {
+                return '我是' + this.name + '，今年' + this.age + '岁';
+            },
+            growUp: function() {
+                this.age++;
+                return this.age;
+            }
+        };
+        zhang_renderObj('zhang_v_method', 'zhang_person', zhang_methodObj, { type: 'object' });
+
+        function zhang_callIntroduce() {
+            zhang_out('zhang_out_method', [
+                { text: 'zhang_person.introduce() → "' + zhang_methodObj.introduce() + '"', cls: 'zhang_ok' }
+            ]);
+        }
+
+        function zhang_callGrow() {
+            var newAge = zhang_methodObj.growUp();
+            zhang_renderObj('zhang_v_method', 'zhang_person', zhang_methodObj, {
+                type: 'object', stateMap: { age: 'zhang_hit' }
+            });
+            zhang_out('zhang_out_method', [
+                { text: 'growUp() → this.age++ → 现在 age = ' + newAge, cls: 'zhang_ok' }
+            ]);
+        }
+
+        /* ================================================================
+           ⑥ 遍历
+           ================================================================ */
+        var zhang_score = { 语文: 92, 数学: 88, 英语: 95 };
+
+        function zhang_renderIter(hitKey) {
+            var html = '<div class="zhang_obj">';
+            html += '<div class="zhang_obj-head"><span class="zhang_obj-name">zhang_score</span><span class="zhang_obj-type">object</span></div>';
+            Object.keys(zhang_score).forEach(function(k) {
+                html += '<div class="zhang_obj-row' + (k === hitKey ? ' zhang_hit' : '') + '">';
+                html += '<span class="zhang_obj-key">' + k + '</span>' + zhang_valHtml(zhang_score[k]);
+                html += '</div>';
+            });
+            html += '</div>';
+            document.getElementById('zhang_v_iter').innerHTML = html;
+        }
+        zhang_renderIter(null);
+
+        var zhang_iterTimer = null;
+        function zhang_runForIn() {
+            if (zhang_iterTimer) { clearInterval(zhang_iterTimer); zhang_iterTimer = null; }
+            var keys = Object.keys(zhang_score);
+            var i = 0;
+            var outEl = document.getElementById('zhang_out_iter');
+            outEl.innerHTML = '';
+            zhang_iterTimer = setInterval(function() {
+                if (i >= keys.length) {
+                    clearInterval(zhang_iterTimer);
+                    zhang_iterTimer = null;
+                    zhang_renderIter(null);
+                    outEl.innerHTML += '<span class="zhang_output-item zhang_ok">遍历结束，共 ' + keys.length + ' 个属性</span>';
+                    return;
+                }
+                var k = keys[i];
+                zhang_renderIter(k);
+                outEl.innerHTML += '<span class="zhang_output-item">第' + (i + 1) + '轮：k = "' + k + '" → zhang_score["' + k + '"] = ' + zhang_score[k] + '</span>';
+                i++;
+            }, 900);
+        }
+
+        // Object.keys / values / entries
+        (function() {
+            var keys = Object.keys(zhang_score);
+            var vals = Object.values(zhang_score);
+            var ents = Object.entries(zhang_score);
+            var entStr = ents.map(function(p) { return '[\'' + p[0] + '\',' + p[1] + ']'; }).join(', ');
+            zhang_out('zhang_out_static', [
+                'Object.keys → [' + keys.join(', ') + ']',
+                'Object.values → [' + vals.join(', ') + ']',
+                'Object.entries → [' + entStr + ']',
+                'Object.keys(...).length → ' + keys.length
+            ]);
+        })();
+
+        /* ================================================================
+           ⑦ 嵌套
+           ================================================================ */
+        var zhang_student = {
+            name: '张婧雅',
+            contact: {
+                phone: '138****8888',
+                address: { city: '西安', school: '某某大学' }
+            }
+        };
+
+        (function() {
+            var html = '<div class="zhang_obj">';
+            html += '<div class="zhang_obj-head"><span class="zhang_obj-name">zhang_student</span><span class="zhang_obj-type">object</span></div>';
+            html += '<div class="zhang_obj-row"><span class="zhang_obj-key">name</span>' + zhang_valHtml(zhang_student.name) + '</div>';
+            html += '<div class="zhang_obj-row"><span class="zhang_obj-key">contact</span><span class="zhang_val-obj" style="font-family:Consolas,monospace;font-size:13px;">{ … }</span></div>';
+            html += '<div class="zhang_obj-row zhang_indent"><span class="zhang_obj-key">phone</span>' + zhang_valHtml(zhang_student.contact.phone) + '</div>';
+            html += '<div class="zhang_obj-row zhang_indent"><span class="zhang_obj-key">address</span><span class="zhang_val-obj" style="font-family:Consolas,monospace;font-size:13px;">{ … }</span></div>';
+            html += '<div class="zhang_obj-row zhang_indent" style="padding-left:44px;"><span class="zhang_obj-key">city</span>' + zhang_valHtml(zhang_student.contact.address.city) + '</div>';
+            html += '<div class="zhang_obj-row zhang_indent" style="padding-left:44px;"><span class="zhang_obj-key">school</span>' + zhang_valHtml(zhang_student.contact.address.school) + '</div>';
+            html += '</div>';
+            document.getElementById('zhang_v_nested').innerHTML = html;
+        })();
+
+        function zhang_tryNested(kind) {
+            if (kind === 'city') {
+                zhang_out('zhang_out_nested', [
+                    { text: 'zhang_student.contact.address.city → \'' + zhang_student.contact.address.city + '\'', cls: 'zhang_ok' }
+                ]);
+            } else if (kind === 'miss') {
+                zhang_out('zhang_out_nested', [
+                    { text: 'zhang_student.contact.qq → ' + String(zhang_student.contact.qq) + '（安全，返回 undefined）', cls: 'zhang_bad' },
+                    { text: '但 zhang_student.abc.def 会报 TypeError', cls: 'zhang_bad' }
+                ]);
+            } else {
+                zhang_out('zhang_out_nested', [
+                    { text: 'zhang_student.abc?.def → ' + String(zhang_student.abc ? zhang_student.abc.def : undefined) + '（?. 遇到 undefined 就停下）', cls: 'zhang_ok' }
+                ]);
+            }
+        }
+
+        // 解构
+        (function() {
+            var zhang_d = { name: '张婧雅', age: 20, sayHi: function() {} };
+            var { name, age } = zhang_d;
+            var { name: zhang_nick } = zhang_d;
+            var { gender = '女' } = zhang_d;
+            zhang_out('zhang_out_destructure', [
+                'var { name, age } → name = "' + name + '", age = ' + age,
+                'var { name: zhang_nick } → zhang_nick = "' + zhang_nick + '"',
+                'var { gender = "女" } → gender = "' + gender + '"（默认值生效）'
+            ]);
+        })();
+
+        /* ================================================================
+           ⑧ Object 静态方法
+           ================================================================ */
+        var zhang_base = { name: '张婧雅', age: 20, city: '西安' };
+        var zhang_patch = { age: 21, email: 'zjy@example.com' };
+        var zhang_merged = Object.assign({}, zhang_base, zhang_patch);
+        zhang_renderObj('zhang_v_assign', 'Object.assign({}, base, patch)', zhang_merged, {
+            type: 'object',
+            stateMap: { age: 'zhang_hit', email: 'zhang_fresh' }
+        });
+
+        function zhang_tryFreeze() {
+            var zhang_frozen = { name: '张婧雅', age: 20 };
+            Object.freeze(zhang_frozen);
+            var before = zhang_frozen.age;
+            zhang_frozen.age = 99;
+            zhang_frozen.email = 'test@x.com';
+            zhang_out('zhang_out_freeze', [
+                { text: '冻结前 age = ' + before, cls: '' },
+                { text: '执行 zhang_frozen.age = 99 后 → age = ' + zhang_frozen.age, cls: 'zhang_bad' },
+                { text: '新增 email → ' + String(zhang_frozen.email), cls: 'zhang_bad' },
+                { text: 'Object.isFrozen() → ' + Object.isFrozen(zhang_frozen), cls: 'zhang_ok' }
+            ]);
+        }
+
+        /* ================================================================
+           ⑨ 实时编辑
+           ================================================================ */
+        function zhang_syncDemo() {
+            var zhang_live = {
+                name: document.getElementById('zhang_in_name').value || '（空）',
+                age: Number(document.getElementById('zhang_in_age').value) || 0,
+                city: document.getElementById('zhang_in_city').value || '（空）',
+                isStudent: document.getElementById('zhang_in_student').checked
+            };
+            zhang_renderObj('zhang_v_live', 'zhang_person', zhang_live, { type: 'object' });
+            document.getElementById('zhang_v_json').textContent = JSON.stringify(zhang_live, null, 2);
+        }
+        zhang_syncDemo();
+
+        /* ================================================================
+           控制台输出
+           ================================================================ */
+        console.log('====== JavaScript 对象 ======');
+        console.log('[结构]', zhang_person);
+        console.log('[点语法]', zhang_book.title);
+        console.log('[方括号]', zhang_book['title']);
+        console.log('[keys]', Object.keys(zhang_score));
+        console.log('[values]', Object.values(zhang_score));
+        console.log('[entries]', Object.entries(zhang_score));
+        console.log('[合并]', Object.assign({}, zhang_base, zhang_patch));
+        console.log('[嵌套]', zhang_student.contact.address.city);
+    </script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 数组方法</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 860px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_code .zhang_c { color: #6b7b6b; }
+
+        /* ===== 可视化数组区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+        .zhang_array-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+            min-height: 38px;
+        }
+        .zhang_chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 38px;
+            height: 34px;
+            padding: 0 10px;
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 14px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .zhang_chip.zhang_added {
+            background: #e8f5e9;
+            border-color: #66bb6a;
+            animation: zhang_pop 0.4s ease;
+        }
+        .zhang_chip.zhang_removed {
+            background: #fbe9e7;
+            border-color: #ef5350;
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .zhang_chip.zhang_new {
+            background: #e3f2fd;
+            border-color: #42a5f5;
+            animation: zhang_pop 0.4s ease;
+        }
+        .zhang_chip.zhang_mutate {
+            background: #fff3e0;
+            border-color: #ffa726;
+        }
+        @keyframes zhang_pop {
+            0%   { transform: scale(0.3); opacity: 0; }
+            50%  { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .zhang_arrow {
+            color: #bd493c;
+            font-size: 18px;
+            padding: 0 6px;
+            font-weight: bold;
+        }
+        .zhang_result-row {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #d9d2c5;
+            font-size: 12px;
+        }
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+
+        /* ===== 输出标签 ===== */
+        .zhang_output {
+            padding: 12px 18px;
+            font-size: 13px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+        .zhang_output-item {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            padding: 3px 10px;
+            display: inline-block;
+            margin: 2px 4px 2px 0;
+            border-radius: 3px;
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 13px;
+        }
+
+        /* ===== 图例 ===== */
+        .zhang_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #687681;
+        }
+        .zhang_legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .zhang_legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #d9d2c5;
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JavaScript 数组方法</h1>
+        <p class="zhang_subtitle">张婧雅 · Array Methods 可视化演示</p>
+
+        <!-- 图例 -->
+        <div class="zhang_legend">
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#e8f5e9;border-color:#66bb6a"></span> 新增元素</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#fbe9e7;border-color:#ef5350"></span> 移除元素</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#e3f2fd;border-color:#42a5f5"></span> 新数组元素</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#fff3e0;border-color:#ffa726"></span> 修改元素</div>
+            <div class="zhang_legend-item"><span class="zhang_legend-dot" style="background:#fff"></span> 原始元素</div>
+        </div>
+
+        <!-- ==================== 增删方法 ==================== -->
+        <h2 class="zhang_section-title">① 增删方法 — 原地修改数组</h2>
+
+        <!-- push -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">push() — 末尾添加 <span class="zhang_tag">返回新长度</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+zhang_arr.push(<span class="zhang_s">'🍓'</span>);  <span class="zhang_c">// 尾部插入 → 返回新 length</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_push_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">push('🍓') 后：</div>
+                    <div class="zhang_array-row" id="zhang_v_push_after"></div>
+                    <button class="zhang_btn" onclick="zhang_animPush()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- pop -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">pop() — 末尾移除 <span class="zhang_tag">返回被删元素</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+<span class="zhang_k">var</span> zhang_last = zhang_arr.pop();  <span class="zhang_c">// 尾部弹出</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_pop_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">pop() 后（返回 <span id="zhang_v_pop_ret"></span>）：</div>
+                    <div class="zhang_array-row" id="zhang_v_pop_after"></div>
+                    <button class="zhang_btn" onclick="zhang_animPop()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- unshift -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">unshift() — 头部添加 <span class="zhang_tag">返回新长度</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+zhang_arr.unshift(<span class="zhang_s">'🥝'</span>);  <span class="zhang_c">// 头部插入</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_unshift_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">unshift('🥝') 后：</div>
+                    <div class="zhang_array-row" id="zhang_v_unshift_after"></div>
+                    <button class="zhang_btn" onclick="zhang_animUnshift()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- shift -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">shift() — 头部移除 <span class="zhang_tag">返回被删元素</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+<span class="zhang_k">var</span> zhang_first = zhang_arr.shift();  <span class="zhang_c">// 头部弹出</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_shift_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">shift() 后（返回 <span id="zhang_v_shift_ret"></span>）：</div>
+                    <div class="zhang_array-row" id="zhang_v_shift_after"></div>
+                    <button class="zhang_btn" onclick="zhang_animShift()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- splice -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">splice() — 任意位置增删改 <span class="zhang_tag">万金油</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>, <span class="zhang_s">'🍓'</span>];
+<span class="zhang_c">// splice(起始索引, 删除个数, ...插入元素)</span>
+zhang_arr.splice(<span class="zhang_n">1</span>, <span class="zhang_n">2</span>, <span class="zhang_s">'🥝'</span>, <span class="zhang_s">'🍑'</span>);
+<span class="zhang_c">// 从索引1删2个，插入 🥝🍑</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_splice_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">splice(1, 2, '🥝', '🍑') 后：</div>
+                    <div class="zhang_array-row" id="zhang_v_splice_after"></div>
+                    <button class="zhang_btn" onclick="zhang_animSplice()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 不修改原数组 ==================== -->
+        <h2 class="zhang_section-title">② 不修改原数组 — 返回新数组</h2>
+
+        <!-- concat -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">concat() — 拼接数组 <span class="zhang_tag">返回新数组</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_a = [<span class="zhang_n">1</span>, <span class="zhang_n">2</span>];
+<span class="zhang_k">var</span> zhang_b = [<span class="zhang_n">3</span>, <span class="zhang_n">4</span>];
+<span class="zhang_k">var</span> zhang_c = zhang_a.concat(zhang_b);  <span class="zhang_c">// [1,2,3,4]</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">a = [1, 2]　 b = [3, 4]</div>
+                <div class="zhang_array-row">
+                    <span class="zhang_chip">1</span>
+                    <span class="zhang_chip">2</span>
+                    <span class="zhang_arrow">+</span>
+                    <span class="zhang_chip">3</span>
+                    <span class="zhang_chip">4</span>
+                    <span class="zhang_arrow">=</span>
+                </div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">concat 结果：</div>
+                    <div class="zhang_array-row" id="zhang_v_concat_after"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- slice -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">slice() — 截取片段 <span class="zhang_tag">含头不含尾</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>, <span class="zhang_s">'🍓'</span>, <span class="zhang_s">'🥝'</span>];
+<span class="zhang_k">var</span> zhang_part = zhang_arr.slice(<span class="zhang_n">1</span>, <span class="zhang_n">4</span>);
+<span class="zhang_c">// 取索引 1~3（不含4）→ ['🍌','🍇','🍓']</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组（标蓝部分将被截取）：</div>
+                <div class="zhang_array-row" id="zhang_v_slice_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">slice(1, 4) 结果：</div>
+                    <div class="zhang_array-row" id="zhang_v_slice_after"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- join -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">join() — 数组转字符串 <span class="zhang_tag">指定分隔符</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'张'</span>, <span class="zhang_s">'婧'</span>, <span class="zhang_s">'雅'</span>];
+zhang_arr.join(<span class="zhang_s">'-'</span>);  <span class="zhang_c">// "张-婧-雅"</span>
+zhang_arr.join(<span class="zhang_s">''</span>);   <span class="zhang_c">// "张婧雅"</span></pre>
+            <div class="zhang_output" id="zhang_out_join"></div>
+        </div>
+
+        <!-- ==================== 查找方法 ==================== -->
+        <h2 class="zhang_section-title">③ 查找方法</h2>
+
+        <!-- indexOf -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">indexOf() — 查找索引 <span class="zhang_tag">找不到返回 -1</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">10</span>, <span class="zhang_n">20</span>, <span class="zhang_n">30</span>, <span class="zhang_n">20</span>];
+zhang_arr.indexOf(<span class="zhang_n">20</span>);   <span class="zhang_c">// 1（首次出现）</span>
+zhang_arr.indexOf(<span class="zhang_n">99</span>);   <span class="zhang_c">// -1（不存在）</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">数组元素与索引：</div>
+                <div class="zhang_array-row" id="zhang_v_indexof"></div>
+                <div class="zhang_result-row" id="zhang_out_indexof"></div>
+            </div>
+        </div>
+
+        <!-- includes -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">includes() — 是否包含 <span class="zhang_tag">返回 true/false</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+zhang_arr.includes(<span class="zhang_s">'🍌'</span>);  <span class="zhang_c">// true</span>
+zhang_arr.includes(<span class="zhang_s">'🍓'</span>);  <span class="zhang_c">// false</span></pre>
+            <div class="zhang_output" id="zhang_out_includes"></div>
+        </div>
+
+        <!-- find -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">find() — 查找第一个满足条件的元素 <span class="zhang_tag">回调函数</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">5</span>, <span class="zhang_n">12</span>, <span class="zhang_n">8</span>, <span class="zhang_n">130</span>, <span class="zhang_n">44</span>];
+<span class="zhang_k">var</span> zhang_found = zhang_arr.find(<span class="zhang_k">function</span>(x) {
+    <span class="zhang_k">return</span> x > <span class="zhang_n">10</span>;
+});
+<span class="zhang_c">// → 12（第一个 >10 的元素）</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">数组：</div>
+                <div class="zhang_array-row" id="zhang_v_find"></div>
+                <div class="zhang_result-row" id="zhang_out_find"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 遍历方法 ==================== -->
+        <h2 class="zhang_section-title">④ 遍历方法</h2>
+
+        <!-- forEach -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">forEach() — 遍历每个元素 <span class="zhang_tag">无返回值</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_s">'🍎'</span>, <span class="zhang_s">'🍌'</span>, <span class="zhang_s">'🍇'</span>];
+zhang_arr.forEach(<span class="zhang_k">function</span>(item, index) {
+    console.log(index + <span class="zhang_s">': '</span> + item);
+});</pre>
+            <div class="zhang_output" id="zhang_out_foreach"></div>
+        </div>
+
+        <!-- map -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">map() — 映射为新数组 <span class="zhang_tag">每个元素变个样</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">1</span>, <span class="zhang_n">2</span>, <span class="zhang_n">3</span>, <span class="zhang_n">4</span>];
+<span class="zhang_k">var</span> zhang_doubled = zhang_arr.map(<span class="zhang_k">function</span>(x) {
+    <span class="zhang_k">return</span> x * <span class="zhang_n">2</span>;
+});
+<span class="zhang_c">// → [2, 4, 6, 8]</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组 → map(x*2) → 新数组：</div>
+                <div class="zhang_array-row" id="zhang_v_map"></div>
+            </div>
+        </div>
+
+        <!-- filter -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">filter() — 过滤 <span class="zhang_tag">保留满足条件的</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">1</span>, <span class="zhang_n">2</span>, <span class="zhang_n">3</span>, <span class="zhang_n">4</span>, <span class="zhang_n">5</span>, <span class="zhang_n">6</span>];
+<span class="zhang_k">var</span> zhang_even = zhang_arr.filter(<span class="zhang_k">function</span>(x) {
+    <span class="zhang_k">return</span> x % <span class="zhang_n">2</span> === <span class="zhang_n">0</span>;
+});
+<span class="zhang_c">// → [2, 4, 6]</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组（标橙保留，灰显过滤）：</div>
+                <div class="zhang_array-row" id="zhang_v_filter_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">filter 结果：</div>
+                    <div class="zhang_array-row" id="zhang_v_filter_after"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- reduce -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">reduce() — 归约累加 <span class="zhang_tag">合成一个值</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">1</span>, <span class="zhang_n">2</span>, <span class="zhang_n">3</span>, <span class="zhang_n">4</span>];
+<span class="zhang_k">var</span> zhang_sum = zhang_arr.reduce(<span class="zhang_k">function</span>(acc, cur) {
+    <span class="zhang_k">return</span> acc + cur;
+}, <span class="zhang_n">0</span>);
+<span class="zhang_c">// 0+1 → 1+2 → 3+3 → 6+4 → 10</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">累加过程：</div>
+                <div class="zhang_array-row" id="zhang_v_reduce"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 排序反转 ==================== -->
+        <h2 class="zhang_section-title">⑤ 排序 & 反转</h2>
+
+        <!-- sort -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">sort() — 排序 <span class="zhang_tag">原地修改</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">3</span>, <span class="zhang_n">1</span>, <span class="zhang_n">4</span>, <span class="zhang_n">1</span>, <span class="zhang_n">5</span>, <span class="zhang_n">9</span>, <span class="zhang_n">2</span>, <span class="zhang_n">6</span>];
+zhang_arr.sort(<span class="zhang_k">function</span>(a, b) {
+    <span class="zhang_k">return</span> a - b;  <span class="zhang_c">// 升序</span>
+});
+<span class="zhang_c">// → [1, 1, 2, 3, 4, 5, 6, 9]</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_sort_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">sort 升序后：</div>
+                    <div class="zhang_array-row" id="zhang_v_sort_after"></div>
+                    <button class="zhang_btn zhang_alt" onclick="zhang_animSort()">▶ 动画演示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- reverse -->
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">reverse() — 反转 <span class="zhang_tag">原地修改</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_arr = [<span class="zhang_n">1</span>, <span class="zhang_n">2</span>, <span class="zhang_n">3</span>, <span class="zhang_n">4</span>, <span class="zhang_n">5</span>];
+zhang_arr.reverse();
+<span class="zhang_c">// → [5, 4, 3, 2, 1]</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原数组：</div>
+                <div class="zhang_array-row" id="zhang_v_reverse_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">reverse() 后：</div>
+                    <div class="zhang_array-row" id="zhang_v_reverse_after"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ================================================================
+           辅助函数：渲染数组为 chip 元素
+           ================================================================== */
+        function zhang_renderArr(containerId, arr, opts) {
+            opts = opts || {};
+            var highlightSet = opts.highlightSet || {};  // {index: 'added'|'removed'|'new'|'mutate'|'dim'}
+            var html = '';
+            arr.forEach(function(val, i) {
+                var cls = 'zhang_chip';
+                var hl = highlightSet[i];
+                if (hl === 'added') cls += ' zhang_added';
+                else if (hl === 'removed') cls += ' zhang_removed';
+                else if (hl === 'new') cls += ' zhang_new';
+                else if (hl === 'mutate') cls += ' zhang_mutate';
+                else if (hl === 'dim') cls += ' zhang_removed';
+                var idx = opts.showIndex ? '<span style="position:absolute;top:-14px;font-size:10px;color:#687681;">[' + i + ']</span>' : '';
+                html += '<span class="' + cls + '" style="position:relative;">' + idx + val + '</span>';
+            });
+            if (arr.length === 0) html = '<span style="color:#999;font-size:13px;">（空数组）</span>';
+            var el = document.getElementById(containerId);
+            if (el) el.innerHTML = html;
+        }
+
+        function zhang_renderOutput(containerId, html) {
+            var el = document.getElementById(containerId);
+            if (el) el.innerHTML = html;
+        }
+
+        /* ================================================================
+           初始化所有静态展示
+           ================================================================== */
+
+        // ---- push ----
+        var zhang_pushArr = ['🍎', '🍌', '🍇'];
+        zhang_renderArr('zhang_v_push_before', zhang_pushArr);
+        zhang_renderArr('zhang_v_push_after', ['🍎', '🍌', '🍇', '🍓'], {
+            highlightSet: {3: 'added'}
+        });
+
+        // ---- pop ----
+        var zhang_popArr = ['🍎', '🍌', '🍇'];
+        zhang_renderArr('zhang_v_pop_before', zhang_popArr);
+        var zhang_popRet = zhang_popArr.pop();
+        zhang_renderArr('zhang_v_pop_after', ['🍎', '🍌']);
+        document.getElementById('zhang_v_pop_ret').textContent = "'" + zhang_popRet + "'";
+
+        // ---- unshift ----
+        zhang_renderArr('zhang_v_unshift_before', ['🍎', '🍌', '🍇']);
+        zhang_renderArr('zhang_v_unshift_after', ['🥝', '🍎', '🍌', '🍇'], {
+            highlightSet: {0: 'added'}
+        });
+
+        // ---- shift ----
+        var zhang_shiftArr = ['🍎', '🍌', '🍇'];
+        zhang_renderArr('zhang_v_shift_before', zhang_shiftArr);
+        var zhang_shiftRet = zhang_shiftArr.shift();
+        zhang_renderArr('zhang_v_shift_after', ['🍌', '🍇']);
+        document.getElementById('zhang_v_shift_ret').textContent = "'" + zhang_shiftRet + "'";
+
+        // ---- splice ----
+        zhang_renderArr('zhang_v_splice_before', ['🍎', '🍌', '🍇', '🍓'], {
+            showIndex: true,
+            highlightSet: {1: 'dim', 2: 'dim'}
+        });
+        zhang_renderArr('zhang_v_splice_after', ['🍎', '🥝', '🍑', '🍓'], {
+            highlightSet: {1: 'new', 2: 'new'}
+        });
+
+        // ---- concat ----
+        zhang_renderArr('zhang_v_concat_after', [1, 2, 3, 4], {
+            highlightSet: {2: 'new', 3: 'new'}
+        });
+
+        // ---- slice ----
+        zhang_renderArr('zhang_v_slice_before', ['🍎', '🍌', '🍇', '🍓', '🥝'], {
+            showIndex: true,
+            highlightSet: {1: 'new', 2: 'new', 3: 'new'}
+        });
+        zhang_renderArr('zhang_v_slice_after', ['🍌', '🍇', '🍓'], {
+            highlightSet: {0: 'new', 1: 'new', 2: 'new'}
+        });
+
+        // ---- join ----
+        var zhang_joinArr = ['张', '婧', '雅'];
+        zhang_renderOutput('zhang_out_join',
+            '<span class="zhang_output-item">join("-") → "' + zhang_joinArr.join('-') + '"</span>' +
+            '<span class="zhang_output-item">join("") → "' + zhang_joinArr.join('') + '"</span>' +
+            '<span class="zhang_output-item">join("|") → "' + zhang_joinArr.join('|') + '"</span>'
+        );
+
+        // ---- indexOf ----
+        var zhang_idxArr = [10, 20, 30, 20];
+        zhang_renderArr('zhang_v_indexof', zhang_idxArr, {
+            showIndex: true,
+            highlightSet: {1: 'mutate', 3: 'mutate'}
+        });
+        zhang_renderOutput('zhang_out_indexof',
+            '<span class="zhang_output-item">indexOf(20) → ' + zhang_idxArr.indexOf(20) + ' （首次出现）</span>' +
+            '<span class="zhang_output-item">indexOf(99) → ' + zhang_idxArr.indexOf(99) + ' （不存在）</span>'
+        );
+
+        // ---- includes ----
+        var zhang_incArr = ['🍎', '🍌', '🍇'];
+        zhang_renderOutput('zhang_out_includes',
+            '<span class="zhang_output-item">includes("🍌") → ' + zhang_incArr.includes('🍌') + '</span>' +
+            '<span class="zhang_output-item">includes("🍓") → ' + zhang_incArr.includes('🍓') + '</span>'
+        );
+
+        // ---- find ----
+        var zhang_findArr = [5, 12, 8, 130, 44];
+        var zhang_findRet = zhang_findArr.find(function(x) { return x > 10; });
+        var zhang_findIdx = zhang_findArr.findIndex(function(x) { return x > 10; });
+        zhang_renderArr('zhang_v_find', zhang_findArr, {
+            showIndex: true,
+            highlightSet: {1: 'mutate'}
+        });
+        zhang_renderOutput('zhang_out_find',
+            '<span class="zhang_output-item">find(x &gt; 10) → ' + zhang_findRet + ' （索引 ' + zhang_findIdx + '）</span>'
+        );
+
+        // ---- forEach ----
+        var zhang_feArr = ['🍎', '🍌', '🍇'];
+        var zhang_feHtml = '';
+        zhang_feArr.forEach(function(item, index) {
+            zhang_feHtml += '<span class="zhang_output-item">' + index + ': ' + item + '</span>';
+        });
+        zhang_renderOutput('zhang_out_foreach', zhang_feHtml);
+
+        // ---- map ----
+        var zhang_mapArr = [1, 2, 3, 4];
+        var zhang_mapResult = zhang_mapArr.map(function(x) { return x * 2; });
+        (function() {
+            var html = '';
+            zhang_mapArr.forEach(function(v, i) {
+                html += '<span class="zhang_chip">' + v + '</span>';
+                if (i < zhang_mapArr.length - 1) html += '';
+                html += '<span style="color:#bd493c;font-size:12px;padding:0 4px;">→×2→</span>';
+                html += '<span class="zhang_chip zhang_new">' + (v * 2) + '</span>';
+                if (i < zhang_mapArr.length - 1) html += '<span style="color:#d9d2c5;padding:0 6px;">|</span>';
+            });
+            document.getElementById('zhang_v_map').innerHTML = html;
+        })();
+
+        // ---- filter ----
+        var zhang_filterArr = [1, 2,3,4,5,6];
+        zhang_renderArr('zhang_v_filter_before', zhang_filterArr, {
+            showIndex: true,
+            highlightSet: {1: 'mutate', 3: 'mutate', 5: 'mutate', 0: 'dim', 2: 'dim', 4: 'dim'}
+        });
+        zhang_renderArr('zhang_v_filter_after', [2,4,6], {
+            highlightSet: {0: 'new', 1: 'new', 2: 'new'}
+        });
+
+        // ---- reduce ----
+        (function() {
+            var arr = [1,2,3,4];
+            var html = '';
+            var acc = 0;
+            arr.forEach(function(cur, i) {
+                html += '<span class="zhang_chip" style="background:#fff3e0;border-color:#ffa726;">' + acc + '</span>';
+                html += '<span style="color:#bd493c;font-size:14px;padding:0 4px;">+</span>';
+                html += '<span class="zhang_chip">' + cur + '</span>';
+                acc += cur;
+                html += '<span style="color:#2d7c7a;font-size:14px;padding:0 4px;">=' + (i < arr.length - 1 ? '' : '') + '</span>';
+                html += '<span class="zhang_chip zhang_new">' + acc + '</span>';
+                if (i < arr.length - 1) html += '<span style="color:#d9d2c5;padding:0 8px;">→</span>';
+            });
+            html += '<span style="color:#bd493c;font-size:13px;padding-left:12px;font-weight:bold;">最终结果：' + acc + '</span>';
+            document.getElementById('zhang_v_reduce').innerHTML = html;
+        })();
+
+        // ---- sort ----
+        var zhang_sortBefore = [3,1,4,1,5,9,2,6];
+        var zhang_sortAfter = zhang_sortBefore.slice().sort(function(a,b){return a-b;});
+        zhang_renderArr('zhang_v_sort_before', [3,1,4,1,5,9,2,6], {showIndex: false});
+        zhang_renderArr('zhang_v_sort_after', zhang_sortAfter, {
+            highlightSet: {0:'new',1:'new',2:'new',3:'new',4:'new',5:'new',6:'new',7:'new'}
+        });
+
+        // ---- reverse ----
+        var zhang_revBefore = [1,2,3,4,5];
+        var zhang_revAfter = zhang_revBefore.slice().reverse();
+        zhang_renderArr('zhang_v_reverse_before', [1,2,3,4,5]);
+        zhang_renderArr('zhang_v_reverse_after', zhang_revAfter, {
+            highlightSet: {0:'new',1:'new',2:'new',3:'new',4:'new'}
+        });
+
+        /* ================================================================
+           动画交互：点击按钮逐步演示
+           ================================================================== */
+
+        function zhang_clearAnim(containerId) {
+            var el = document.getElementById(containerId);
+            if (el) el.innerHTML = '';
+        }
+
+        // push 动画
+        function zhang_animPush() {
+            var el = document.getElementById('zhang_v_push_after');
+            var arr = ['🍎','🍌','🍇'];
+            el.innerHTML = '';
+            arr.forEach(function(v) {
+                el.innerHTML += '<span class="zhang_chip">' + v + '</span>';
+            });
+            setTimeout(function() {
+                el.innerHTML += '<span class="zhang_chip zhang_added">🍓</span>';
+            }, 400);
+        }
+
+        // pop 动画
+        function zhang_animPop() {
+            var el = document.getElementById('zhang_v_pop_after');
+            el.innerHTML = '<span class="zhang_chip">🍎</span><span class="zhang_chip">🍌</span><span class="zhang_chip zhang_removed">🍇</span>';
+            setTimeout(function() {
+                el.innerHTML = '<span class="zhang_chip">🍎</span><span class="zhang_chip">🍌</span>';
+            }, 800);
+        }
+
+        // unshift 动画
+        function zhang_animUnshift() {
+            var el = document.getElementById('zhang_v_unshift_after');
+            el.innerHTML = '<span class="zhang_chip">🍎</span><span class="zhang_chip">🍌</span><span class="zhang_chip">🍇</span>';
+            setTimeout(function() {
+                el.innerHTML = '<span class="zhang_chip zhang_added">🥝</span><span class="zhang_chip">🍎</span><span class="zhang_chip">🍌</span><span class="zhang_chip">🍇</span>';
+            }, 400);
+        }
+
+        // shift 动画
+        function zhang_animShift() {
+            var el = document.getElementById('zhang_v_shift_after');
+            el.innerHTML = '<span class="zhang_chip zhang_removed">🍎</span><span class="zhang_chip">🍌</span><span class="zhang_chip">🍇</span>';
+            setTimeout(function() {
+                el.innerHTML = '<span class="zhang_chip">🍌</span><span class="zhang_chip">🍇</span>';
+            }, 800);
+        }
+
+        // splice 动画
+        function zhang_animSplice() {
+            var el = document.getElementById('zhang_v_splice_after');
+            el.innerHTML = '<span class="zhang_chip">🍎</span><span class="zhang_chip zhang_removed">🍌</span><span class="zhang_chip zhang_removed">🍇</span><span class="zhang_chip">🍓</span>';
+            setTimeout(function() {
+                el.innerHTML = '<span class="zhang_chip">🍎</span><span class="zhang_chip zhang_new">🥝</span><span class="zhang_chip zhang_new">🍑</span><span class="zhang_chip">🍓</span>';
+            }, 700);
+        }
+
+        // sort 动画
+        function zhang_animSort() {
+            var el = document.getElementById('zhang_v_sort_after');
+            var steps = [
+                [3,1,4,1,5,9,2,6],
+                [1,3,4,1,5,9,2,6],
+                [1,1,3,4,5,9,2,6],
+                [1,1,2,3,4,5,9,6],
+                [1,1,2,3,4,5,6,9]
+            ];
+            var step = 0;
+            el.innerHTML = steps[0].map(function(v) {
+                return '<span class="zhang_chip">' + v + '</span>';
+            }).join('');
+            var timer = setInterval(function() {
+                step++;
+                if (step >= steps.length) {
+                    clearInterval(timer);
+                    el.innerHTML = steps[steps.length-1].map(function(v) {
+                        return '<span class="zhang_chip zhang_new">' + v + '</span>';
+                    }).join('');
+                    return;
+                }
+                el.innerHTML = steps[step].map(function(v, i) {
+                    var moved = steps[step-1][i] !== v;
+                    var cls = 'zhang_chip' + (moved ? ' zhang_mutate' : '');
+                    return '<span class="' + cls + '">' + v + '</span>';
+                }).join('');
+            }, 500);
+        }
+
+        /* ================================================================
+           控制台输出
+           ================================================================== */
+        console.log('====== JavaScript 数组方法 ======');
+        console.log('[push]', ['🍎','🍌','🍇','🍓']);
+        console.log('[pop]', ['🍎','🍌'], '返回:', zhang_popRet);
+        console.log('[unshift]', ['🥝','🍎','🍌','🍇']);
+        console.log('[shift]', ['🍌','🍇'], '返回:', zhang_shiftRet);
+        console.log('[splice]', ['🍎','🥝','🍑','🍓']);
+        console.log('[concat]', [1,2,3,4]);
+        console.log('[slice]', ['🍌','🍇','🍓']);
+        console.log('[join]', '张-婧-雅');
+        console.log('[indexOf]', 1);
+        console.log('[includes]', true);
+        console.log('[find]', 12);
+        console.log('[map]', [2,4,6,8]);
+        console.log('[filter]', [2,4,6]);
+        console.log('[reduce]', 10);
+        console.log('[sort]', [1,1,2,3,4,5,6,9]);
+        console.log('[reverse]', [5,4,3,2,1]);
+    </script>
+</body>
+</html>

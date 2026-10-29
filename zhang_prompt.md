@@ -52,3 +52,7 @@ prompt: 编写两个网页13-1.html和13.2.html.分别显示font awesome图标�
 
 - model: opencode/mimo-v2.6-flash-free
 - prompt: 完成15-2.html，展示javascript程序结构条件，循坏。然后提交到github。
+## 2026-10-29-13:43
+
+- model: workbuddy/deepseek-v4.1-flash
+- prompt: 帮我写16-2.html 展示JavaScript对象
