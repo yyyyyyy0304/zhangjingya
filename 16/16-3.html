@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶颜悦色 · 品牌介绍</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", "宋体", serif;
+            background-color: #f8f5f0;
+            color: #2c2c2c;
+            line-height: 1.9;
+            padding: 60px 20px;
+        }
+
+        .zhang_container {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        /* 返回首页 */
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 32px;
+            color: #8c6a4f;
+            text-decoration: none;
+            font-size: 14px;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+
+        /* 主体两栏布局 */
+        .zhang_brand-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 56px;
+        }
+
+        .zhang_text-col {
+            flex: 1 1 58%;
+            min-width: 0;
+        }
+
+        .zhang_img-col {
+            flex: 1 1 38%;
+            min-width: 0;
+        }
+
+        /* 标题 */
+        .zhang_title {
+            font-family: "KaiTi", "STKaiti", "楷体", "Ma Shan Zheng", "Noto Serif SC", serif;
+            font-size: 38px;
+            font-weight: 400;
+            font-style: italic;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+        .zhang_title span {
+            font-style: italic;
+            margin-right: 8px;
+            color: #3a3a3a;
+        }
+
+        /* 段落 */
+        .zhang_para {
+            font-size: 15px;
+            color: #3d3d3d;
+            margin-bottom: 16px;
+            text-align: justify;
+            letter-spacing: 0.3px;
+        }
+
+        .zhang_para .zhang_chapter {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .zhang_para .zhang_quote {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        /* 图片 */
+        .zhang_img-col img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .zhang_brand-wrap {
+                flex-direction: column;
+                gap: 32px;
+            }
+            .zhang_title {
+                font-size: 30px;
+                margin-bottom: 22px;
+            }
+            .zhang_img-col {
+                order: -1;
+            }
+            .zhang_img-col img {
+                max-height: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+
+        <div class="zhang_brand-wrap">
+            <div class="zhang_text-col">
+                <h1 class="zhang_title"><span>/</span>茶颜悦色</h1>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">忌廉篇：</span>茶颜最<span class="zhang_quote">「难喝」</span>的茶，茶颜悦色独创<span class="zhang_quote">「一挑二品三喝」</span>喝法，虽然繁琐但是我们的真心表达。
+                </p>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">沫泡篇：</span>茶颜最<span class="zhang_quote">「单调」</span>的茶，每一杯沫泡篇的做法都是趋同的，但都有它独特的风味。
+                </p>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">清浅奶盖篇：</span>茶颜最<span class="zhang_quote">「厚重」</span>的茶，看似厚重的奶盖，入口也没这么甜腻缠人，让香浓的奶味衬托出了茶汤的清爽。
+                </p>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">柠檬系列：</span>茶颜最<span class="zhang_quote">「多彩缤纷」</span>的茶，希望茶颜新支起来的柠檬茶小铺，能给夏日挑剔的味觉增添一分冰爽清凉。
+                </p>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">创意原叶篇：</span>茶颜最<span class="zhang_quote">「不被接受」</span>的茶，用适度的创新，把纯茶安利给更多人，让喝纯茶变得更时髦。
+                </p>
+
+                <p class="zhang_para">
+                    <span class="zhang_chapter">涓滴山丘系列：</span>茶颜最<span class="zhang_quote">「不能等」</span>的茶，三层口感托起茶味，但山丘易塌，分层易混，唯快才能hold住这份轻盈。
+                </p>
+            </div>
+
+            <div class="zhang_img-col">
+                <img src="../../11.jpg" alt="茶颜悦色门店">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

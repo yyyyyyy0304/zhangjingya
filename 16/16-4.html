@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排行榜</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.6;
+        }
+        .zhang_container {
+            max-width: 560px;
+            margin: 0 auto;
+        }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
+        /* ===== Tab 选项卡 ===== */
+        .zhang_tabbar {
+            display: flex;
+            background: #e8e4de;
+            border: 1px solid #d9d2c5;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            overflow: hidden;
+        }
+        .zhang_tab {
+            flex: 1;
+            padding: 11px 0;
+            text-align: center;
+            font-size: 15px;
+            color: #555;
+            background: #e8e4de;
+            border: none;
+            border-right: 1px solid #d9d2c5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .zhang_tab:last-child { border-right: none; }
+        .zhang_tab:hover { background: #f0ece5; }
+        .zhang_tab.zhang_active {
+            background: #fffdf8;
+            color: #bd493c;
+            font-weight: bold;
+            box-shadow: inset 0 -3px 0 #bd493c;
+        }
+
+        /* ===== 排行榜面板 ===== */
+        .zhang_panel {
+            display: none;
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-top: 2px solid #bd493c;
+            border-radius: 0 0 4px 4px;
+            padding: 14px 18px 18px;
+        }
+        .zhang_panel.zhang_active { display: block; animation: zhang_fadeIn 0.25s ease; }
+        @keyframes zhang_fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .zhang_rank {
+            display: flex;
+            gap: 28px;
+        }
+        .zhang_rank-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .zhang_rank-item {
+            display: flex;
+            align-items: center;
+            padding: 7px 0;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px dashed #eee8dd;
+        }
+        .zhang_rank-item:last-child { border-bottom: none; }
+
+        .zhang_num {
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            margin-right: 10px;
+            flex-shrink: 0;
+            background: #a8a8a8;
+        }
+        .zhang_num.zhang_top {
+            background: #bd493c;
+        }
+
+        /* 响应式：小屏幕单列 */
+        @media (max-width: 520px) {
+            .zhang_rank { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>电视剧排行榜</h1>
+        <p class="zhang_subtitle">张婧雅 · 排行榜切换练习</p>
+
+        <!-- Tab 按钮 -->
+        <div class="zhang_tabbar">
+            <button class="zhang_tab zhang_active" data-tab="daily">每日</button>
+            <button class="zhang_tab" data-tab="weekly">每周</button>
+            <button class="zhang_tab" data-tab="monthly">每月</button>
+            <button class="zhang_tab" data-tab="all">全部</button>
+        </div>
+
+        <!-- 每日 -->
+        <div class="zhang_panel zhang_active" id="zhang_panel_daily">
+            <div class="zhang_rank">
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">1</span>最美的时光</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">2</span>咱们结婚吧</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">3</span>渗透</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">4</span>继承者们</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">5</span>烽火佳人</div>
+                </div>
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num">6</span>极品女士第2季</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">7</span>爱闪亮</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">8</span>狼烟（2013）</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">9</span>钱多份爱记</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">10</span>苍狼</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每周 -->
+        <div class="zhang_panel" id="zhang_panel_weekly">
+            <div class="zhang_rank">
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">1</span>咱们结婚吧</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">2</span>继承者们</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">3</span>最美的时光</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">4</span>爱闪亮</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">5</span>渗透</div>
+                </div>
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num">6</span>狼烟（2013）</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">7</span>三十岁，你好</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">8</span>钱多份爱记</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">9</span>特种兵之火凤凰</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">10</span>极品女士第2季</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每月 -->
+        <div class="zhang_panel" id="zhang_panel_monthly">
+            <div class="zhang_rank">
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">1</span>特种兵之火凤凰</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">2</span>咱们结婚吧</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">3</span>继承者们</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">4</span>金玉满堂</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">5</span>王的女人</div>
+                </div>
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num">6</span>爱闪亮</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">7</span>爱情面前谁怕谁</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">8</span>英雄联盟</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">9</span>小爸爸</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">10</span>我们这拨人</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全部 -->
+        <div class="zhang_panel" id="zhang_panel_all">
+            <div class="zhang_rank">
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">1</span>永不磨灭的番号</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">2</span>特种兵之火凤凰</div>
+                    <div class="zhang_rank-item"><span class="zhang_num zhang_top">3</span>新还珠格格</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">4</span>咱们结婚吧</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">5</span>小爸爸</div>
+                </div>
+                <div class="zhang_rank-col">
+                    <div class="zhang_rank-item"><span class="zhang_num">6</span>心术</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">7</span>乡村爱情5</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">8</span>天天有喜</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">9</span>一不小心爱上你</div>
+                    <div class="zhang_rank-item"><span class="zhang_num">10</span>夏日甜心</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var zhang_tabs = document.querySelectorAll('.zhang_tab');
+        var zhang_panels = document.querySelectorAll('.zhang_panel');
+
+        zhang_tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var target = this.getAttribute('data-tab');
+
+                // 切换按钮状态
+                zhang_tabs.forEach(function(t) { t.classList.remove('zhang_active'); });
+                this.classList.add('zhang_active');
+
+                // 切换面板
+                zhang_panels.forEach(function(p) { p.classList.remove('zhang_active'); });
+                document.getElementById('zhang_panel_' + target).classList.add('zhang_active');
+
+                console.log('切换到 Tab：' + target);
+            });
+        });
+    </script>
+</body>
+</html>

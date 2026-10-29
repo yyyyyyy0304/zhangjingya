@@ -56,3 +56,8 @@ prompt: 编写两个网页13-1.html和13.2.html.分别显示font awesome图标�
 
 - model: workbuddy/deepseek-v4.1-flash
 - prompt: 帮我写16-2.html 展示JavaScript对象
+
+## 2026-10-29-14:07
+
+- model: opencode/mimo-v2.6-flash-free
+- prompt: 创建 16-3.html，演示数组的增删改查及遍历
