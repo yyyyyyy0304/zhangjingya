@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 数据格式</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 860px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_code .zhang_c { color: #7f8f7f; }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+        .zhang_result-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #d9d2c5;
+        }
+
+        /* ===== JSON 树视图 ===== */
+        .zhang_json-tree {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+        .zhang_json-tree .zhang_j-key { color: #bd493c; }
+        .zhang_json-tree .zhang_j-str { color: #2e7d4f; }
+        .zhang_json-tree .zhang_j-num { color: #b26a00; }
+        .zhang_json-tree .zhang_j-bool { color: #1565c0; }
+        .zhang_json-tree .zhang_j-null { color: #999; font-style: italic; }
+        .zhang_json-tree .zhang_j-brace { color: #6a4fa3; font-weight: bold; }
+        .zhang_json-tree .zhang_j-bracket { color: #6a4fa3; font-weight: bold; }
+        .zhang_json-tree .zhang_j-comma { color: #9aa6ac; }
+        .zhang_json-tree .zhang_j-indent { padding-left: 24px; display: block; }
+
+        /* ===== 输出标签 ===== */
+        .zhang_output {
+            padding: 12px 18px;
+            font-size: 13px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+            font-family: "Consolas", "Courier New", monospace;
+            min-height: 20px;
+        }
+        .zhang_output-item {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            padding: 3px 10px;
+            display: inline-block;
+            margin: 2px 4px 2px 0;
+            border-radius: 3px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+        }
+        .zhang_output-item.zhang_ok { background: #e8f5e9; border-color: #66bb6a; }
+        .zhang_output-item.zhang_bad { background: #fbe9e7; border-color: #ef5350; }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+
+        /* ===== 输入框 ===== */
+        .zhang_textarea {
+            width: 100%;
+            min-height: 120px;
+            background: #17212b;
+            color: #b7d9d0;
+            border: 1px solid #2d7c7a;
+            border-radius: 4px;
+            padding: 12px 14px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+        }
+        .zhang_textarea:focus { border-color: #e96c55; }
+
+        /* ===== 对比表 ===== */
+        .zhang_compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .zhang_compare-table th,
+        .zhang_compare-table td {
+            border: 1px solid #d9d2c5;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .zhang_compare-table th {
+            background: #efe8da;
+            color: #2d7c7a;
+            font-weight: bold;
+        }
+        .zhang_compare-table code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+        }
+        .zhang_compare-table .zhang_yes { color: #2e7d4f; font-weight: bold; }
+        .zhang_compare-table .zhang_no { color: #ef5350; font-weight: bold; }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_section-title { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JSON 数据格式</h1>
+        <p class="zhang_subtitle">张婧雅 · JavaScript Object Notation</p>
+
+        <div class="zhang_intro">
+            <b>JSON</b>（JavaScript Object Notation）是一种轻量级的数据交换格式。它用<b>键值对</b>和<b>数组</b>来组织数据，
+            人类读得懂、机器解析得快。前后端通信、配置文件、本地存储几乎都离不开它。
+        </div>
+
+        <!-- ==================== ① JSON 长什么样 ==================== -->
+        <h2 class="zhang_section-title">① JSON 长什么样</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">一段典型的 JSON <span class="zhang_tag">键值对 + 数组</span></div>
+            <pre class="zhang_code">{
+    <span class="zhang_s">"name"</span>: <span class="zhang_s">"张婧雅"</span>,
+    <span class="zhang_s">"age"</span>: <span class="zhang_n">20</span>,
+    <span class="zhang_s">"isStudent"</span>: <span class="zhang_k">true</span>,
+    <span class="zhang_s">"hobbies"</span>: [<span class="zhang_s">"摄影"</span>, <span class="zhang_s">"前端"</span>, <span class="zhang_s">"音乐"</span>],
+    <span class="zhang_s">"address"</span>: {
+        <span class="zhang_s">"city"</span>: <span class="zhang_s">"西安"</span>,
+        <span class="zhang_s">"school"</span>: <span class="zhang_s">"某某大学"</span>
+    },
+    <span class="zhang_s">"graduation"</span>: <span class="zhang_k">null</span>
+}</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">语法高亮后的树状结构：</div>
+                <div class="zhang_json-tree" id="zhang_v_tree"></div>
+                <div class="zhang_tips">
+                    JSON 里只有 <b>6 种数据类型</b>：字符串（双引号）、数字、布尔（true/false）、null、对象 { }、数组 [ ]。
+                    <b>键名必须用双引号</b>，不能加注释，不能有尾逗号。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ② JSON vs JS 对象 ==================== -->
+        <h2 class="zhang_section-title">② JSON vs JavaScript 对象</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">长得像，但规则不同 <span class="zhang_tag">对比</span></div>
+            <table class="zhang_compare-table">
+                <thead>
+                    <tr>
+                        <th style="width:22%;">对比项</th>
+                        <th>JSON</th>
+                        <th>JS 对象</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>键名引号</td>
+                        <td><code>"name"</code> <span class="zhang_yes">必须双引号</span></td>
+                        <td><code>name</code> 或 <code>'name'</code> 都行</td>
+                    </tr>
+                    <tr>
+                        <td>字符串引号</td>
+                        <td><code>"你好"</code> <span class="zhang_yes">只能双引号</span></td>
+                        <td><code>'你好'</code> <code>"你好"</code> 都行</td>
+                    </tr>
+                    <tr>
+                        <td>函数 / undefined</td>
+                        <td><span class="zhang_no">不允许</span></td>
+                        <td><span class="zhang_yes">可以</span> 属性值可以是函数</td>
+                    </tr>
+                    <tr>
+                        <td>尾逗号</td>
+                        <td><span class="zhang_no">不允许</span> <code>{a:1,}</code></td>
+                        <td><span class="zhang_yes">允许</span></td>
+                    </tr>
+                    <tr>
+                        <td>注释</td>
+                        <td><span class="zhang_no">不允许</span></td>
+                        <td><span class="zhang_yes">可以</span> <code>// /* */</code></td>
+                    </tr>
+                    <tr>
+                        <td>本质</td>
+                        <td><b>字符串</b>（文本格式）</td>
+                        <td><b>内存中的对象</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== ③ JSON.parse ==================== -->
+        <h2 class="zhang_section-title">③ JSON.parse() — 字符串 → 对象</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">把 JSON 字符串解析成 JS 对象 <span class="zhang_tag">反序列化</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_str = <span class="zhang_s">'{"name":"张婧雅","age":20,"hobbies":["摄影","前端"]}'</span>;
+
+<span class="zhang_k">var</span> zhang_obj = JSON.parse(zhang_str);
+<span class="zhang_c">// 现在可以用 .name 取值了</span>
+zhang_obj.name;       <span class="zhang_c">// "张婧雅"</span>
+zhang_obj.hobbies[0]; <span class="zhang_c">// "摄影"</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">解析前（字符串）：</div>
+                <div class="zhang_json-tree" style="color:#b26a00;">'{"name":"张婧雅","age":20,"hobbies":["摄影","前端"]}'</div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">解析后（JS 对象）：</div>
+                    <div class="zhang_json-tree" id="zhang_v_parse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ④ JSON.stringify ==================== -->
+        <h2 class="zhang_section-title">④ JSON.stringify() — 对象 → 字符串</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">把 JS 对象序列化成 JSON 字符串 <span class="zhang_tag">序列化</span></div>
+            <pre class="zhang_code"><span class="zhang_k">var</span> zhang_obj = {
+    name: <span class="zhang_s">'张婧雅'</span>,
+    age: <span class="zhang_n">20</span>,
+    isStudent: <span class="zhang_k">true</span>,
+    sayHi: <span class="zhang_k">function</span>() {}   <span class="zhang_c">// 函数会被自动忽略！</span>
+};
+
+JSON.stringify(zhang_obj);
+<span class="zhang_c">// → '{"name":"张婧雅","age":20,"isStudent":true}'</span>
+
+JSON.stringify(zhang_obj, <span class="zhang_k">null</span>, <span class="zhang_n">2</span>);
+<span class="zhang_c">// 第二个参数 null = 不过滤，第三个 2 = 缩进 2 空格（美化输出）</span></pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">原始 JS 对象：</div>
+                <div class="zhang_json-tree" id="zhang_v_stringify_before"></div>
+                <div class="zhang_result-row">
+                    <div class="zhang_visual-label">stringify 结果（单行紧凑）：</div>
+                    <div class="zhang_json-tree" id="zhang_v_stringify_compact" style="color:#b26a00;word-break:break-all;"></div>
+                    <div class="zhang_visual-label" style="margin-top:10px;">stringify(obj, null, 2) 结果（美化缩进）：</div>
+                    <div class="zhang_json-tree" id="zhang_v_stringify_pretty"></div>
+                </div>
+                <div class="zhang_tips">
+                    <b>函数、undefined、Symbol</b> 在 stringify 时会被<b>自动忽略</b>；数组中出现 undefined 会变成 null。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑤ 实际场景 ==================== -->
+        <h2 class="zhang_section-title">⑤ 实际场景 — 后端返回的数据</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">模拟接口返回的 JSON 数据 <span class="zhang_tag">最常见用法</span></div>
+            <pre class="zhang_code"><span class="zhang_c">// 后端 API 返回的通常是 JSON 字符串</span>
+<span class="zhang_k">var</span> zhang_response = <span class="zhang_s">'{"code":200,"msg":"OK","data":{"total":3,"list":[{"id":1,"title":"茶的起源"},{"id":2,"title":"泡茶技艺"},{"id":3,"title":"茶具介绍"}]}}'</span>;
+
+<span class="zhang_c">// 前端拿到后第一步：parse 成对象</span>
+<span class="zhang_k">var</span> zhang_res = JSON.parse(zhang_response);
+
+<span class="zhang_k">if</span> (zhang_res.code === <span class="zhang_n">200</span>) {
+    console.log(<span class="zhang_s">'共 '</span> + zhang_res.data.total + <span class="zhang_s">' 篇文章'</span>);
+    zhang_res.data.list.forEach(<span class="zhang_k">function</span>(item) {
+        console.log(item.id + <span class="zhang_s">': '</span> + item.title);
+    });
+}</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">解析后的数据结构：</div>
+                <div class="zhang_json-tree" id="zhang_v_api"></div>
+                <button class="zhang_btn" onclick="zhang_runApi()">▶ 遍历 list 输出结果</button>
+                <div class="zhang_output" id="zhang_out_api" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑥ 动手试 ==================== -->
+        <h2 class="zhang_section-title">⑥ 动手试 — 输入 JSON，实时解析</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">JSON 解析器 <span class="zhang_tag">输入 → 解析 → 高亮</span></div>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">在下面输入 JSON 字符串（可编辑）：</div>
+                <textarea class="zhang_textarea" id="zhang_in_json" spellcheck="false" oninput="zhang_tryParse()">{
+    "brand": "茶颜悦色",
+    "founded": 2013,
+    "stores": 500,
+    "isListed": false,
+    "menu": ["忌廉篇", "沫泡篇", "柠檬系列"],
+    "hq": {
+        "city": "长沙",
+        "province": "湖南"
+    }
+}</textarea>
+                <div style="margin-top:14px;">
+                    <div class="zhang_visual-label">解析结果：</div>
+                    <div id="zhang_out_try"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ⑦ 常见错误 ==================== -->
+        <h2 class="zhang_section-title">⑦ 常见错误 — 这些 JSON 都不合法</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">排雷指南 <span class="zhang_tag">踩坑合集</span></div>
+            <pre class="zhang_code"><span class="zhang_c">// ❌ 键名没加引号</span>
+{ name: <span class="zhang_s">"张婧雅"</span> }
+<span class="zhang_c">// ❌ 用了单引号</span>
+{ <span class="zhang_s">'name'</span>: <span class="zhang_s">'张婧雅'</span> }
+<span class="zhang_c">// ❌ 尾逗号</span>
+{ <span class="zhang_s">"name"</span>: <span class="zhang_s">"张婧雅"</span>, }
+<span class="zhang_c">// ❌ 多了注释</span>
+{ <span class="zhang_s">"name"</span>: <span class="zhang_s">"张婧雅"</span> <span class="zhang_c">// 姓名</span> }
+<span class="zhang_c">// ❌ 值是 undefined / 函数</span>
+{ <span class="zhang_s">"fn"</span>: <span class="zhang_k">function</span>() {} }</pre>
+            <div class="zhang_visual">
+                <button class="zhang_btn" onclick="zhang_tryBadJson(0)">▶ 试 name 无引号</button>
+                <button class="zhang_btn" onclick="zhang_tryBadJson(1)">▶ 试单引号</button>
+                <button class="zhang_btn" onclick="zhang_tryBadJson(2)">▶ 试尾逗号</button>
+                <button class="zhang_btn zhang_ghost" onclick="zhang_tryBadJson(3)">▶ 试注释</button>
+                <div class="zhang_output" id="zhang_out_bad" style="background:transparent;border:none;padding:12px 0 0;"></div>
+            </div>
+        </div>
+
+        <div class="zhang_tips" style="margin-top:26px;">
+            小结：JSON 就是<b>有严格规则的文本格式</b>。
+            记住三件事 ——<br>
+            ① 键和字符串值<b>只用双引号</b>；<br>
+            ② <code>JSON.parse()</code> 把字符串变成对象，<code>JSON.stringify()</code> 把对象变成字符串；<br>
+            ③ 不能有函数、注释、尾逗号、单引号。
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           辅助：把 JSON 字符串渲染成带语法高亮的树
+           ================================================================ */
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function zhang_syntaxHighlight(jsonStr) {
+            var json = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                var cls = 'zhang_j-num';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'zhang_j-key';
+                    } else {
+                        cls = 'zhang_j-str';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'zhang_j-bool';
+                } else if (/null/.test(match)) {
+                    cls = 'zhang_j-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function zhang_renderJson(containerId, obj, pretty) {
+            var el = document.getElementById(containerId);
+            if (!el) return;
+            var str = pretty ? JSON.stringify(obj, null, 2) : JSON.stringify(obj);
+            el.innerHTML = zhang_syntaxHighlight(str);
+        }
+
+        function zhang_out(containerId, items) {
+            var el = document.getElementById(containerId);
+            if (!el) return;
+            var html = '';
+            items.forEach(function(it) {
+                if (typeof it === 'string') {
+                    html += '<span class="zhang_output-item">' + it + '</span>';
+                } else {
+                    html += '<span class="zhang_output-item ' + (it.cls || '') + '">' + it.text + '</span>';
+                }
+            });
+            el.innerHTML = html;
+        }
+
+        /* ================================================================
+           ① 树状结构
+           ================================================================ */
+        var zhang_demoData = {
+            name: "张婧雅",
+            age: 20,
+            isStudent: true,
+            hobbies: ["摄影", "前端", "音乐"],
+            address: {
+                city: "西安",
+                school: "某某大学"
+            },
+            graduation: null
+        };
+        zhang_renderJson('zhang_v_tree', zhang_demoData, true);
+
+        /* ================================================================
+           ③ JSON.parse
+           ================================================================ */
+        var zhang_parseStr = '{"name":"张婧雅","age":20,"hobbies":["摄影","前端"]}';
+        var zhang_parsedObj = JSON.parse(zhang_parseStr);
+        zhang_renderJson('zhang_v_parse', zhang_parsedObj, true);
+
+        /* ================================================================
+           ④ JSON.stringify
+           ================================================================ */
+        var zhang_strObj = {
+            name: '张婧雅',
+            age: 20,
+            isStudent: true,
+            sayHi: function() {}
+        };
+        zhang_renderJson('zhang_v_stringify_before', zhang_strObj, true);
+        zhang_renderJson('zhang_v_stringify_compact', zhang_strObj, false);
+        zhang_renderJson('zhang_v_stringify_pretty', zhang_strObj, true);
+
+        /* ================================================================
+           ⑤ API 场景
+           ================================================================ */
+        var zhang_apiStr = '{"code":200,"msg":"OK","data":{"total":3,"list":[{"id":1,"title":"茶的起源"},{"id":2,"title":"泡茶技艺"},{"id":3,"title":"茶具介绍"}]}}';
+        var zhang_apiRes = JSON.parse(zhang_apiStr);
+        zhang_renderJson('zhang_v_api', zhang_apiRes, true);
+
+        function zhang_runApi() {
+            var items = [];
+            items.push({ text: 'code = ' + zhang_apiRes.code + ' → ' + zhang_apiRes.msg, cls: 'zhang_ok' });
+            items.push('共 ' + zhang_apiRes.data.total + ' 篇文章');
+            zhang_apiRes.data.list.forEach(function(item) {
+                items.push(item.id + ': ' + item.title);
+            });
+            zhang_out('zhang_out_api', items);
+        }
+
+        /* ================================================================
+           ⑥ 动手试
+           ================================================================ */
+        function zhang_tryParse() {
+            var input = document.getElementById('zhang_in_json').value;
+            var outEl = document.getElementById('zhang_out_try');
+            try {
+                var obj = JSON.parse(input);
+                outEl.innerHTML = '<div class="zhang_json-tree">' + zhang_syntaxHighlight(JSON.stringify(obj, null, 2)) + '</div>';
+            } catch (e) {
+                outEl.innerHTML = '<span class="zhang_output-item zhang_bad">解析失败：' + zhang_escape(e.message) + '</span>';
+            }
+        }
+        zhang_tryParse();
+
+        /* ================================================================
+           ⑦ 常见错误
+           ================================================================ */
+        var zhang_badJsons = [
+            { label: '{ name: "张婧雅" }', code: '{ name: "张婧雅" }' },
+            { label: "{ 'name': '张婧雅' }", code: "{ 'name': '张婧雅' }" },
+            { label: '{ "name": "张婧雅", }', code: '{ "name": "张婧雅", }' },
+            { label: '{ "name": "张婧雅" // 姓名 }', code: '{ "name": "张婧雅" // 姓名 }' }
+        ];
+
+        function zhang_tryBadJson(idx) {
+            var item = zhang_badJsons[idx];
+            try {
+                JSON.parse(item.code);
+                zhang_out('zhang_out_bad', [
+                    { text: '输入：' + item.label, cls: '' },
+                    { text: '意外通过了…（浏览器容错？）', cls: 'zhang_ok' }
+                ]);
+            } catch (e) {
+                zhang_out('zhang_out_bad', [
+                    { text: '输入：' + item.label, cls: '' },
+                    { text: '❌ SyntaxError: ' + e.message, cls: 'zhang_bad' }
+                ]);
+            }
+        }
+
+        /* ================================================================
+           控制台输出
+           ================================================================ */
+        console.log('====== JSON 数据格式 ======');
+        console.log('[parse]', zhang_parsedObj);
+        console.log('[stringify]', JSON.stringify(zhang_strObj));
+        console.log('[stringify pretty]', JSON.stringify(zhang_strObj, null, 2));
+        console.log('[API]', zhang_apiRes);
+        zhang_apiRes.data.list.forEach(function(item) {
+            console.log('  文章 ' + item.id + ':', item.title);
+        });
+    </script>
+</body>
+</html>

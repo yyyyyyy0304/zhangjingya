@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch 获取接口数据</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1000px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_code .zhang_c { color: #7f8f7f; }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+        .zhang_btn:disabled { background: #aaa; cursor: not-allowed; }
+
+        /* ===== 状态条 ===== */
+        .zhang_status {
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin: 12px 0;
+            display: none;
+        }
+        .zhang_status.zhang_loading {
+            display: block;
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+        .zhang_status.zhang_error {
+            display: block;
+            background: #fbe9e7;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .zhang_status.zhang_success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d4f;
+            border: 1px solid #a5d6a7;
+        }
+
+        /* ===== 商品网格 ===== */
+        .zhang_products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .zhang_product-card {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .zhang_product-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .zhang_product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #f0ebe0;
+            display: block;
+        }
+        .zhang_product-info {
+            padding: 12px 14px;
+        }
+        .zhang_product-brand {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .zhang_product-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #17212b;
+            margin: 4px 0 8px;
+            line-height: 1.4;
+        }
+        .zhang_product-desc {
+            font-size: 12px;
+            color: #687681;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .zhang_product-price {
+            font-size: 18px;
+            color: #bd493c;
+            font-weight: bold;
+        }
+        .zhang_product-price .zhang_old {
+            font-size: 12px;
+            color: #aaa;
+            text-decoration: line-through;
+            font-weight: normal;
+            margin-left: 6px;
+        }
+        .zhang_product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .zhang_rating {
+            color: #f9a825;
+        }
+        .zhang_stock {
+            color: #2e7d4f;
+        }
+        .zhang_stock.zhang_low {
+            color: #e65100;
+        }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+
+        /* ===== 分页 ===== */
+        .zhang_pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .zhang_pagination button {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            color: #2d7c7a;
+            padding: 6px 14px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .zhang_pagination button:hover:not(:disabled) {
+            background: #2d7c7a;
+            color: #fff;
+        }
+        .zhang_pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .zhang_pagination .zhang_page-info {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 13px;
+            color: #687681;
+            line-height: 32px;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_section-title { font-size: 19px; }
+            .zhang_products {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Fetch 获取接口数据</h1>
+        <p class="zhang_subtitle">张婧雅 · fetch + DummyJSON Products API</p>
+
+        <div class="zhang_intro">
+            使用原生 <b>fetch()</b> 请求 <code>https://dummyjson.com/products</code> 接口，
+            该接口支持跨域访问（CORS），返回 JSON 格式的商品数据。页面加载后自动获取并展示商品列表。
+        </div>
+
+        <!-- ==================== ① fetch 语法 ==================== -->
+        <h2 class="zhang_section-title">① fetch 基本语法</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">fetch 请求接口的标准写法 <span class="zhang_tag">Promise 链式调用</span></div>
+            <pre class="zhang_code"><span class="zhang_k">fetch</span>(<span class="zhang_s">'https://dummyjson.com/products'</span>)
+  .<span class="zhang_k">then</span>(<span class="zhang_k">function</span>(res) {
+    <span class="zhang_k">if</span> (!res.ok) <span class="zhang_k">throw new</span> <span class="zhang_k">Error</span>(<span class="zhang_s">'HTTP '</span> + res.status);
+    <span class="zhang_k">return</span> res.<span class="zhang_k">json</span>();       <span class="zhang_c">// 把响应体解析成 JSON</span>
+  })
+  .<span class="zhang_k">then</span>(<span class="zhang_k">function</span>(data) {
+    console.<span class="zhang_k">log</span>(data);       <span class="zhang_c">// { total, products: [...] }</span>
+  })
+  .<span class="zhang_k">catch</span>(<span class="zhang_k">function</span>(err) {
+    console.<span class="zhang_k">error</span>(<span class="zhang_s">'请求失败：'</span>, err);
+  });</pre>
+        </div>
+
+        <!-- ==================== ② 商品列表 ==================== -->
+        <h2 class="zhang_section-title">② 商品列表 — 实时数据</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                DummyJSON Products
+                <span class="zhang_tag" id="zhang_count">共 0 条</span>
+            </div>
+            <div class="zhang_visual">
+                <button class="zhang_btn" id="zhang_btn_refresh">▶ 重新获取数据</button>
+                <button class="zhang_btn zhang_alt" id="zhang_btn_prev">← 上一页</button>
+                <button class="zhang_btn zhang_alt" id="zhang_btn_next">下一页 →</button>
+                <span class="zhang_pagination" style="display:inline; float:none;">
+                    <span class="zhang_page-info" id="zhang_page_info">第 0 / 0 页</span>
+                </span>
+
+                <div class="zhang_status" id="zhang_status"></div>
+                <div class="zhang_products" id="zhang_products"></div>
+
+                <div class="zhang_pagination" id="zhang_pagination_bottom"></div>
+
+                <div class="zhang_tips">
+                    数据来源：<b>https://dummyjson.com/products</b> —— 一个免费的模拟 REST API，
+                    支持 <code>?limit=</code>、<code>?skip=</code>、<code>?select=</code> 等查询参数，
+                    返回 <code>{ total, skip, limit, products }</code> 结构。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ③ 原始 JSON ==================== -->
+        <h2 class="zhang_section-title">③ 原始 JSON 响应</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">接口返回的原始数据 <span class="zhang_tag">展开查看</span></div>
+            <div class="zhang_visual">
+                <pre id="zhang_raw_json" style="background:#17212b;color:#b7d9d0;padding:14px 18px;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.6;overflow-x:auto;border-radius:4px;max-height:400px;overflow-y:auto;">点击「重新获取数据」后在此显示原始 JSON…</pre>
+            </div>
+        </div>
+
+        <div class="zhang_tips" style="margin-top:26px;">
+            小结：<b>fetch</b> 是浏览器原生的 HTTP 请求 API，返回 Promise。<br>
+            ① <code>fetch(url)</code> 发起请求；<br>
+            ② <code>.then(res =&gt; res.json())</code> 把响应解析成 JS 对象；<br>
+            ③ <code>.catch()</code> 捕获网络错误或 HTTP 异常。<br>
+            该接口已开启 CORS，前端可直接跨域访问，无需代理。
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           配置
+           ================================================================ */
+        var ZHANG_API = 'https://dummyjson.com/products';
+        var ZHANG_PAGE_SIZE = 12;   // 每页显示条数
+        var zhang_currentPage = 0;  // 当前页（从 0 开始）
+        var zhang_total = 0;        // 总条数
+        var zhang_cachedData = null; // 缓存上一次请求的数据
+
+        /* ================================================================
+           工具函数
+           ================================================================ */
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function zhang_showStatus(type, msg) {
+            var el = document.getElementById('zhang_status');
+            el.className = 'zhang_status zhang_' + type;
+            el.textContent = msg;
+        }
+
+        function zhang_hideStatus() {
+            var el = document.getElementById('zhang_status');
+            el.className = 'zhang_status';
+        }
+
+        /* ================================================================
+           渲染商品卡片
+           ================================================================ */
+        function zhang_renderProducts(products) {
+            var container = document.getElementById('zhang_products');
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">暂无商品数据</p>';
+                return;
+            }
+
+            var html = '';
+            products.forEach(function(p) {
+                var img = p.thumbnail || (p.images && p.images[0]) || '';
+                var price = p.price != null ? '$' + p.price : '';
+                var oldPrice = p.discountPercentage > 0
+                    ? '<span class="zhang_old">$' + (p.price / (1 - p.discountPercentage / 100)).toFixed(2) + '</span>'
+                    : '';
+                var rating = p.rating != null ? '★ ' + Number(p.rating).toFixed(1) : '';
+                var stock = p.stock != null ? p.stock + ' 在库' : '';
+                var stockCls = p.stock != null && p.stock < 50 ? 'zhang_low' : '';
+
+                html += '<div class="zhang_product-card">'
+                    +    (img ? '<img class="zhang_product-img" src="' + zhang_escape(img) + '" alt="' + zhang_escape(p.title || '') + '" loading="lazy">' : '')
+                    +    '<div class="zhang_product-info">'
+                    +      (p.brand ? '<div class="zhang_product-brand">' + zhang_escape(p.brand) + '</div>' : '')
+                    +      '<div class="zhang_product-title">' + zhang_escape(p.title || '') + '</div>'
+                    +      (p.description ? '<div class="zhang_product-desc">' + zhang_escape(p.description) + '</div>' : '')
+                    +      '<div class="zhang_product-price">' + price + oldPrice + '</div>'
+                    +      '<div class="zhang_product-meta">'
+                    +        '<span class="zhang_rating">' + zhang_escape(rating) + '</span>'
+                    +        '<span class="zhang_stock ' + stockCls + '">' + zhang_escape(stock) + '</span>'
+                    +      '</div>'
+                    +    '</div>'
+                    +  '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        /* ================================================================
+           渲染分页控件
+           ================================================================ */
+        function zhang_renderPagination() {
+            var totalPages = Math.ceil(zhang_total / ZHANG_PAGE_SIZE);
+            var info = document.getElementById('zhang_page_info');
+            info.textContent = '第 ' + (zhang_currentPage + 1) + ' / ' + (totalPages || 1) + ' 页（共 ' + zhang_total + ' 条）';
+
+            document.getElementById('zhang_btn_prev').disabled = (zhang_currentPage <= 0);
+            document.getElementById('zhang_btn_next').disabled = (zhang_currentPage >= totalPages - 1);
+
+            var bottomEl = document.getElementById('zhang_pagination_bottom');
+            var pagesHtml = '';
+            var startPage = Math.max(0, zhang_currentPage - 2);
+            var endPage = Math.min(totalPages - 1, zhang_currentPage + 2);
+            for (var i = startPage; i <= endPage; i++) {
+                pagesHtml += '<button onclick="zhang_goToPage(' + i + ')"'
+                    + (i === zhang_currentPage ? ' disabled' : '') + '>'
+                    + (i + 1) + '</button>';
+            }
+            bottomEl.innerHTML = pagesHtml;
+        }
+
+        function zhang_goToPage(page) {
+            var totalPages = Math.ceil(zhang_total / ZHANG_PAGE_SIZE);
+            if (page < 0 || page >= totalPages) return;
+            zhang_currentPage = page;
+            zhang_fetchProducts();
+        }
+
+        /* ================================================================
+           渲染原始 JSON
+           ================================================================ */
+        function zhang_renderRaw(data) {
+            var el = document.getElementById('zhang_raw_json');
+            if (data) {
+                // 只显示前 2 条商品，避免内容过长
+                var preview = {
+                    total: data.total,
+                    skip: data.skip,
+                    limit: data.limit,
+                    products: (data.products || []).slice(0, 2).map(function(p) {
+                        return {
+                            id: p.id,
+                            title: p.title,
+                            brand: p.brand,
+                            price: p.price,
+                            rating: p.rating,
+                            stock: p.stock,
+                            thumbnail: p.thumbnail
+                        };
+                    })
+                };
+                el.textContent = JSON.stringify(preview, null, 2);
+            }
+        }
+
+        /* ================================================================
+           核心：使用 fetch 获取商品数据
+           ================================================================ */
+        function zhang_fetchProducts() {
+            var skip = zhang_currentPage * ZHANG_PAGE_SIZE;
+            var url = ZHANG_API + '?limit=' + ZHANG_PAGE_SIZE + '&skip=' + skip;
+
+            zhang_showStatus('loading', '正在请求 ' + url + ' …');
+            document.getElementById('zhang_products').innerHTML = '';
+
+            fetch(url)
+                .then(function(res) {
+                    if (!res.ok) {
+                        throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    zhang_cachedData = data;
+                    zhang_total = data.total || 0;
+                    document.getElementById('zhang_count').textContent = '共 ' + zhang_total + ' 条';
+
+                    zhang_hideStatus();
+                    zhang_showStatus('success', '获取成功！skip=' + data.skip + '，本页 ' + data.products.length + ' 条商品。');
+                    setTimeout(function() {
+                        if (document.getElementById('zhang_status').className.indexOf('zhang_success') !== -1) {
+                            zhang_hideStatus();
+                        }
+                    }, 3000);
+
+                    zhang_renderProducts(data.products);
+                    zhang_renderPagination();
+                    zhang_renderRaw(data);
+
+                    console.log('[fetch] 成功获取数据：', data);
+                })
+                .catch(function(err) {
+                    zhang_showStatus('error', '❌ 请求失败：' + err.message + '（请检查网络连接）');
+                    document.getElementById('zhang_products').innerHTML = '';
+                    document.getElementById('zhang_raw_json').textContent = '请求失败，无数据返回。';
+                    console.error('[fetch] 错误：', err);
+                });
+        }
+
+        /* ================================================================
+           事件绑定 & 初始化
+           ================================================================ */
+        document.getElementById('zhang_btn_refresh').addEventListener('click', function() {
+            zhang_currentPage = 0;
+            zhang_fetchProducts();
+        });
+        document.getElementById('zhang_btn_prev').addEventListener('click', function() {
+            if (zhang_currentPage > 0) {
+                zhang_currentPage--;
+                zhang_fetchProducts();
+            }
+        });
+        document.getElementById('zhang_btn_next').addEventListener('click', function() {
+            var totalPages = Math.ceil(zhang_total / ZHANG_PAGE_SIZE);
+            if (zhang_currentPage < totalPages - 1) {
+                zhang_currentPage++;
+                zhang_fetchProducts();
+            }
+        });
+
+        // 页面加载后自动获取
+        zhang_fetchProducts();
+    </script>
+</body>
+</html>

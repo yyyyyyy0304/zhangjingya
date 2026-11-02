@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情 — Fetch 实战</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 900px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12.5px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+
+        /* ===== 状态条 ===== */
+        .zhang_status {
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin: 12px 0;
+            display: none;
+        }
+        .zhang_status.zhang_loading {
+            display: block;
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+        .zhang_status.zhang_error {
+            display: block;
+            background: #fbe9e7;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .zhang_status.zhang_success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d4f;
+            border: 1px solid #a5d6a7;
+        }
+
+        /* ===== 详情布局 ===== */
+        .zhang_detail {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .zhang_detail-gallery {
+            flex: 0 0 340px;
+            max-width: 340px;
+        }
+        .zhang_detail-main-img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #d9d2c5;
+            background: #f0ebe0;
+            display: block;
+        }
+        .zhang_detail-thumbs {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .zhang_detail-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            background: #f0ebe0;
+            transition: border-color 0.2s;
+        }
+        .zhang_detail-thumb:hover { border-color: #e96c55; }
+        .zhang_detail-thumb.zhang_active { border-color: #bd493c; }
+
+        .zhang_detail-info {
+            flex: 1;
+            min-width: 280px;
+        }
+        .zhang_detail-brand {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
+        }
+        .zhang_detail-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #17212b;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        .zhang_detail-desc {
+            font-size: 13px;
+            color: #687681;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .zhang_detail-price {
+            font-size: 28px;
+            color: #bd493c;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .zhang_detail-price .zhang_old {
+            font-size: 15px;
+            color: #aaa;
+            text-decoration: line-through;
+            font-weight: normal;
+            margin-left: 8px;
+        }
+        .zhang_detail-discount {
+            font-size: 12px;
+            color: #2e7d4f;
+            margin-bottom: 16px;
+        }
+        .zhang_detail-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 20px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        .zhang_detail-meta-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #e8e0d2;
+            border-radius: 4px;
+        }
+        .zhang_detail-meta-item .zhang_label {
+            color: #888;
+        }
+        .zhang_detail-meta-item .zhang_value {
+            color: #17212b;
+            font-weight: bold;
+        }
+        .zhang_detail-tags {
+            margin-top: 10px;
+        }
+        .zhang_detail-tag {
+            display: inline-block;
+            background: #efe8da;
+            color: #2d7c7a;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin: 0 4px 4px 0;
+        }
+
+        /* ===== 原始 JSON ===== */
+        .zhang_raw-section {
+            margin-top: 20px;
+        }
+        .zhang_raw-section .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+        .zhang_raw-json {
+            background: #17212b;
+            color: #b7d9d0;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+        .zhang_tips code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ===== 骨架屏 ===== */
+        .zhang_skeleton {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .zhang_skeleton-img {
+            flex: 0 0 340px;
+            max-width: 340px;
+            height: 320px;
+            background: linear-gradient(90deg, #ede5d5 25%, #f5efe2 50%, #ede5d5 75%);
+            background-size: 200% 100%;
+            animation: zhang_shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+        .zhang_skeleton-info {
+            flex: 1;
+            min-width: 280px;
+        }
+        .zhang_skeleton-line {
+            height: 16px;
+            background: linear-gradient(90deg, #ede5d5 25%, #f5efe2 50%, #ede5d5 75%);
+            background-size: 200% 100%;
+            animation: zhang_shimmer 1.5s infinite;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .zhang_skeleton-line.zhang_w60 { width: 60%; }
+        .zhang_skeleton-line.zhang_w80 { width: 80%; }
+        .zhang_skeleton-line.zhang_w40 { width: 40%; }
+        .zhang_skeleton-line.zhang_w30 { width: 30%; height: 28px; }
+        @keyframes zhang_shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_detail { flex-direction: column; }
+            .zhang_detail-gallery, .zhang_skeleton-img {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            .zhang_detail-main-img { height: 240px; }
+            .zhang_detail-meta { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="17-3.html">← 返回商品列表</a>
+        <a class="zhang_home-link" href="../index.html" style="margin-left:12px;">返回首页</a>
+        <h1>商品详情</h1>
+        <p class="zhang_subtitle">张婧雅 · fetch 根据 ID 获取单个商品</p>
+
+        <div class="zhang_intro">
+            从 URL 参数 <code>?id=</code> 中读取商品 ID，
+            使用 <code>fetch('https://dummyjson.com/products/' + id)</code> 获取该商品的完整信息。
+        </div>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                商品详情
+                <span class="zhang_tag" id="zhang_product_id">ID: —</span>
+            </div>
+            <div class="zhang_visual">
+                <div class="zhang_status" id="zhang_status"></div>
+
+                <!-- 骨架屏（加载中显示） -->
+                <div class="zhang_skeleton" id="zhang_skeleton">
+                    <div class="zhang_skeleton-img"></div>
+                    <div class="zhang_skeleton-info">
+                        <div class="zhang_skeleton-line zhang_w60"></div>
+                        <div class="zhang_skeleton-line zhang_w80"></div>
+                        <div class="zhang_skeleton-line zhang_w40"></div>
+                        <div class="zhang_skeleton-line zhang_w30"></div>
+                        <div class="zhang_skeleton-line zhang_w80"></div>
+                        <div class="zhang_skeleton-line zhang_w60"></div>
+                    </div>
+                </div>
+
+                <!-- 详情内容（加载完成后显示） -->
+                <div id="zhang_detail_content" style="display:none;"></div>
+
+                <div class="zhang_raw-section" id="zhang_raw_section" style="display:none;">
+                    <div class="zhang_visual-label">接口返回的原始 JSON：</div>
+                    <pre class="zhang_raw-json" id="zhang_raw_json"></pre>
+                </div>
+
+                <div class="zhang_tips">
+                    接口：<code>https://dummyjson.com/products/&lt;id&gt;</code>
+                    —— 根据路径参数 <code>id</code> 获取单个商品详情，返回完整的商品对象（含 <code>images</code> 多图、<code>tags</code> 等）。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           工具函数
+           ================================================================ */
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function zhang_showStatus(type, msg) {
+            var el = document.getElementById('zhang_status');
+            el.className = 'zhang_status zhang_' + type;
+            el.textContent = msg;
+        }
+
+        function zhang_hideStatus() {
+            document.getElementById('zhang_status').className = 'zhang_status';
+        }
+
+        /* ================================================================
+           从 URL 获取商品 ID
+           ================================================================ */
+        function zhang_getIdFromUrl() {
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get('id');
+            return id;
+        }
+
+        /* ================================================================
+           渲染商品详情
+           ================================================================ */
+        function zhang_renderDetail(p) {
+            var img = p.thumbnail || (p.images && p.images[0]) || '';
+            var price = p.price != null ? '$' + p.price : '';
+            var oldPrice = p.discountPercentage > 0
+                ? '<span class="zhang_old">$' + (p.price / (1 - p.discountPercentage / 100)).toFixed(2) + '</span>'
+                : '';
+            var discountText = p.discountPercentage > 0
+                ? '优惠 ' + Number(p.discountPercentage).toFixed(1) + '%'
+                : '';
+
+            // 缩略图列表
+            var thumbsHtml = '';
+            if (p.images && p.images.length > 0) {
+                thumbsHtml = '<div class="zhang_detail-thumbs">';
+                p.images.forEach(function(src, i) {
+                    thumbsHtml += '<img class="zhang_detail-thumb' + (i === 0 ? ' zhang_active' : '') + '" src="' + zhang_escape(src) + '" alt="img ' + (i+1) + '" onclick="zhang_switchMainImg(this, \'' + zhang_escape(src).replace(/'/g, "\\'") + '\')">';
+                });
+                thumbsHtml += '</div>';
+            }
+
+            // 标签
+            var tagsHtml = '';
+            if (p.tags && p.tags.length > 0) {
+                tagsHtml = '<div class="zhang_detail-tags">';
+                p.tags.forEach(function(tag) {
+                    tagsHtml += '<span class="zhang_detail-tag">' + zhang_escape(tag) + '</span>';
+                });
+                tagsHtml += '</div>';
+            }
+
+            // 元信息
+            var metaHtml = '';
+            var metaItems = [
+                { label: '品牌', value: p.brand || '—' },
+                { label: '分类', value: p.category || '—' },
+                { label: '评分', value: p.rating != null ? '★ ' + Number(p.rating).toFixed(2) : '—' },
+                { label: '库存', value: p.stock != null ? p.stock + ' 件' : '—' },
+                { label: 'SKU', value: p.sku || '—' },
+                { label: '重量', value: p.weight != null ? p.weight + ' g' : '—' },
+                { label: '保修', value: p.warrantyInformation || '—' },
+                { label: '发货状态', value: p.availabilityStatus || '—' }
+            ];
+            metaItems.forEach(function(item) {
+                metaHtml += '<div class="zhang_detail-meta-item">'
+                    + '<span class="zhang_label">' + zhang_escape(item.label) + '</span>'
+                    + '<span class="zhang_value">' + zhang_escape(item.value) + '</span>'
+                    + '</div>';
+            });
+
+            var html = '<div class="zhang_detail">'
+                + '<div class="zhang_detail-gallery">'
+                +   '<img class="zhang_detail-main-img" id="zhang_main_img" src="' + zhang_escape(img) + '" alt="' + zhang_escape(p.title || '') + '">'
+                +   thumbsHtml
+                + '</div>'
+                + '<div class="zhang_detail-info">'
+                +   (p.brand ? '<div class="zhang_detail-brand">' + zhang_escape(p.brand) + '</div>' : '')
+                +   '<div class="zhang_detail-title">' + zhang_escape(p.title || '') + '</div>'
+                +   (p.description ? '<div class="zhang_detail-desc">' + zhang_escape(p.description) + '</div>' : '')
+                +   '<div class="zhang_detail-price">' + price + oldPrice + '</div>'
+                +   (discountText ? '<div class="zhang_detail-discount">' + discountText + '</div>' : '')
+                +   '<div class="zhang_detail-meta">' + metaHtml + '</div>'
+                +   tagsHtml
+                + '</div>'
+                + '</div>';
+
+            var container = document.getElementById('zhang_detail_content');
+            container.innerHTML = html;
+            container.style.display = 'block';
+
+            // 显示原始 JSON
+            var rawSection = document.getElementById('zhang_raw_section');
+            document.getElementById('zhang_raw_json').textContent = JSON.stringify(p, null, 2);
+            rawSection.style.display = 'block';
+        }
+
+        /* ================================================================
+           切换主图
+           ================================================================ */
+        function zhang_switchMainImg(thumbEl, src) {
+            document.getElementById('zhang_main_img').src = src;
+            var thumbs = document.querySelectorAll('.zhang_detail-thumb');
+            thumbs.forEach(function(t) { t.classList.remove('zhang_active'); });
+            thumbEl.classList.add('zhang_active');
+        }
+
+        /* ================================================================
+           核心：fetch 获取商品详情
+           ================================================================ */
+        function zhang_fetchDetail(id) {
+            var url = 'https://dummyjson.com/products/' + id;
+            zhang_showStatus('loading', '正在请求 ' + url + ' …');
+            document.getElementById('zhang_skeleton').style.display = 'flex';
+            document.getElementById('zhang_detail_content').style.display = 'none';
+            document.getElementById('zhang_raw_section').style.display = 'none';
+
+            fetch(url)
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+                    return res.json();
+                })
+                .then(function(data) {
+                    document.getElementById('zhang_product_id').textContent = 'ID: ' + data.id;
+
+                    // 隐藏骨架屏
+                    document.getElementById('zhang_skeleton').style.display = 'none';
+
+                    zhang_showStatus('success', '获取成功！商品：' + data.title);
+                    setTimeout(function() {
+                        if (document.getElementById('zhang_status').className.indexOf('zhang_success') !== -1) {
+                            zhang_hideStatus();
+                        }
+                    }, 3000);
+
+                    zhang_renderDetail(data);
+                    console.log('[fetch detail] 成功：', data);
+                })
+                .catch(function(err) {
+                    document.getElementById('zhang_skeleton').style.display = 'none';
+                    zhang_showStatus('error', '❌ 请求失败：' + err.message + '（请检查 ID 是否有效或网络连接）');
+                    document.getElementById('zhang_detail_content').innerHTML =
+                        '<div style="text-align:center;padding:40px 20px;">'
+                        + '<p style="font-size:16px;color:#c62828;margin-bottom:12px;">商品加载失败</p>'
+                        + '<a class="zhang_btn" href="17-3.html">← 返回列表</a>'
+                        + '</div>';
+                    document.getElementById('zhang_detail_content').style.display = 'block';
+                    console.error('[fetch detail] 错误：', err);
+                });
+        }
+
+        /* ================================================================
+           初始化
+           ================================================================ */
+        (function init() {
+            var id = zhang_getIdFromUrl();
+            if (!id) {
+                // 没有传 id，默认获取 id=1 的商品
+                id = 1;
+                // 更新 URL（不刷新页面）
+                var newUrl = window.location.pathname + '?id=1';
+                window.history.replaceState({}, '', newUrl);
+            }
+            document.getElementById('zhang_product_id').textContent = 'ID: ' + id;
+            zhang_fetchDetail(id);
+        })();
+    </script>
+</body>
+</html>
