@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接口测试工具 — Fetch 实战</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1000px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12.5px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+
+        /* ===== 表单 ===== */
+        .zhang_form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .zhang_select {
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+            padding: 7px 12px;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            background: #fff;
+            color: #17212b;
+            cursor: pointer;
+            outline: none;
+            flex: 0 0 auto;
+        }
+        .zhang_select:focus { border-color: #e96c55; }
+        .zhang_input {
+            flex: 1;
+            min-width: 200px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            padding: 7px 12px;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            background: #fff;
+            color: #17212b;
+            outline: none;
+        }
+        .zhang_input:focus { border-color: #e96c55; }
+        .zhang_textarea {
+            width: 100%;
+            min-height: 100px;
+            background: #17212b;
+            color: #b7d9d0;
+            border: 1px solid #2d7c7a;
+            border-radius: 4px;
+            padding: 12px 14px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+        }
+        .zhang_textarea:focus { border-color: #e96c55; }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 18px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+        .zhang_btn.zhang_send {
+            font-size: 15px;
+            padding: 10px 30px;
+            font-weight: bold;
+        }
+        .zhang_btn:disabled { background: #aaa; cursor: not-allowed; }
+
+        /* ===== 预设接口按钮 ===== */
+        .zhang_presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .zhang_preset-btn {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            color: #2d7c7a;
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: "Consolas", "Courier New", monospace;
+            transition: all 0.2s;
+        }
+        .zhang_preset-btn:hover {
+            background: #2d7c7a;
+            color: #fff;
+            border-color: #2d7c7a;
+        }
+        .zhang_preset-btn .zhang_method-tag {
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        .zhang_preset-btn .zhang_method-get { color: #2e7d4f; }
+        .zhang_preset-btn .zhang_method-post { color: #1565c0; }
+        .zhang_preset-btn .zhang_method-put { color: #f9a825; }
+        .zhang_preset-btn .zhang_method-delete { color: #c62828; }
+        .zhang_preset-btn:hover .zhang_method-tag { color: #fff !important; }
+
+        /* ===== 响应区 ===== */
+        .zhang_response {
+            margin-top: 16px;
+        }
+        .zhang_response-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .zhang_meta-badge {
+            background: #fff;
+            border: 1px solid #d9d2c5;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: "Consolas", "Courier New", monospace;
+            color: #687681;
+        }
+        .zhang_meta-badge b { color: #17212b; }
+        .zhang_meta-badge.zhang_status-ok { border-color: #66bb6a; color: #2e7d4f; }
+        .zhang_meta-badge.zhang_status-err { border-color: #ef5350; color: #c62828; }
+        .zhang_meta-badge.zhang_status-loading { border-color: #90caf9; color: #1565c0; }
+
+        .zhang_json-output {
+            background: #17212b;
+            color: #b7d9d0;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12.5px;
+            line-height: 1.6;
+            overflow-x: auto;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            min-height: 60px;
+        }
+        .zhang_json-output .zhang_j-key { color: #e96c55; }
+        .zhang_json-output .zhang_j-str { color: #b7d9d0; }
+        .zhang_json-output .zhang_j-num { color: #ffd5a8; }
+        .zhang_json-output .zhang_j-bool { color: #7ec8e3; }
+        .zhang_json-output .zhang_j-null { color: #999; font-style: italic; }
+
+        /* ===== 错误提示 ===== */
+        .zhang_error-box {
+            background: #fbe9e7;
+            border: 1px solid #ef9a9a;
+            border-left: 4px solid #c62828;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #c62828;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .zhang_error-box.zhang_show { display: block; }
+        .zhang_error-box b { font-weight: bold; }
+
+        /* ===== 成功提示 ===== */
+        .zhang_success-box {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-left: 4px solid #2e7d4f;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2e7d4f;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .zhang_success-box.zhang_show { display: block; }
+
+        /* ===== 加载动画 ===== */
+        .zhang_loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #90caf9;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: zhang_spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes zhang_spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+        .zhang_tips code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ===== 历史记录 ===== */
+        .zhang_history {
+            margin-top: 16px;
+        }
+        .zhang_history-list {
+            list-style: none;
+            font-size: 12px;
+        }
+        .zhang_history-item {
+            background: #fff;
+            border: 1px solid #e8e0d2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: "Consolas", "Courier New", monospace;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .zhang_history-item:hover { border-color: #e96c55; }
+        .zhang_history-item .zhang_hist-method {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+        .zhang_history-item .zhang_hist-method.zhang_m-get { background: #e8f5e9; color: #2e7d4f; }
+        .zhang_history-item .zhang_hist-method.zhang_m-post { background: #e3f2fd; color: #1565c0; }
+        .zhang_history-item .zhang_hist-method.zhang_m-put { background: #fff8e1; color: #f9a825; }
+        .zhang_history-item .zhang_hist-method.zhang_m-delete { background: #fbe9e7; color: #c62828; }
+        .zhang_history-item .zhang_hist-url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #687681;
+        }
+        .zhang_history-item .zhang_hist-status {
+            font-size: 11px;
+            margin-left: 8px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .zhang_history-item .zhang_hist-status.zhang_s-ok { background: #e8f5e9; color: #2e7d4f; }
+        .zhang_history-item .zhang_hist-status.zhang_s-err { background: #fbe9e7; color: #c62828; }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_section-title { font-size: 19px; }
+            .zhang_form-row { flex-direction: column; align-items: stretch; }
+            .zhang_select, .zhang_input { width: 100%; }
+            .zhang_btn.zhang_send { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>接口测试工具</h1>
+        <p class="zhang_subtitle">张婧雅 · fetch GET / POST / PUT / DELETE 接口调试</p>
+
+        <div class="zhang_intro">
+            使用原生 <code>fetch()</code> 对远程数据接口进行测试，支持 <b>GET</b>、<b>POST</b>、<b>PUT</b>、<b>DELETE</b> 等方法。
+            可自定义请求 URL、请求头、请求体（Body），实时查看返回数据和错误信息。
+        </div>
+
+        <!-- ==================== ① 预设接口 ==================== -->
+        <h2 class="zhang_section-title">① 快速选择 — 预设接口</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                预设接口（点击自动填充）
+                <span class="zhang_tag">DummyJSON + JSONPlaceholder</span>
+            </div>
+            <div class="zhang_visual">
+                <div class="zhang_presets" id="zhang_presets"></div>
+                <div class="zhang_tips">
+                    <b>GET</b> — 获取资源；<b>POST</b> — 新建资源；<b>PUT</b> — 更新资源；<b>DELETE</b> — 删除资源。<br>
+                    DummyJSON 和 JSONPlaceholder 均支持 CORS 跨域，可直接在前端请求。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ② 请求构建器 ==================== -->
+        <h2 class="zhang_section-title">② 请求构建器</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                自定义请求
+                <span class="zhang_tag" id="zhang_ready_tag">就绪</span>
+            </div>
+            <div class="zhang_visual">
+                <!-- 方法 + URL -->
+                <div class="zhang_form-row">
+                    <select class="zhang_select" id="zhang_method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                    <input class="zhang_input" id="zhang_url" type="text" placeholder="输入接口 URL，如 https://jsonplaceholder.typicode.com/posts" value="https://jsonplaceholder.typicode.com/posts">
+                </div>
+
+                <!-- 请求头 -->
+                <div class="zhang_visual-label">请求头（Headers，JSON 格式，可选）：</div>
+                <div class="zhang_form-row">
+                    <textarea class="zhang_textarea" id="zhang_headers" style="min-height:60px;" placeholder='{"Content-Type":"application/json"}'>{
+  "Content-Type": "application/json"
+}</textarea>
+                </div>
+
+                <!-- 请求体 -->
+                <div class="zhang_visual-label" id="zhang_body_label">请求体（Body，JSON 格式，POST/PUT/PATCH 时发送）：</div>
+                <div class="zhang_form-row">
+                    <textarea class="zhang_textarea" id="zhang_body" placeholder='{"title":"foo","body":"bar","userId":1}'>{
+  "title": "测试文章",
+  "body": "这是通过 fetch POST 创建的内容",
+  "userId": 1
+}</textarea>
+                </div>
+
+                <!-- 发送按钮 -->
+                <div class="zhang_form-row">
+                    <button class="zhang_btn zhang_send" id="zhang_btn_send">▶ 发送请求</button>
+                    <button class="zhang_btn zhang_alt" id="zhang_btn_clear">清空结果</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ③ 响应结果 ==================== -->
+        <h2 class="zhang_section-title">③ 响应结果</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                响应数据
+                <span class="zhang_tag" id="zhang_resp_tag">等待请求</span>
+            </div>
+            <div class="zhang_visual">
+                <!-- 状态徽章 -->
+                <div class="zhang_response-meta" id="zhang_resp_meta">
+                    <span class="zhang_meta-badge">方法: <b id="zhang_r_method">—</b></span>
+                    <span class="zhang_meta-badge">状态码: <b id="zhang_r_status">—</b></span>
+                    <span class="zhang_meta-badge">耗时: <b id="zhang_r_time">—</b></span>
+                    <span class="zhang_meta-badge">大小: <b id="zhang_r_size">—</b></span>
+                </div>
+
+                <!-- 错误提示 -->
+                <div class="zhang_error-box" id="zhang_error_box">
+                    <b>❌ 请求失败：</b><span id="zhang_error_msg"></span>
+                </div>
+
+                <!-- 成功提示 -->
+                <div class="zhang_success-box" id="zhang_success_box">
+                    <b>✓ 请求成功！</b><span id="zhang_success_msg"></span>
+                </div>
+
+                <!-- JSON 输出 -->
+                <div class="zhang_visual-label">响应体（JSON 高亮）：</div>
+                <pre class="zhang_json-output" id="zhang_json_output">点击「发送请求」后在此显示响应数据…</pre>
+            </div>
+        </div>
+
+        <!-- ==================== ④ 历史记录 ==================== -->
+        <h2 class="zhang_section-title">④ 请求历史</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                历史记录（点击可重新加载）
+                <span class="zhang_tag" id="zhang_hist_count">0 条</span>
+            </div>
+            <div class="zhang_visual">
+                <ul class="zhang_history-list" id="zhang_history_list">
+                    <li style="color:#999;text-align:center;padding:12px;">暂无请求记录</li>
+                </ul>
+                <button class="zhang_btn zhang_alt" id="zhang_btn_clear_hist" style="margin-top:10px;">清空历史</button>
+            </div>
+        </div>
+
+        <div class="zhang_tips" style="margin-top:26px;">
+            小结：<b>fetch</b> 可以发送任意 HTTP 方法的请求。<br>
+            ① <b>GET</b> — 只读，不发送 body；<br>
+            ② <b>POST</b> — 创建资源，需设置 <code>Content-Type</code> 头和 body；<br>
+            ③ <b>PUT / PATCH</b> — 更新资源；<b>DELETE</b> — 删除资源；<br>
+            ④ 始终在 <code>.catch()</code> 中处理网络错误，在 <code>.then()</code> 中检查 <code>res.ok</code> 处理 HTTP 错误状态码。
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           预设接口列表
+           ================================================================ */
+        var ZHANG_PRESETS = [
+            { method: 'GET',    url: 'https://dummyjson.com/products?limit=5',                       body: '', label: 'DummyJSON 商品列表',         desc: '获取 5 条商品' },
+            { method: 'GET',    url: 'https://dummyjson.com/products/1',                              body: '', label: 'DummyJSON 单个商品',         desc: '获取 id=1 的商品' },
+            { method: 'GET',    url: 'https://jsonplaceholder.typicode.com/posts',                   body: '', label: 'JSONPlaceholder 文章列表',    desc: '获取 100 篇文章' },
+            { method: 'GET',    url: 'https://jsonplaceholder.typicode.com/posts/1',                 body: '', label: 'JSONPlaceholder 单篇文章',    desc: '获取 id=1 的文章' },
+            { method: 'POST',   url: 'https://jsonplaceholder.typicode.com/posts',                   body: '{\n  "title": "测试文章",\n  "body": "fetch POST 创建",\n  "userId": 1\n}', label: 'JSONPlaceholder 新建文章', desc: 'POST 创建一篇新文章' },
+            { method: 'PUT',    url: 'https://jsonplaceholder.typicode.com/posts/1',                 body: '{\n  "id": 1,\n  "title": "更新后的标题",\n  "body": "PUT 更新内容",\n  "userId": 1\n}', label: 'JSONPlaceholder 更新文章', desc: 'PUT 更新 id=1 的文章' },
+            { method: 'PATCH',  url: 'https://jsonplaceholder.typicode.com/posts/1',                 body: '{\n  "title": "PATCH 部分更新"\n}', label: 'JSONPlaceholder 部分更新', desc: 'PATCH 只改 title' },
+            { method: 'DELETE', url: 'https://jsonplaceholder.typicode.com/posts/1',                 body: '', label: 'JSONPlaceholder 删除文章',    desc: 'DELETE 删除 id=1 的文章' },
+            { method: 'GET',    url: 'https://jsonplaceholder.typicode.com/users',                   body: '', label: 'JSONPlaceholder 用户列表',    desc: '获取所有用户' },
+            { method: 'GET',    url: 'https://jsonplaceholder.typicode.com/comments?postId=1',       body: '', label: 'JSONPlaceholder 评论列表',    desc: '获取 postId=1 的评论' },
+            { method: 'POST',   url: 'https://dummyjson.com/products/add',                           body: '{\n  "title": "新商品",\n  "price": 99.9,\n  "brand": "TestBrand"\n}', label: 'DummyJSON 新建商品', desc: 'POST 添加商品' },
+            { method: 'GET',    url: 'https://dummyjson.com/products/search?q=phone',                body: '', label: 'DummyJSON 搜索商品',          desc: '搜索关键词 phone' }
+        ];
+
+        /* ================================================================
+           工具函数
+           ================================================================ */
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // JSON 语法高亮
+        function zhang_syntaxHighlightJson(obj) {
+            var jsonStr;
+            if (typeof obj === 'string') {
+                jsonStr = obj;
+            } else {
+                jsonStr = JSON.stringify(obj, null, 2);
+            }
+            jsonStr = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return jsonStr.replace(
+                /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                function(match) {
+                    var cls = 'zhang_j-num';
+                    if (/^"/.test(match)) {
+                        cls = /:$/.test(match) ? 'zhang_j-key' : 'zhang_j-str';
+                    } else if (/true|false/.test(match)) {
+                        cls = 'zhang_j-bool';
+                    } else if (/null/.test(match)) {
+                        cls = 'zhang_j-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                }
+            );
+        }
+
+        // 格式化字节大小
+        function zhang_formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        /* ================================================================
+           渲染预设按钮
+           ================================================================ */
+        function zhang_renderPresets() {
+            var container = document.getElementById('zhang_presets');
+            var html = '';
+            ZHANG_PRESETS.forEach(function(p, i) {
+                var methodCls = 'zhang_method-' + p.method.toLowerCase();
+                html += '<button class="zhang_preset-btn" onclick="zhang_loadPreset(' + i + ')">'
+                    +   '<span class="zhang_method-tag ' + methodCls + '">' + p.method + '</span>'
+                    +   zhang_escape(p.label)
+                    +  '</button>';
+            });
+            container.innerHTML = html;
+        }
+
+        function zhang_loadPreset(idx) {
+            var p = ZHANG_PRESETS[idx];
+            document.getElementById('zhang_method').value = p.method;
+            document.getElementById('zhang_url').value = p.url;
+            document.getElementById('zhang_body').value = p.body;
+            zhang_toggleBodyVisibility();
+            // 自动发送
+            zhang_sendRequest();
+        }
+
+        /* ================================================================
+           根据方法显示/隐藏 Body 输入区
+           ================================================================ */
+        function zhang_toggleBodyVisibility() {
+            var method = document.getElementById('zhang_method').value;
+            var bodyLabel = document.getElementById('zhang_body_label');
+            var bodyTextarea = document.getElementById('zhang_body');
+            var hasBody = (method === 'POST' || method === 'PUT' || method === 'PATCH');
+            bodyLabel.style.opacity = hasBody ? '1' : '0.4';
+            bodyTextarea.style.opacity = hasBody ? '1' : '0.5';
+        }
+
+        /* ================================================================
+           显示错误 / 成功提示
+           ================================================================ */
+        function zhang_showError(msg) {
+            var box = document.getElementById('zhang_error_box');
+            document.getElementById('zhang_error_msg').textContent = msg;
+            box.classList.add('zhang_show');
+        }
+        function zhang_hideError() {
+            document.getElementById('zhang_error_box').classList.remove('zhang_show');
+        }
+        function zhang_showSuccess(msg) {
+            var box = document.getElementById('zhang_success_box');
+            document.getElementById('zhang_success_msg').textContent = msg;
+            box.classList.add('zhang_show');
+            setTimeout(function() { box.classList.remove('zhang_show'); }, 4000);
+        }
+        function zhang_hideSuccess() {
+            document.getElementById('zhang_success_box').classList.remove('zhang_show');
+        }
+
+        /* ================================================================
+           请求历史
+           ================================================================ */
+        var zhang_history = [];
+
+        function zhang_addHistory(method, url, statusOk, statusCode) {
+            zhang_history.unshift({
+                method: method,
+                url: url,
+                ok: statusOk,
+                code: statusCode,
+                time: new Date().toLocaleTimeString()
+            });
+            if (zhang_history.length > 20) zhang_history.pop();
+            zhang_renderHistory();
+        }
+
+        function zhang_renderHistory() {
+            var list = document.getElementById('zhang_history_list');
+            var countEl = document.getElementById('zhang_hist_count');
+            countEl.textContent = zhang_history.length + ' 条';
+
+            if (zhang_history.length === 0) {
+                list.innerHTML = '<li style="color:#999;text-align:center;padding:12px;">暂无请求记录</li>';
+                return;
+            }
+
+            var html = '';
+            zhang_history.forEach(function(item, i) {
+                var methodCls = 'zhang_m-' + item.method.toLowerCase();
+                var statusCls = item.ok ? 'zhang_s-ok' : 'zhang_s-err';
+                var statusText = item.ok ? '✓ ' + item.code : '✗ ' + item.code;
+                html += '<li class="zhang_history-item" onclick="zhang_reloadHistory(' + i + ')">'
+                    +   '<span class="zhang_hist-method ' + methodCls + '">' + item.method + '</span>'
+                    +   '<span class="zhang_hist-url" title="' + zhang_escape(item.url) + '">' + zhang_escape(item.url) + '</span>'
+                    +   '<span class="zhang_hist-status ' + statusCls + '">' + statusText + '</span>'
+                    +   '<span style="font-size:11px;color:#aaa;margin-left:8px;">' + item.time + '</span>'
+                    +  '</li>';
+            });
+            list.innerHTML = html;
+        }
+
+        function zhang_reloadHistory(i) {
+            var item = zhang_history[i];
+            document.getElementById('zhang_method').value = item.method;
+            document.getElementById('zhang_url').value = item.url;
+            zhang_toggleBodyVisibility();
+            zhang_sendRequest();
+        }
+
+        /* ================================================================
+           核心：发送 fetch 请求
+           ================================================================ */
+        function zhang_sendRequest() {
+            var method = document.getElementById('zhang_method').value;
+            var url = document.getElementById('zhang_url').value.trim();
+            var headersStr = document.getElementById('zhang_headers').value.trim();
+            var bodyStr = document.getElementById('zhang_body').value.trim();
+
+            // 验证 URL
+            if (!url) {
+                zhang_showError('URL 不能为空');
+                return;
+            }
+
+            zhang_hideError();
+            zhang_hideSuccess();
+
+            // 解析 headers
+            var headers = {};
+            if (headersStr) {
+                try {
+                    headers = JSON.parse(headersStr);
+                } catch (e) {
+                    zhang_showError('请求头 JSON 格式错误：' + e.message);
+                    return;
+                }
+            }
+
+            // 构建请求选项
+            var options = {
+                method: method,
+                headers: headers
+            };
+
+            // POST/PUT/PATCH 才发送 body
+            var hasBody = (method === 'POST' || method === 'PUT' || method === 'PATCH');
+            if (hasBody && bodyStr) {
+                try {
+                    JSON.parse(bodyStr); // 验证 body 是合法 JSON
+                } catch (e) {
+                    zhang_showError('请求体 JSON 格式错误：' + e.message);
+                    return;
+                }
+                options.body = bodyStr;
+            }
+
+            // 更新 UI 为加载状态
+            var sendBtn = document.getElementById('zhang_btn_send');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="zhang_loading-spinner"></span> 请求中…';
+            document.getElementById('zhang_resp_tag').textContent = '请求中…';
+            document.getElementById('zhang_ready_tag').textContent = '发送中';
+
+            // 状态徽章
+            var statusBadge = document.getElementById('zhang_r_status').parentElement;
+            statusBadge.className = 'zhang_meta-badge zhang_status-loading';
+            document.getElementById('zhang_r_method').textContent = method;
+            document.getElementById('zhang_r_status').textContent = '...';
+            document.getElementById('zhang_r_time').textContent = '...';
+            document.getElementById('zhang_r_size').textContent = '...';
+
+            var output = document.getElementById('zhang_json_output');
+            output.innerHTML = '<span style="color:#90caf9;"><span class="zhang_loading-spinner"></span> 正在请求 ' + zhang_escape(url) + ' …</span>';
+
+            var startTime = performance.now();
+
+            fetch(url, options)
+                .then(function(res) {
+                    var elapsed = (performance.now() - startTime).toFixed(0);
+                    document.getElementById('zhang_r_time').textContent = elapsed + ' ms';
+
+                    // 状态码
+                    var statusText = res.status + ' ' + res.statusText;
+                    document.getElementById('zhang_r_status').textContent = statusText;
+                    statusBadge.className = 'zhang_meta-badge ' + (res.ok ? 'zhang_status-ok' : 'zhang_status-err');
+
+                    // 获取响应大小
+                    var size = 0;
+                    try {
+                        size = parseInt(res.headers.get('content-length') || '0', 10);
+                    } catch(e) {}
+
+                    // 解析响应体
+                    var contentType = res.headers.get('content-type') || '';
+                    if (contentType.indexOf('application/json') !== -1) {
+                        return res.json().then(function(data) {
+                            var jsonStr = JSON.stringify(data);
+                            if (!size) size = new Blob([jsonStr]).size;
+                            document.getElementById('zhang_r_size').textContent = zhang_formatSize(size);
+                            return { data: data, ok: res.ok, status: res.status };
+                        });
+                    } else {
+                        return res.text().then(function(text) {
+                            if (!size) size = new Blob([text]).size;
+                            document.getElementById('zhang_r_size').textContent = zhang_formatSize(size);
+                            return { data: text, ok: res.ok, status: res.status };
+                        });
+                    }
+                })
+                .then(function(result) {
+                    var data = result.data;
+                    var ok = result.ok;
+                    var status = result.status;
+
+                    // 渲染 JSON
+                    output.innerHTML = zhang_syntaxHighlightJson(data);
+
+                    if (ok) {
+                        document.getElementById('zhang_resp_tag').textContent = '✓ 成功';
+                        var dataDesc = '';
+                        if (Array.isArray(data)) dataDesc = '（数组，' + data.length + ' 项）';
+                        else if (typeof data === 'object') dataDesc = '（对象）';
+                        zhang_showSuccess('HTTP ' + status + '，响应已解析' + dataDesc);
+                    } else {
+                        document.getElementById('zhang_resp_tag').textContent = '⚠ HTTP ' + status;
+                        zhang_showError('HTTP ' + status + ' — 服务器返回错误状态码（非 2xx）');
+                    }
+
+                    zhang_addHistory(method, url, ok, status);
+                    console.log('[fetch] 响应：', { method: method, url: url, status: status, data: data });
+                })
+                .catch(function(err) {
+                    var elapsed = (performance.now() - startTime).toFixed(0);
+                    document.getElementById('zhang_r_time').textContent = elapsed + ' ms';
+                    document.getElementById('zhang_r_status').textContent = '网络错误';
+                    statusBadge.className = 'zhang_meta-badge zhang_status-err';
+                    document.getElementById('zhang_r_size').textContent = '—';
+
+                    output.innerHTML = '<span style="color:#ef5350;">// ❌ 请求失败\n//\n// 错误类型：' + zhang_escape(err.name) + '\n// 错误信息：' + zhang_escape(err.message) + '\n//\n// 可能原因：\n//   1. 网络断开或无法连接服务器\n//   2. URL 拼写错误或域名不存在\n//   3. 服务器不支持该方法的 CORS 跨域\n//   4. 混合内容限制（HTTPS 页面请求 HTTP 接口）</span>';
+
+                    document.getElementById('zhang_resp_tag').textContent = '❌ 失败';
+                    zhang_showError(err.name + ': ' + err.message);
+
+                    zhang_addHistory(method, url, false, 'ERR');
+                    console.error('[fetch] 错误：', err);
+                })
+                .finally(function() {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '▶ 发送请求';
+                    document.getElementById('zhang_ready_tag').textContent = '就绪';
+                });
+        }
+
+        /* ================================================================
+           清空结果
+           ================================================================ */
+        function zhang_clearResult() {
+            zhang_hideError();
+            zhang_hideSuccess();
+            document.getElementById('zhang_json_output').textContent = '点击「发送请求」后在此显示响应数据…';
+            document.getElementById('zhang_resp_tag').textContent = '等待请求';
+            document.getElementById('zhang_r_method').textContent = '—';
+            document.getElementById('zhang_r_status').textContent = '—';
+            document.getElementById('zhang_r_time').textContent = '—';
+            document.getElementById('zhang_r_size').textContent = '—';
+            document.getElementById('zhang_r_status').parentElement.className = 'zhang_meta-badge';
+        }
+
+        /* ================================================================
+           事件绑定 & 初始化
+           ================================================================ */
+        document.getElementById('zhang_method').addEventListener('change', zhang_toggleBodyVisibility);
+        document.getElementById('zhang_btn_send').addEventListener('click', zhang_sendRequest);
+        document.getElementById('zhang_btn_clear').addEventListener('click', zhang_clearResult);
+        document.getElementById('zhang_btn_clear_hist').addEventListener('click', function() {
+            zhang_history = [];
+            zhang_renderHistory();
+        });
+
+        // 支持 Ctrl+Enter 发送
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                zhang_sendRequest();
+            }
+        });
+
+        // 初始化
+        zhang_renderPresets();
+        zhang_toggleBodyVisibility();
+    </script>
+</body>
+</html>

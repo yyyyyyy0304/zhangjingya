@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 定时器 — setTimeout & setInterval</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 860px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #2d7c7a;
+        }
+        .zhang_subtitle {
+            text-align: center;
+            color: #687681;
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+        .zhang_intro {
+            background: #fffdf8;
+            border-left: 4px solid #e96c55;
+            padding: 12px 18px;
+            font-size: 14px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12.5px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        .zhang_section-title {
+            font-size: 22px;
+            color: #bd493c;
+            margin: 36px 0 16px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e96c55;
+        }
+
+        /* ===== 演示卡片 ===== */
+        .zhang_demo {
+            background: #fffdf8;
+            border: 1px solid #d9d2c5;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .zhang_demo-head {
+            background: #2d7c7a;
+            color: #fffdf8;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zhang_demo-head .zhang_tag {
+            background: rgba(255,255,255,0.22);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .zhang_code {
+            background: #17212b;
+            color: #f8f4e9;
+            padding: 14px 18px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+        .zhang_code .zhang_k { color: #e96c55; }
+        .zhang_code .zhang_s { color: #b7d9d0; }
+        .zhang_code .zhang_n { color: #ffd5a8; }
+        .zhang_code .zhang_c { color: #7f8f7f; }
+
+        /* ===== 可视化区 ===== */
+        .zhang_visual {
+            padding: 16px 18px;
+            background: #fff8e1;
+            border-top: 1px dashed #d9d2c5;
+        }
+        .zhang_visual-label {
+            font-size: 12px;
+            color: #687681;
+            margin-bottom: 6px;
+        }
+
+        /* ===== 按钮 ===== */
+        .zhang_btn {
+            background: #bd493c;
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 6px 0 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background 0.2s;
+        }
+        .zhang_btn:hover { background: #e96c55; }
+        .zhang_btn.zhang_alt { background: #2d7c7a; }
+        .zhang_btn.zhang_alt:hover { background: #3a9a97; }
+        .zhang_btn:disabled { background: #aaa; cursor: not-allowed; }
+
+        /* ===== 计数器显示 ===== */
+        .zhang_counter-box {
+            background: #17212b;
+            border-radius: 6px;
+            padding: 24px;
+            text-align: center;
+            margin: 14px 0;
+        }
+        .zhang_counter-label {
+            color: #687681;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .zhang_counter-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e96c55;
+            font-family: "Consolas", "Courier New", monospace;
+            line-height: 1.2;
+        }
+        .zhang_counter-sub {
+            color: #b7d9d0;
+            font-size: 13px;
+            margin-top: 6px;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+        .zhang_counter-box.zhang_running .zhang_counter-value {
+            animation: zhang_pulse 1s ease-in-out infinite;
+        }
+        @keyframes zhang_pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ===== 倒计时进度环 ===== */
+        .zhang_timer-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 14px auto;
+        }
+        .zhang_timer-ring svg {
+            transform: rotate(-90deg);
+        }
+        .zhang_timer-ring .zhang_ring-bg {
+            stroke: #e8e0d2;
+            stroke-width: 8;
+            fill: none;
+        }
+        .zhang_timer-ring .zhang_ring-progress {
+            stroke: #bd493c;
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+        .zhang_timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: bold;
+            color: #17212b;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+
+        /* ===== 输入框 ===== */
+        .zhang_input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .zhang_input-group label {
+            font-size: 13px;
+            color: #687681;
+            white-space: nowrap;
+        }
+        .zhang_input {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 14px;
+            padding: 6px 10px;
+            border: 1px solid #d9d2c5;
+            border-radius: 4px;
+            background: #fff;
+            color: #17212b;
+            outline: none;
+            width: 80px;
+            text-align: center;
+        }
+        .zhang_input:focus { border-color: #e96c55; }
+        .zhang_input-unit {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* ===== 日志区 ===== */
+        .zhang_log {
+            background: #17212b;
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .zhang_log-entry {
+            color: #b7d9d0;
+            border-bottom: 1px dashed #2a3a4a;
+            padding: 2px 0;
+        }
+        .zhang_log-entry:last-child { border-bottom: none; }
+        .zhang_log-entry .zhang_log-time { color: #7f8f7f; }
+        .zhang_log-entry .zhang_log-action { color: #e96c55; font-weight: bold; }
+        .zhang_log-entry.zhang_log-error .zhang_log-action { color: #ef5350; }
+        .zhang_log-entry.zhang_log-success .zhang_log-action { color: #66bb6a; }
+        .zhang_log-empty {
+            color: #687681;
+            text-align: center;
+            padding: 8px;
+        }
+
+        /* ===== 状态徽章 ===== */
+        .zhang_status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .zhang_status-badge.zhang_idle { background: #e8e0d2; color: #888; }
+        .zhang_status-badge.zhang_running { background: #e8f5e9; color: #2e7d4f; }
+        .zhang_status-badge.zhang_paused { background: #fff8e1; color: #f9a825; }
+        .zhang_status-badge.zhang_done { background: #e3f2fd; color: #1565c0; }
+
+        /* ===== 对比表 ===== */
+        .zhang_compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .zhang_compare-table th,
+        .zhang_compare-table td {
+            border: 1px solid #d9d2c5;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .zhang_compare-table th {
+            background: #efe8da;
+            color: #2d7c7a;
+            font-weight: bold;
+        }
+        .zhang_compare-table code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+        .zhang_compare-table .zhang_yes { color: #2e7d4f; font-weight: bold; }
+        .zhang_compare-table .zhang_no { color: #ef5350; font-weight: bold; }
+
+        /* ===== 提示条 ===== */
+        .zhang_tips {
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #687681;
+            background: #fff;
+            border: 1px dashed #d9d2c5;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+        .zhang_tips b { color: #bd493c; }
+        .zhang_tips code {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            color: #bd493c;
+            background: #f0ebe0;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ===== 数字时钟 ===== */
+        .zhang_clock {
+            background: #17212b;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            margin: 14px 0;
+        }
+        .zhang_clock-time {
+            font-size: 36px;
+            font-weight: bold;
+            color: #b7d9d0;
+            font-family: "Consolas", "Courier New", monospace;
+            letter-spacing: 2px;
+        }
+        .zhang_clock-date {
+            font-size: 13px;
+            color: #687681;
+            margin-top: 6px;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+        .zhang_clock.zhang_running .zhang_clock-time {
+            color: #66bb6a;
+        }
+
+        /* ===== 弹出提示 ===== */
+        .zhang_toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2d7c7a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+            pointer-events: none;
+        }
+        .zhang_toast.zhang_show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 14px 40px; }
+            h1 { font-size: 24px; }
+            .zhang_section-title { font-size: 19px; }
+            .zhang_counter-value { font-size: 36px; }
+            .zhang_clock-time { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>JavaScript 定时器</h1>
+        <p class="zhang_subtitle">张婧雅 · setTimeout 与 setInterval</p>
+
+        <div class="zhang_intro">
+            JavaScript 提供两种定时器：<code>setTimeout()</code>（延迟执行一次）和 <code>setInterval()</code>（每隔一段时间重复执行）。
+            对应的清除方法分别是 <code>clearTimeout()</code> 和 <code>clearInterval()</code>。
+        </div>
+
+        <!-- ==================== ① setTimeout ==================== -->
+        <h2 class="zhang_section-title">① setTimeout — 延迟执行一次</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                setTimeout 语法
+                <span class="zhang_tag">单次定时</span>
+            </div>
+            <pre class="zhang_code"><span class="zhang_c">// 语法：setTimeout(回调函数, 延迟毫秒数, 传给回调的参数...)</span>
+<span class="zhang_k">var</span> timer = <span class="zhang_k">setTimeout</span>(<span class="zhang_k">function</span>() {
+    console.<span class="zhang_k">log</span>(<span class="zhang_s">'3 秒后执行'</span>);
+}, <span class="zhang_n">3000</span>);
+
+<span class="zhang_c">// 在执行前可以取消</span>
+<span class="zhang_k">clearTimeout</span>(timer);</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">演示：设置延迟时间，点击开始倒计时</div>
+                <div class="zhang_input-group">
+                    <label>延迟：</label>
+                    <input class="zhang_input" id="zhang_st_delay" type="number" value="3" min="1" max="60">
+                    <span class="zhang_input-unit">秒</span>
+                    <button class="zhang_btn" id="zhang_st_start">▶ 开始倒计时</button>
+                    <button class="zhang_btn zhang_alt" id="zhang_st_cancel">✕ 取消</button>
+                    <span class="zhang_status-badge zhang_idle" id="zhang_st_status">待机</span>
+                </div>
+
+                <!-- 倒计时进度环 -->
+                <div class="zhang_timer-ring" id="zhang_st_ring" style="display:none;">
+                    <svg width="120" height="120">
+                        <circle class="zhang_ring-bg" cx="60" cy="60" r="52"></circle>
+                        <circle class="zhang_ring-progress" cx="60" cy="60" r="52"
+                            stroke-dasharray="326.7" stroke-dashoffset="0" id="zhang_st_ring_circle"></circle>
+                    </svg>
+                    <div class="zhang_timer-text" id="zhang_st_ring_text">3</div>
+                </div>
+
+                <div class="zhang_log" id="zhang_st_log">
+                    <div class="zhang_log-empty">日志将显示在这里…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ② setInterval ==================== -->
+        <h2 class="zhang_section-title">② setInterval — 重复执行</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                setInterval 语法
+                <span class="zhang_tag">循环定时</span>
+            </div>
+            <pre class="zhang_code"><span class="zhang_c">// 语法：setInterval(回调函数, 间隔毫秒数)</span>
+<span class="zhang_k">var</span> timer = <span class="zhang_k">setInterval</span>(<span class="zhang_k">function</span>() {
+    console.<span class="zhang_k">log</span>(<span class="zhang_s">'每隔 1 秒执行一次'</span>);
+}, <span class="zhang_n">1000</span>);
+
+<span class="zhang_c">// 停止循环</span>
+<span class="zhang_k">clearInterval</span>(timer);</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">演示：设置间隔时间，启动后计数器每间隔自动加 1</div>
+                <div class="zhang_input-group">
+                    <label>间隔：</label>
+                    <input class="zhang_input" id="zhang_si_interval" type="number" value="1" min="0.1" max="10" step="0.1">
+                    <span class="zhang_input-unit">秒</span>
+                    <button class="zhang_btn" id="zhang_si_start">▶ 开始计数</button>
+                    <button class="zhang_btn zhang_alt" id="zhang_si_stop">⏸ 停止</button>
+                    <button class="zhang_btn zhang_alt" id="zhang_si_reset">↺ 重置</button>
+                    <span class="zhang_status-badge zhang_idle" id="zhang_si_status">待机</span>
+                </div>
+
+                <!-- 计数器 -->
+                <div class="zhang_counter-box" id="zhang_si_box">
+                    <div class="zhang_counter-label">计数器（每 <span id="zhang_si_interval_display">1</span> 秒 +1）</div>
+                    <div class="zhang_counter-value" id="zhang_si_count">0</div>
+                    <div class="zhang_counter-sub">已运行: <span id="zhang_si_elapsed">0.0</span> 秒</div>
+                </div>
+
+                <div class="zhang_log" id="zhang_si_log">
+                    <div class="zhang_log-empty">日志将显示在这里…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ③ 实际应用：时钟 ==================== -->
+        <h2 class="zhang_section-title">③ 实际应用 — 实时时钟</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                用 setInterval 实现数字时钟
+                <span class="zhang_tag">经典场景</span>
+            </div>
+            <pre class="zhang_code"><span class="zhang_c">// 每秒更新一次时间显示</span>
+<span class="zhang_k">setInterval</span>(<span class="zhang_k">function</span>() {
+    <span class="zhang_k">var</span> now = <span class="zhang_k">new</span> <span class="zhang_k">Date</span>();
+    console.<span class="zhang_k">log</span>(now.toLocaleTimeString());
+}, <span class="zhang_n">1000</span>);</pre>
+            <div class="zhang_visual">
+                <div class="zhang_visual-label">实时时钟（每 1 秒刷新）：</div>
+                <div class="zhang_clock" id="zhang_clock">
+                    <div class="zhang_clock-time" id="zhang_clock_time">--:--:--</div>
+                    <div class="zhang_clock-date" id="zhang_clock_date">----年--月--日 星期-</div>
+                </div>
+                <button class="zhang_btn" id="zhang_clock_toggle">⏸ 暂停时钟</button>
+                <span class="zhang_status-badge zhang_running" id="zhang_clock_status">运行中</span>
+                <div class="zhang_tips">
+                    这是 <code>setInterval</code> 最经典的用法：每隔固定时间更新 UI。注意暂停时要用 <code>clearInterval()</code> 清除定时器。
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ④ 两者对比 ==================== -->
+        <h2 class="zhang_section-title">④ setTimeout vs setInterval 对比</h2>
+
+        <div class="zhang_demo">
+            <div class="zhang_demo-head">
+                核心区别
+                <span class="zhang_tag">一图看懂</span>
+            </div>
+            <div class="zhang_visual">
+                <table class="zhang_compare-table">
+                    <thead>
+                        <tr>
+                            <th style="width:18%;">对比项</th>
+                            <th style="width:41%;">setTimeout</th>
+                            <th style="width:41%;">setInterval</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>执行次数</td>
+                            <td><span class="zhang_yes">1 次</span>（延迟后执行一次就结束）</td>
+                            <td><span class="zhang_yes">多次</span>（每隔间隔重复执行）</td>
+                        </tr>
+                        <tr>
+                            <td>清除方法</td>
+                            <td><code>clearTimeout(id)</code></td>
+                            <td><code>clearInterval(id)</code></td>
+                        </tr>
+                        <tr>
+                            <td>返回值</td>
+                            <td>定时器 ID（数字）</td>
+                            <td>定时器 ID（数字）</td>
+                        </tr>
+                        <tr>
+                            <td>典型场景</td>
+                            <td>延迟弹窗、防抖、动画结束回调</td>
+                            <td>轮播图、倒计时、实时时钟、轮询</td>
+                        </tr>
+                        <tr>
+                            <td>会阻塞吗？</td>
+                            <td><span class="zhang_no">不会</span>（异步，不影响主线程）</td>
+                            <td><span class="zhang_no">不会</span>（异步，不影响主线程）</td>
+                        </tr>
+                        <tr>
+                            <td>能递归替代？</td>
+                            <td><span class="zhang_yes">能</span>（在回调里再调 setTimeout 可模拟循环）</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>精度问题</td>
+                            <td>延迟可能因事件队列排队而 <span class="zhang_no">变长</span></td>
+                            <td>间隔可能因回调执行耗时而 <span class="zhang_no">漂移</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="zhang_tips" style="margin-top:14px;">
+                    <b>递归 setTimeout</b> 是比 <code>setInterval</code> 更安全的方式：在上一次回调完成后再设定下一次，
+                    避免回调执行时间 > 间隔 时导致的重叠堆积。<br>
+                    <code>setTimeout(function fn() { /* do */ setTimeout(fn, 1000); }, 1000);</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="zhang_tips" style="margin-top:26px;">
+            小结：<br>
+            ① <code>setTimeout(fn, ms)</code> — 延迟 <code>ms</code> 毫秒后执行<b>一次</b>，用 <code>clearTimeout()</code> 取消；<br>
+            ② <code>setInterval(fn, ms)</code> — 每隔 <code>ms</code> 毫秒<b>重复</b>执行，用 <code>clearInterval()</code> 停止；<br>
+            ③ 两者都返回一个 ID（数字），传给清除函数即可取消；<br>
+            ④ 定时器是<b>异步</b>的，不会阻塞后续代码；<br>
+            ⑤ 推荐用<b>递归 setTimeout</b> 替代 setInterval，避免回调堆积。
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="zhang_toast" id="zhang_toast"></div>
+
+    <script>
+        /* ================================================================
+           工具函数
+           ================================================================ */
+        function zhang_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function zhang_getTimeStr() {
+            var d = new Date();
+            return d.toLocaleTimeString('zh-CN', { hour12: false });
+        }
+
+        function zhang_log(containerId, action, msg, type) {
+            var el = document.getElementById(containerId);
+            // 清除空提示
+            var empty = el.querySelector('.zhang_log-empty');
+            if (empty) empty.remove();
+
+            var entry = document.createElement('div');
+            entry.className = 'zhang_log-entry' + (type ? ' zhang_log-' + type : '');
+            entry.innerHTML = '<span class="zhang_log-time">[' + zhang_getTimeStr() + ']</span> '
+                + '<span class="zhang_log-action">' + zhang_escape(action) + '</span> '
+                + zhang_escape(msg || '');
+            el.appendChild(entry);
+            el.scrollTop = el.scrollHeight;
+
+            // 最多保留 30 条
+            while (el.children.length > 30) {
+                el.removeChild(el.firstChild);
+            }
+        }
+
+        function zhang_clearLog(containerId) {
+            var el = document.getElementById(containerId);
+            el.innerHTML = '<div class="zhang_log-empty">日志将显示在这里…</div>';
+        }
+
+        function zhang_setStatus(badgeId, text, cls) {
+            var el = document.getElementById(badgeId);
+            el.textContent = text;
+            el.className = 'zhang_status-badge zhang_' + cls;
+        }
+
+        function zhang_toast(msg) {
+            var el = document.getElementById('zhang_toast');
+            el.textContent = msg;
+            el.classList.add('zhang_show');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(function() {
+                el.classList.remove('zhang_show');
+            }, 2500);
+        }
+
+        /* ================================================================
+           ① setTimeout 演示
+           ================================================================ */
+        var zhang_st_timerId = null;
+        var zhang_st_countdownId = null;
+        var zhang_st_totalSec = 0;
+        var zhang_st_remaining = 0;
+
+        function zhang_st_updateRing(progress) {
+            // progress: 0 ~ 1（1 表示刚开始，0 表示结束）
+            var circumference = 2 * Math.PI * 52; // ~326.7
+            var offset = circumference * (1 - progress);
+            var circle = document.getElementById('zhang_st_ring_circle');
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function zhang_st_start() {
+            if (zhang_st_timerId !== null) {
+                zhang_toast('已有倒计时在运行，请先取消');
+                return;
+            }
+
+            var sec = parseFloat(document.getElementById('zhang_st_delay').value);
+            if (isNaN(sec) || sec <= 0) {
+                zhang_toast('请输入有效的秒数');
+                return;
+            }
+
+            zhang_st_totalSec = sec;
+            zhang_st_remaining = sec;
+
+            // 显示进度环
+            var ring = document.getElementById('zhang_st_ring');
+            ring.style.display = 'block';
+            document.getElementById('zhang_st_ring_text').textContent = sec.toFixed(1);
+            zhang_st_updateRing(1);
+
+            zhang_setStatus('zhang_st_status', '运行中', 'running');
+            zhang_log('zhang_st_log', '启动', 'setTimeout(' + (sec * 1000) + 'ms) 已设置', 'success');
+
+            // 倒计时显示（用 setInterval 每秒更新 UI）
+            zhang_st_countdownId = setInterval(function() {
+                zhang_st_remaining -= 0.1;
+                if (zhang_st_remaining <= 0) {
+                    zhang_st_remaining = 0;
+                }
+                var progress = zhang_st_remaining / zhang_st_totalSec;
+                zhang_st_updateRing(progress);
+                document.getElementById('zhang_st_ring_text').textContent = zhang_st_remaining.toFixed(1);
+            }, 100);
+
+            // 核心：setTimeout 延迟执行
+            zhang_st_timerId = setTimeout(function() {
+                // 清除倒计时
+                clearInterval(zhang_st_countdownId);
+                zhang_st_countdownId = null;
+
+                zhang_st_updateRing(0);
+                document.getElementById('zhang_st_ring_text').textContent = '0.0';
+
+                zhang_setStatus('zhang_st_status', '完成', 'done');
+                zhang_log('zhang_st_log', '触发', '倒计时 ' + sec + ' 秒结束，回调已执行', 'success');
+                zhang_toast('⏰ 时间到！setTimeout 回调已执行');
+                console.log('[setTimeout] 延迟 ' + sec + 's 触发');
+
+                zhang_st_timerId = null;
+            }, sec * 1000);
+
+            console.log('[setTimeout] 已设定 ' + sec + 's 延迟，ID:', zhang_st_timerId);
+        }
+
+        function zhang_st_cancel() {
+            if (zhang_st_timerId === null) {
+                zhang_toast('没有正在运行的定时器');
+                return;
+            }
+            // 核心：clearTimeout 取消
+            clearTimeout(zhang_st_timerId);
+            zhang_st_timerId = null;
+
+            if (zhang_st_countdownId !== null) {
+                clearInterval(zhang_st_countdownId);
+                zhang_st_countdownId = null;
+            }
+
+            zhang_setStatus('zhang_st_status', '已取消', 'paused');
+            zhang_log('zhang_st_log', '取消', 'clearTimeout() 已执行，定时器被取消', 'error');
+
+            // 隐藏进度环
+            setTimeout(function() {
+                document.getElementById('zhang_st_ring').style.display = 'none';
+            }, 500);
+
+            zhang_toast('定时器已取消');
+            console.log('[setTimeout] 已取消');
+        }
+
+        document.getElementById('zhang_st_start').addEventListener('click', zhang_st_start);
+        document.getElementById('zhang_st_cancel').addEventListener('click', zhang_st_cancel);
+
+        /* ================================================================
+           ② setInterval 演示
+           ================================================================ */
+        var zhang_si_timerId = null;
+        var zhang_si_count = 0;
+        var zhang_si_startTime = 0;
+        var zhang_si_elapsedId = null;
+
+        function zhang_si_updateDisplay() {
+            document.getElementById('zhang_si_count').textContent = zhang_si_count;
+        }
+
+        function zhang_si_start() {
+            if (zhang_si_timerId !== null) {
+                zhang_toast('计数器已在运行中');
+                return;
+            }
+
+            var interval = parseFloat(document.getElementById('zhang_si_interval').value);
+            if (isNaN(interval) || interval <= 0) {
+                zhang_toast('请输入有效的间隔秒数');
+                return;
+            }
+
+            var ms = interval * 1000;
+            document.getElementById('zhang_si_interval_display').textContent = interval;
+            document.getElementById('zhang_si_box').classList.add('zhang_running');
+
+            zhang_si_startTime = performance.now();
+            zhang_setStatus('zhang_si_status', '运行中', 'running');
+            zhang_log('zhang_si_log', '启动', 'setInterval(' + ms + 'ms) 已启动', 'success');
+
+            // 核心：setInterval 重复执行
+            zhang_si_timerId = setInterval(function() {
+                zhang_si_count++;
+                zhang_si_updateDisplay();
+                zhang_log('zhang_si_log', '第 ' + zhang_si_count + ' 次', '回调执行，count = ' + zhang_si_count);
+                console.log('[setInterval] 第 ' + zhang_si_count + ' 次执行');
+            }, ms);
+
+            // 计时器显示运行时长
+            zhang_si_elapsedId = setInterval(function() {
+                var elapsed = ((performance.now() - zhang_si_startTime) / 1000).toFixed(1);
+                document.getElementById('zhang_si_elapsed').textContent = elapsed;
+            }, 100);
+
+            console.log('[setInterval] 已启动，ID:', zhang_si_timerId);
+        }
+
+        function zhang_si_stop() {
+            if (zhang_si_timerId === null) {
+                zhang_toast('计数器未运行');
+                return;
+            }
+            // 核心：clearInterval 停止
+            clearInterval(zhang_si_timerId);
+            zhang_si_timerId = null;
+            clearInterval(zhang_si_elapsedId);
+            zhang_si_elapsedId = null;
+
+            document.getElementById('zhang_si_box').classList.remove('zhang_running');
+            zhang_setStatus('zhang_si_status', '已停止', 'paused');
+
+            var elapsed = ((performance.now() - zhang_si_startTime) / 1000).toFixed(1);
+            zhang_log('zhang_si_log', '停止', 'clearInterval() 已执行，共执行 ' + zhang_si_count + ' 次，运行 ' + elapsed + ' 秒', 'error');
+            zhang_toast('已停止，共执行 ' + zhang_si_count + ' 次');
+            console.log('[setInterval] 已停止');
+        }
+
+        function zhang_si_reset() {
+            if (zhang_si_timerId !== null) {
+                clearInterval(zhang_si_timerId);
+                zhang_si_timerId = null;
+                clearInterval(zhang_si_elapsedId);
+                zhang_si_elapsedId = null;
+            }
+            zhang_si_count = 0;
+            zhang_si_updateDisplay();
+            document.getElementById('zhang_si_elapsed').textContent = '0.0';
+            document.getElementById('zhang_si_box').classList.remove('zhang_running');
+            zhang_setStatus('zhang_si_status', '待机', 'idle');
+            zhang_clearLog('zhang_si_log');
+            console.log('[setInterval] 已重置');
+        }
+
+        document.getElementById('zhang_si_start').addEventListener('click', zhang_si_start);
+        document.getElementById('zhang_si_stop').addEventListener('click', zhang_si_stop);
+        document.getElementById('zhang_si_reset').addEventListener('click', zhang_si_reset);
+
+        /* ================================================================
+           ③ 实时时钟
+           ================================================================ */
+        var zhang_clock_timerId = null;
+        var zhang_clock_weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+        function zhang_clock_update() {
+            var now = new Date();
+            var h = String(now.getHours()).padStart(2, '0');
+            var m = String(now.getMinutes()).padStart(2, '0');
+            var s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('zhang_clock_time').textContent = h + ':' + m + ':' + s;
+
+            var y = now.getFullYear();
+            var mo = String(now.getMonth() + 1).padStart(2, '0');
+            var d = String(now.getDate()).padStart(2, '0');
+            var w = zhang_clock_weekdays[now.getDay()];
+            document.getElementById('zhang_clock_date').textContent = y + '年' + mo + '月' + d + '日 ' + w;
+        }
+
+        function zhang_clock_start() {
+            if (zhang_clock_timerId !== null) return;
+            zhang_clock_update(); // 立即执行一次
+            zhang_clock_timerId = setInterval(zhang_clock_update, 1000);
+            document.getElementById('zhang_clock').classList.add('zhang_running');
+            zhang_setStatus('zhang_clock_status', '运行中', 'running');
+            document.getElementById('zhang_clock_toggle').textContent = '⏸ 暂停时钟';
+        }
+
+        function zhang_clock_stop() {
+            if (zhang_clock_timerId === null) return;
+            clearInterval(zhang_clock_timerId);
+            zhang_clock_timerId = null;
+            document.getElementById('zhang_clock').classList.remove('zhang_running');
+            zhang_setStatus('zhang_clock_status', '已暂停', 'paused');
+            document.getElementById('zhang_clock_toggle').textContent = '▶ 启动时钟';
+        }
+
+        document.getElementById('zhang_clock_toggle').addEventListener('click', function() {
+            if (zhang_clock_timerId !== null) {
+                zhang_clock_stop();
+            } else {
+                zhang_clock_start();
+            }
+        });
+
+        // 页面加载后自动启动时钟
+        zhang_clock_start();
+
+        /* ================================================================
+           控制台输出
+           ================================================================ */
+        console.log('====== JavaScript 定时器 ======');
+        console.log('① setTimeout — 延迟执行一次');
+        console.log('② setInterval — 重复执行');
+        console.log('③ 实时时钟已启动');
+    </script>
+</body>
+</html>
