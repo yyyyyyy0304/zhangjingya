@@ -445,8 +445,8 @@
         <p class="zhang_subtitle">张婧雅 · 异步操作流程演示</p>
 
         <div class="zhang_intro">
-            用 <code>Promise</code> 和 <code>async/await</code> 模拟包饺子的完整异步流程：
-            买原料 → 取原料 → <b>同时</b>和面 + 和馅 → 包饺子 → 吃饺子。
+            用 <code>Promise</code> 和 <code>async/await</code> 模拟包饺子的完整异步流程：<br>
+            买原料（<b>线上线下同时购买</b>，任一完成即可）→ 取原料 → <b>同时</b>和面 + 和馅 → 包饺子 → 煮饺子 → 吃饺子。
             每个步骤用 <code>setTimeout</code> 模拟耗时，页面实时展示执行进度。
         </div>
 
@@ -460,7 +460,10 @@
             </div>
             <div class="zhang_visual">
                 <div class="zhang_flowchart">
-                    <span class="zhang_flow-node zhang_flow-sequential">买原料 (6s)</span>
+                    <span class="zhang_flow-branch">
+                        <span class="zhang_flow-node zhang_flow-parallel">线上买 (6s)</span>
+                        <span class="zhang_flow-node zhang_flow-parallel">线下买 (4s)</span>
+                    </span>
                     <span class="zhang_flow-arrow">→</span>
                     <span class="zhang_flow-node zhang_flow-sequential">取原料 (2s)</span>
                     <span class="zhang_flow-arrow">→</span>
@@ -471,13 +474,17 @@
                     <span class="zhang_flow-arrow">→</span>
                     <span class="zhang_flow-node zhang_flow-sequential">包饺子 (5s)</span>
                     <span class="zhang_flow-arrow">→</span>
+                    <span class="zhang_flow-node zhang_flow-sequential">煮饺子 (4s)</span>
+                    <span class="zhang_flow-arrow">→</span>
                     <span class="zhang_flow-node zhang_flow-final">吃饺子 (2s)</span>
                 </div>
                 <div class="zhang_tips">
-                    <b>关键点</b>：买原料 → 取原料 是串行（有依赖关系）；<br>
-                    和面、和馅 是<b>并行执行</b>（用 <code>Promise.all()</code> 等待两者都完成）；<br>
-                    包饺子 需要等和面和馅都完成；吃饺子 需要等包完饺子。<br>
-                    <b>预计总耗时</b>：6 + 2 + max(4, 3) + 5 + 2 = <b>19 秒</b>
+                    <b>关键点</b>：<br>
+                    ① 买原料：线上(6s)、线下(4s) <b>同时购买</b>，用 <code>Promise.race()</code> 竞速，<b>任一完成即可</b>进入下一步（实际等 4s）；<br>
+                    ② 取原料：串行（依赖买原料完成）；<br>
+                    ③ 和面、和馅：<b>并行执行</b>，用 <code>Promise.all()</code> 等待<b>两者都完成</b>；<br>
+                    ④ 包饺子 → 煮饺子 → 吃饺子：串行，每步依赖前一步。<br>
+                    <b>预计总耗时</b>：min(6, 4) + 2 + max(4, 3) + 5 + 4 + 2 = <b>21 秒</b>
                 </div>
             </div>
         </div>
@@ -491,33 +498,39 @@
                 <span class="zhang_tag">原生 JavaScript</span>
             </div>
             <pre class="zhang_code"><span class="zhang_c">// 用 Promise 封装一个异步任务（setTimeout 模拟耗时）</span>
-<span class="zhang_k">function</span> zhang_task(name, seconds, onProgress) {
+<span class="zhang_k">function</span> zhang_task(name, seconds) {
     <span class="zhang_k">return new</span> <span class="zhang_k">Promise</span>(<span class="zhang_k">function</span>(resolve) {
-        <span class="zhang_k">var</span> start = Date.now();
-        <span class="zhang_k">var</span> timer = setInterval(<span class="zhang_k">function</span>() {
-            <span class="zhang_k">var</span> elapsed = (Date.now() - start) / <span class="zhang_n">1000</span>;
-            <span class="zhang_k">if</span> (onProgress) onProgress(Math.min(elapsed / seconds, <span class="zhang_n">1</span>));
-        }, <span class="zhang_n">100</span>);
         setTimeout(<span class="zhang_k">function</span>() {
-            clearInterval(timer);
-            resolve(name + <span class="zhang_s">' 完成'</span>);
+            resolve(name);
         }, seconds * <span class="zhang_n">1000</span>);
     });
 }
 
-<span class="zhang_c">// async 函数：用 await 编排串行流程，Promise.all 编排并行流程</span>
+<span class="zhang_c">// async 函数编排完整流程</span>
 <span class="zhang_k">async function</span> zhang_makeDumplings() {
-    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'买原料'</span>, <span class="zhang_n">6</span>);       <span class="zhang_c">// 串行</span>
-    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'取原料'</span>, <span class="zhang_n">2</span>);       <span class="zhang_c">// 串行</span>
+    <span class="zhang_c">// ① 买原料：线上线下同时买，任一完成即可（Promise.race 竞速）</span>
+    <span class="zhang_k">await</span> <span class="zhang_k">Promise</span>.race([
+        zhang_task(<span class="zhang_s">'线上买'</span>, <span class="zhang_n">6</span>),
+        zhang_task(<span class="zhang_s">'线下买'</span>, <span class="zhang_n">4</span>)
+    ]);  <span class="zhang_c">// 实际等待 min(6, 4) = 4s</span>
 
-    <span class="zhang_c">// 和面、和馅 同时进行（并行）</span>
+    <span class="zhang_c">// ② 取原料（串行）</span>
+    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'取原料'</span>, <span class="zhang_n">2</span>);
+
+    <span class="zhang_c">// ③ 和面 + 和馅：同时进行，两者都完成（Promise.all）</span>
     <span class="zhang_k">await</span> <span class="zhang_k">Promise</span>.all([
         zhang_task(<span class="zhang_s">'和面'</span>, <span class="zhang_n">4</span>),
         zhang_task(<span class="zhang_s">'和馅'</span>, <span class="zhang_n">3</span>)
-    ]);
+    ]);  <span class="zhang_c">// 实际等待 max(4, 3) = 4s</span>
 
-    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'包饺子'</span>, <span class="zhang_n">5</span>);     <span class="zhang_c">// 串行</span>
-    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'吃饺子'</span>, <span class="zhang_n">2</span>);     <span class="zhang_c">// 串行</span>
+    <span class="zhang_c">// ④ 包饺子（串行）</span>
+    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'包饺子'</span>, <span class="zhang_n">5</span>);
+
+    <span class="zhang_c">// ⑤ 煮饺子（串行）</span>
+    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'煮饺子'</span>, <span class="zhang_n">4</span>);
+
+    <span class="zhang_c">// ⑥ 吃饺子（串行）</span>
+    <span class="zhang_k">await</span> zhang_task(<span class="zhang_s">'吃饺子'</span>, <span class="zhang_n">2</span>);
 }</pre>
         </div>
 
@@ -537,16 +550,28 @@
                 <div class="zhang_timeline" id="zhang_timeline">
                     <div class="zhang_timeline-line"><div class="zhang_timeline-progress" id="zhang_tl_progress"></div></div>
 
-                    <!-- Step 1: 买原料 -->
+                    <!-- Step 1: 买原料（线上线下并行竞速） -->
                     <div class="zhang_step zhang_pending" id="zhang_step_1">
                         <div class="zhang_step-dot">🛒</div>
                         <div class="zhang_step-content">
                             <div class="zhang_step-header">
-                                <span class="zhang_step-name">买原料</span>
-                                <span class="zhang_step-time">6s</span>
+                                <span class="zhang_step-name">买原料（线上线下竞速）</span>
+                                <span class="zhang_step-time">min(6s, 4s) = 4s</span>
                                 <span class="zhang_step-status">待开始</span>
                             </div>
                             <div class="zhang_step-progress-bar"><div class="zhang_step-progress-fill"></div></div>
+                            <div class="zhang_parallel" style="margin-top:10px;">
+                                <div class="zhang_parallel-item zhang_pending" id="zhang_para_online">
+                                    <div class="zhang_para-name">📱 线上买</div>
+                                    <div class="zhang_para-time">6s</div>
+                                    <div class="zhang_parallel-progress"><div class="zhang_parallel-fill"></div></div>
+                                </div>
+                                <div class="zhang_parallel-item zhang_pending" id="zhang_para_offline">
+                                    <div class="zhang_para-name">🏪 线下买</div>
+                                    <div class="zhang_para-time">4s</div>
+                                    <div class="zhang_parallel-progress"><div class="zhang_parallel-fill"></div></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -601,8 +626,21 @@
                         </div>
                     </div>
 
-                    <!-- Step 5: 吃饺子 -->
+                    <!-- Step 5: 煮饺子 -->
                     <div class="zhang_step zhang_pending" id="zhang_step_5">
+                        <div class="zhang_step-dot">🍲</div>
+                        <div class="zhang_step-content">
+                            <div class="zhang_step-header">
+                                <span class="zhang_step-name">煮饺子</span>
+                                <span class="zhang_step-time">4s</span>
+                                <span class="zhang_step-status">待开始</span>
+                            </div>
+                            <div class="zhang_step-progress-bar"><div class="zhang_step-progress-fill"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: 吃饺子 -->
+                    <div class="zhang_step zhang_pending" id="zhang_step_6">
                         <div class="zhang_step-dot">😋</div>
                         <div class="zhang_step-content">
                             <div class="zhang_step-header">
@@ -634,9 +672,10 @@
             小结：<br>
             ① <b>Promise</b> 封装异步操作，<code>resolve()</code> 标记完成；<br>
             ② <b>async/await</b> 让异步代码像同步一样写，<code>await</code> 等待 Promise 完成；<br>
-            ③ <b>串行</b>：多个 <code>await</code> 顺序执行（买原料 → 取原料）；<br>
-            ④ <b>并行</b>：<code>Promise.all([p1, p2])</code> 同时执行，等全部完成（和面 + 和馅）；<br>
-            ⑤ <code>setTimeout</code> 模拟每步耗时，页面实时展示进度。
+            ③ <b>竞速</b>：<code>Promise.race([p1, p2])</code> 同时执行，<b>任一完成即可</b>（买原料：线上 vs 线下）；<br>
+            ④ <b>并行</b>：<code>Promise.all([p1, p2])</code> 同时执行，等<b>全部完成</b>（和面 + 和馅）；<br>
+            ⑤ <b>串行</b>：多个 <code>await</code> 顺序执行（取原料 → 包饺子 → 煮饺子 → 吃饺子）；<br>
+            ⑥ <code>setTimeout</code> 模拟每步耗时，页面实时展示进度。
         </div>
     </div>
 
@@ -743,9 +782,46 @@
         }
 
         /* ================================================================
+           核心：并行子任务的 Promise 构造器（带进度更新）
+           ================================================================ */
+        function zhang_paraTask(name, seconds, paraId) {
+            return new Promise(function(resolve) {
+                zhang_setParaState(paraId, 'running');
+                zhang_log('开始', name + '（预计 ' + seconds + 's）', 'start');
+                var startMs = Date.now();
+                var timer = setInterval(function() {
+                    var elapsed = (Date.now() - startMs) / 1000;
+                    zhang_setParaProgress(paraId, Math.min(elapsed / seconds, 1));
+                }, 100);
+                setTimeout(function() {
+                    clearInterval(timer);
+                    zhang_setParaProgress(paraId, 1);
+                    zhang_setParaState(paraId, 'done');
+                    var actualTime = ((Date.now() - startMs) / 1000).toFixed(1);
+                    zhang_log('完成', name + '（耗时 ' + actualTime + 's）', 'done');
+                    resolve(name);
+                }, seconds * 1000);
+            });
+        }
+
+        /* ================================================================
            核心：async/await 编排完整流程
            ================================================================ */
         var zhang_isRunning = false;
+        // 保存所有定时器引用，重置时清除
+        var zhang_allTimers = [];
+
+        function zhang_trackTimer(timerId) {
+            zhang_allTimers.push(timerId);
+        }
+
+        function zhang_clearAllTimers() {
+            zhang_allTimers.forEach(function(t) {
+                clearInterval(t);
+                clearTimeout(t);
+            });
+            zhang_allTimers = [];
+        }
 
         async function zhang_makeDumplings() {
             if (zhang_isRunning) return;
@@ -758,81 +834,80 @@
             document.getElementById('zhang_total').style.display = 'none';
 
             var totalStart = Date.now();
-            var TOTAL_STEPS = 5;
+            var TOTAL_STEPS = 6;
 
             zhang_log('流程', '开始包饺子！🎉', 'start');
 
-            // Step 1: 买原料（串行）
+            // ===== Step 1: 买原料（线上线下并行竞速，任一完成即可） =====
             zhang_updateTimelineProgress(0, TOTAL_STEPS);
-            await zhang_task('买原料', 6, 'zhang_step_1');
+            zhang_log('竞速', '线上线下同时买原料，任一完成即可进入下一步', 'parallel');
+            zhang_setStepState('zhang_step_1', 'running', '竞速中');
 
-            // Step 2: 取原料（串行）
+            var buyWinner = await Promise.race([
+                zhang_paraTask('线上买', 6, 'zhang_para_online'),
+                zhang_paraTask('线下买', 4, 'zhang_para_offline')
+            ]);
+
+            // race 完成后，未完成的那条标记为"已取消"
+            var onlineEl = document.getElementById('zhang_para_online');
+            var offlineEl = document.getElementById('zhang_para_offline');
+            if (buyWinner === '线上买') {
+                if (offlineEl.classList.contains('zhang_running') || offlineEl.classList.contains('zhang_pending')) {
+                    offlineEl.className = 'zhang_parallel-item zhang_pending';
+                    offlineEl.querySelector('.zhang_para-time').textContent = '已取消';
+                    offlineEl.style.opacity = '0.4';
+                }
+            } else {
+                if (onlineEl.classList.contains('zhang_running') || onlineEl.classList.contains('zhang_pending')) {
+                    onlineEl.className = 'zhang_parallel-item zhang_pending';
+                    onlineEl.querySelector('.zhang_para-time').textContent = '已取消';
+                    onlineEl.style.opacity = '0.4';
+                }
+            }
+
+            zhang_setStepProgress('zhang_step_1', 1);
+            zhang_setStepState('zhang_step_1', 'done', '✓ 完成');
+            zhang_log('竞速', '买原料完成！"' + buyWinner + '" 先到，进入下一步', 'parallel');
+
+            // ===== Step 2: 取原料（串行） =====
             zhang_updateTimelineProgress(1, TOTAL_STEPS);
             await zhang_task('取原料', 2, 'zhang_step_2');
 
-            // Step 3: 和面 + 和馅（并行）
+            // ===== Step 3: 和面 + 和馅（并行，两者都完成） =====
             zhang_updateTimelineProgress(2, TOTAL_STEPS);
-            zhang_log('并行', '同时开始和面(4s) + 和馅(3s)', 'parallel');
-            zhang_setStepState('zhang_step_3', 'running', '进行中');
+            zhang_log('并行', '同时开始和面(4s) + 和馅(3s)，两者都完成才继续', 'parallel');
+            zhang_setStepState('zhang_step_3', 'running', '并行中');
 
             await Promise.all([
-                // 和面（带并行子项进度更新）
-                new Promise(function(resolve) {
-                    zhang_setParaState('zhang_para_mian', 'running');
-                    zhang_log('开始', '和面（预计 4s）— 并行', 'start');
-                    var startMs = Date.now();
-                    var timer = setInterval(function() {
-                        var elapsed = (Date.now() - startMs) / 1000;
-                        zhang_setParaProgress('zhang_para_mian', Math.min(elapsed / 4, 1));
-                    }, 100);
-                    setTimeout(function() {
-                        clearInterval(timer);
-                        zhang_setParaProgress('zhang_para_mian', 1);
-                        zhang_setParaState('zhang_para_mian', 'done');
-                        zhang_log('完成', '和面（耗时 4.0s）— 并行', 'done');
-                        resolve();
-                    }, 4000);
-                }),
-                // 和馅（带并行子项进度更新）
-                new Promise(function(resolve) {
-                    zhang_setParaState('zhang_para_xian', 'running');
-                    zhang_log('开始', '和馅（预计 3s）— 并行', 'start');
-                    var startMs = Date.now();
-                    var timer = setInterval(function() {
-                        var elapsed = (Date.now() - startMs) / 1000;
-                        zhang_setParaProgress('zhang_para_xian', Math.min(elapsed / 3, 1));
-                    }, 100);
-                    setTimeout(function() {
-                        clearInterval(timer);
-                        zhang_setParaProgress('zhang_para_xian', 1);
-                        zhang_setParaState('zhang_para_xian', 'done');
-                        zhang_log('完成', '和馅（耗时 3.0s）— 并行', 'done');
-                        resolve();
-                    }, 3000);
-                })
+                zhang_paraTask('和面', 4, 'zhang_para_mian'),
+                zhang_paraTask('和馅', 3, 'zhang_para_xian')
             ]);
 
             zhang_setStepProgress('zhang_step_3', 1);
             zhang_setStepState('zhang_step_3', 'done', '✓ 完成');
             zhang_log('并行', '和面 + 和馅 全部完成！', 'parallel');
 
-            // Step 4: 包饺子（串行）
+            // ===== Step 4: 包饺子（串行） =====
             zhang_updateTimelineProgress(3, TOTAL_STEPS);
             await zhang_task('包饺子', 5, 'zhang_step_4');
 
-            // Step 5: 吃饺子（串行）
+            // ===== Step 5: 煮饺子（串行） =====
             zhang_updateTimelineProgress(4, TOTAL_STEPS);
-            await zhang_task('吃饺子', 2, 'zhang_step_5');
+            await zhang_task('煮饺子', 4, 'zhang_step_5');
 
-            // 完成
+            // ===== Step 6: 吃饺子（串行） =====
             zhang_updateTimelineProgress(5, TOTAL_STEPS);
+            await zhang_task('吃饺子', 2, 'zhang_step_6');
+
+            // ===== 完成 =====
+            zhang_updateTimelineProgress(6, TOTAL_STEPS);
             var totalTime = ((Date.now() - totalStart) / 1000).toFixed(1);
 
             zhang_log('完成', '🎉 包饺子全流程结束！总耗时 ' + totalTime + 's', 'done');
 
             document.getElementById('zhang_total_value').textContent = totalTime + 's';
             document.getElementById('zhang_total_detail').textContent =
-                '买原料(6s) + 取原料(2s) + max(和面4s, 和馅3s) + 包饺子(5s) + 吃饺子(2s) = 19s';
+                'min(线上6s, 线下4s) + 取原料2s + max(和面4s, 和馅3s) + 包饺子5s + 煮饺子4s + 吃饺子2s = 21s';
             document.getElementById('zhang_total').style.display = 'block';
             document.getElementById('zhang_run_tag').textContent = '✓ 全部完成';
 
@@ -850,8 +925,11 @@
                 return;
             }
 
-            // 重置所有步骤
-            var steps = ['zhang_step_1', 'zhang_step_2', 'zhang_step_3', 'zhang_step_4', 'zhang_step_5'];
+            // 清除所有残留定时器
+            zhang_clearAllTimers();
+
+            // 重置所有步骤（6个）
+            var steps = ['zhang_step_1', 'zhang_step_2', 'zhang_step_3', 'zhang_step_4', 'zhang_step_5', 'zhang_step_6'];
             steps.forEach(function(id) {
                 var el = document.getElementById(id);
                 el.className = 'zhang_step zhang_pending';
@@ -861,10 +939,20 @@
                 if (fill) fill.style.width = '0%';
             });
 
-            // 重置并行子项
-            ['zhang_para_mian', 'zhang_para_xian'].forEach(function(id) {
+            // 重置所有并行子项
+            var paras = ['zhang_para_online', 'zhang_para_offline', 'zhang_para_mian', 'zhang_para_xian'];
+            var paraLabels = {
+                'zhang_para_online': '6s',
+                'zhang_para_offline': '4s',
+                'zhang_para_mian': '4s',
+                'zhang_para_xian': '3s'
+            };
+            paras.forEach(function(id) {
                 var el = document.getElementById(id);
                 el.className = 'zhang_parallel-item zhang_pending';
+                el.style.opacity = '';
+                var timeEl = el.querySelector('.zhang_para-time');
+                if (timeEl) timeEl.textContent = paraLabels[id];
                 var fill = el.querySelector('.zhang_parallel-fill');
                 if (fill) fill.style.width = '0%';
             });
