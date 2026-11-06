@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECharts · 大气层地球与和弦图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1120px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block; margin-bottom: 20px;
+            color: #bd493c; text-decoration: none; font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+        .zhang_chart { position: relative; width: 100%; }
+
+        .zhang_chart-globe {
+            height: 580px;
+            background:
+                radial-gradient(circle at 50% 48%, rgba(70, 140, 230, 0.16) 0%,
+                rgba(50, 110, 210, 0.10) 42%, rgba(8, 18, 30, 0) 64%),
+                linear-gradient(160deg, #060d16 0%, #0a1522 55%, #0c1b2a 100%);
+        }
+        .zhang_chart-chord { height: 560px; background: #fffdf9; }
+
+        .zhang_hint {
+            position: absolute; right: 14px; top: 12px; z-index: 2;
+            font-size: 11px; color: rgba(180, 210, 235, 0.6);
+            letter-spacing: 0.04em; pointer-events: none;
+        }
+        .zhang_legend {
+            display: flex; flex-wrap: wrap; gap: 6px 16px;
+            padding: 4px 18px 16px; font-size: 12px; color: #56646f;
+            background: #fffdf9;
+        }
+        .zhang_legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .zhang_legend i {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+        }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #a0543f; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+            .zhang_chart-globe { height: 460px; }
+            .zhang_chart-chord { height: 460px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>ECharts · 大气层地球与和弦图</h1>
+        <p class="zhang_subtitle">张婧雅 · echarts-gl 大气层渲染 + 自定义和弦图</p>
+
+        <div class="zhang_intro">
+            两张图全部由本地 <b>echarts / echarts-gl</b> 渲染：左为可拖拽旋转的地球，
+            外层叠加<b>大气层辉光</b>与泛光后处理；下为<b>和弦图</b>，
+            用 custom series 的贝塞尔缎带把 8 类渠道的双向流转画成环形和弦。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图一 · 大气层地球
+                <span class="zhang_tag">echarts-gl · globe + atmosphere</span>
+            </div>
+            <div class="zhang_chart zhang_chart-globe" id="zhang_globe">
+                <div class="zhang_hint">拖拽旋转 · 滚轮缩放</div>
+            </div>
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图二 · 渠道流转和弦图
+                <span class="zhang_tag">echarts · custom series 缎带</span>
+            </div>
+            <div class="zhang_chart zhang_chart-chord" id="zhang_chord"></div>
+            <div class="zhang_legend" id="zhang_chord_legend"></div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>大气层怎么做</h3>
+                <p>globe 配置 <code>atmosphere</code> 生成散射辉光，配合 <code>postEffect.bloom</code>
+                泛光与 SSAO 环境光遮蔽；地球贴图与库文件一起存放在本地 <code>cdn/</code>，不依赖网络图片。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>和弦图怎么做</h3>
+                <p>ECharts 没有原生和弦图，这里用 <code>custom</code> 系列：8 个分组按总量分配环上弧长，
+                组内再按流量切分子弧，两端子弧用二次贝塞尔缎带相连。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>资源与兼容</h3>
+                <p>两个库均下载到本地 <code>cdn/</code> 目录，断网可用；WebGL 不可用时降级为文字提示，
+                窗口尺寸变化时自动 resize 重排和弦几何。</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./cdn/echarts.min.js"></script>
+    <script src="./cdn/echarts-gl.min.js"></script>
+    <script src="./cdn/earth-texture.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        if (typeof echarts === 'undefined') {
+            document.getElementById('zhang_globe').innerHTML =
+                '<p style="color:#9ab;padding:24px">未找到 echarts.min.js，请确认 cdn 目录完整。</p>';
+            return;
+        }
+
+        /* ========== 图一：大气层地球 ========== */
+        var zhang_globeDom = document.getElementById('zhang_globe');
+
+        var zhang_globeChart = null;
+        try {
+            zhang_globeChart = echarts.init(zhang_globeDom, null, { renderer: 'canvas' });
+            zhang_globeChart.setOption({
+                backgroundColor: 'transparent',
+                globe: {
+                    // echarts-gl 会给贴图加 crossOrigin，file:// 下本地 jpg 会被拒绝，故用 data URI
+                    baseTexture: window.ZHANG_EARTH_TEXTURE || './cdn/earth.jpg',
+                    shading: 'realistic',
+                    realisticMaterial: { roughness: 0.62, metalness: 0.12 },
+                    environment: 'none',
+                    atmosphere: { show: true, offset: 6, glowPower: 2.6 },
+                    light: {
+                        main: { intensity: 1.4, shadow: true, alpha: 26, beta: 34 },
+                        ambient: { intensity: 0.32 }
+                    },
+                    postEffect: {
+                        enable: true,
+                        bloom: { enable: true, bloomIntensity: 0.3 },
+                        SSAO: { enable: true, radius: 3, intensity: 0.8, quality: 'medium' }
+                    },
+                    temporalSuperSampling: { enable: true },
+                    viewControl: {
+                        autoRotate: true,
+                        autoRotateSpeed: 9,
+                        autoRotateAfterStill: 2,
+                        distance: 205,
+                        alpha: 14,
+                        beta: 38,
+                        minDistance: 120,
+                        maxDistance: 400
+                    }
+                },
+                series: [{
+                    type: 'lines3D',
+                    coordinateSystem: 'globe',
+                    effect: {
+                        show: true,
+                        trailLength: 0.28,
+                        trailWidth: 1.4,
+                        trailOpacity: 0.7,
+                        constantSpeed: 26
+                    },
+                    lineStyle: {
+                        width: 1.1,
+                        color: '#8fd7ff',
+                        opacity: 0.5,
+                        curveness: 0.22
+                    },
+                    blendMode: 'lighter',
+                    data: [
+                        [[-120, 38, 0.10], [-40, 52, 0.10]],
+                        [[-40, 52, 0.10], [30, 60, 0.10]],
+                        [[100, 34, 0.10], [140, -10, 0.10]],
+                        [[10, 48, 0.12], [110, 30, 0.12]],
+                        [[-75, 4, 0.10], [-20, -18, 0.10]],
+                        [[35, -28, 0.10], [130, -34, 0.10]]
+                    ]
+                }]
+            });
+        } catch (zhang_e) {
+            zhang_globeDom.innerHTML =
+                '<p style="color:#9fb6c8;padding:28px">当前浏览器不支持 WebGL，无法渲染 3D 地球。' +
+                '请使用 Chrome / Edge / Firefox 最新版本。</p>';
+        }
+
+        /* ========== 图二：和弦图 ========== */
+        var zhang_cats = ['首页', '搜索', '详情页', '购物车', '下单', '支付', '售后', '分享'];
+        var zhang_colors = ['#2d7c7a', '#3a6ea5', '#8a6a2b', '#a0543f',
+                            '#7a5a8c', '#4f7f5a', '#b5745a', '#5a7d99'];
+
+        // 对称流量矩阵（单位：万人次）
+        var zhang_pairs = [
+            [0, 1, 42], [0, 2, 28], [0, 3, 8], [0, 4, 2], [0, 5, 1], [0, 6, 1], [0, 7, 11],
+            [1, 2, 55], [1, 3, 14], [1, 4, 3], [1, 5, 1], [1, 7, 6],
+            [2, 3, 33], [2, 4, 12], [2, 5, 3], [2, 6, 2], [2, 7, 9],
+            [3, 4, 26], [3, 5, 2], [3, 6, 1], [3, 7, 4],
+            [4, 5, 19], [4, 6, 2], [4, 7, 3],
+            [5, 6, 6], [5, 7, 2],
+            [6, 7, 5]
+        ];
+
+        var zhang_matrix = [];
+        for (var zhang_a = 0; zhang_a < 8; zhang_a++) {
+            zhang_matrix.push([0, 0, 0, 0, 0, 0, 0, 0]);
+        }
+        zhang_pairs.forEach(function (zhang_p) {
+            zhang_matrix[zhang_p[0]][zhang_p[1]] = zhang_p[2];
+            zhang_matrix[zhang_p[1]][zhang_p[0]] = zhang_p[2];
+        });
+
+        function zhang_rgbaHex(zhang_hex, zhang_alpha) {
+            var zhang_r = parseInt(zhang_hex.slice(1, 3), 16);
+            var zhang_g = parseInt(zhang_hex.slice(3, 5), 16);
+            var zhang_b = parseInt(zhang_hex.slice(5, 7), 16);
+            return 'rgba(' + zhang_r + ',' + zhang_g + ',' + zhang_b + ',' + zhang_alpha + ')';
+        }
+
+        // 生成和弦几何：分组角度 + 组内子弧
+        function zhang_chordLayout() {
+            var zhang_totals = zhang_matrix.map(function (zhang_row) {
+                return zhang_row.reduce(function (zhang_x, zhang_y) { return zhang_x + zhang_y; }, 0);
+            });
+            var zhang_sum = zhang_totals.reduce(function (zhang_x, zhang_y) { return zhang_x + zhang_y; }, 0);
+            var zhang_n = zhang_cats.length;
+            var zhang_gap = 0.048;
+            var zhang_start = -Math.PI / 2;
+            var zhang_cursor = zhang_start;
+            var zhang_seg = [];
+            var zhang_groupAngle = [];
+
+            for (var zhang_i = 0; zhang_i < zhang_n; zhang_i++) {
+                var zhang_span = (Math.PI * 2 - zhang_gap * zhang_n) * zhang_totals[zhang_i] / zhang_sum;
+                var zhang_a0 = zhang_cursor;
+                var zhang_a1 = zhang_a0 + zhang_span;
+                zhang_groupAngle.push([zhang_a0, zhang_a1]);
+
+                var zhang_sub = [];
+                var zhang_acc = zhang_a0;
+                for (var zhang_j = 0; zhang_j < zhang_n; zhang_j++) {
+                    var zhang_w = zhang_span * zhang_matrix[zhang_i][zhang_j] / zhang_totals[zhang_i];
+                    zhang_sub.push([zhang_acc, zhang_acc + zhang_w]);
+                    zhang_acc += zhang_w;
+                }
+                zhang_seg.push(zhang_sub);
+                zhang_cursor = zhang_a1 + zhang_gap;
+            }
+            return { seg: zhang_seg, group: zhang_groupAngle, totals: zhang_totals };
+        }
+
+        var zhang_layout = zhang_chordLayout();
+
+        var zhang_chordChart = echarts.init(document.getElementById('zhang_chord'), null, { renderer: 'canvas' });
+
+        function zhang_chordOption(zhang_w, zhang_h) {
+            var zhang_cx = zhang_w / 2;
+            var zhang_cy = zhang_h / 2 + 4;
+            var zhang_rOuter = Math.min(zhang_w, zhang_h) * 0.355;
+            var zhang_rIn = zhang_rOuter * 0.93;
+            var zhang_ribbonR = zhang_rIn * 0.985;
+
+            function zhang_pt(zhang_ang, zhang_r) {
+                return [zhang_cx + zhang_r * Math.cos(zhang_ang), zhang_cy + zhang_r * Math.sin(zhang_ang)];
+            }
+            function zhang_arcPts(zhang_a0, zhang_a1, zhang_r, zhang_steps) {
+                var zhang_pts = [];
+                for (var zhang_i = 0; zhang_i <= zhang_steps; zhang_i++) {
+                    zhang_pts.push(zhang_pt(zhang_a0 + (zhang_a1 - zhang_a0) * zhang_i / zhang_steps, zhang_r));
+                }
+                return zhang_pts;
+            }
+            // 二次贝塞尔：控制点在圆心，形成经典和弦缎带
+            function zhang_curvePts(zhang_p0, zhang_p1, zhang_steps) {
+                var zhang_pts = [];
+                for (var zhang_i = 1; zhang_i < zhang_steps; zhang_i++) {
+                    var zhang_t = zhang_i / zhang_steps;
+                    var zhang_u = 1 - zhang_t;
+                    zhang_pts.push([
+                        zhang_u * zhang_u * zhang_p0[0] + 2 * zhang_u * zhang_t * zhang_cx + zhang_t * zhang_t * zhang_p1[0],
+                        zhang_u * zhang_u * zhang_p0[1] + 2 * zhang_u * zhang_t * zhang_cy + zhang_t * zhang_t * zhang_p1[1]
+                    ]);
+                }
+                return zhang_pts;
+            }
+
+            return {
+                animationDuration: 900,
+                tooltip: { show: false },
+                series: [{
+                    type: 'custom',
+                    coordinateSystem: 'none',
+                    silent: true,
+                    data: [0],
+                    renderItem: function () {
+                        var zhang_items = [];
+
+                        // 1. 环带
+                        for (var zhang_i = 0; zhang_i < zhang_cats.length; zhang_i++) {
+                            var zhang_ga = zhang_layout.group[zhang_i];
+                            var zhang_outer = zhang_arcPts(zhang_ga[0], zhang_ga[1], zhang_rOuter, 40);
+                            var zhang_inner = zhang_arcPts(zhang_ga[1], zhang_ga[0], zhang_rIn, 40);
+                            zhang_items.push({
+                                type: 'polygon',
+                                shape: { points: zhang_outer.concat(zhang_inner) },
+                                style: {
+                                    fill: zhang_rgbaHex(zhang_colors[zhang_i], 0.92),
+                                    opacity: 1
+                                }
+                            });
+                        }
+
+                        // 2. 缎带（只画 i < j 的无序对）
+                        for (var zhang_i2 = 0; zhang_i2 < zhang_cats.length; zhang_i2++) {
+                            for (var zhang_j = zhang_i2 + 1; zhang_j < zhang_cats.length; zhang_j++) {
+                                var zhang_v = zhang_matrix[zhang_i2][zhang_j];
+                                if (!zhang_v) continue;
+
+                                var zhang_s1 = zhang_layout.seg[zhang_i2][zhang_j];
+                                var zhang_s2 = zhang_layout.seg[zhang_j][zhang_i2];
+                                var zhang_a = zhang_arcPts(zhang_s1[0], zhang_s1[1], zhang_ribbonR, 8);
+                                var zhang_p1 = zhang_pt(zhang_s2[0], zhang_ribbonR);
+                                var zhang_b = zhang_arcPts(zhang_s2[0], zhang_s2[1], zhang_ribbonR, 8);
+                                var zhang_p0 = zhang_pt(zhang_s1[0], zhang_ribbonR);
+
+                                var zhang_path = zhang_a
+                                    .concat(zhang_curvePts(zhang_a[zhang_a.length - 1], zhang_p1, 26))
+                                    .concat(zhang_b)
+                                    .concat(zhang_curvePts(zhang_b[zhang_b.length - 1], zhang_p0, 26));
+
+                                zhang_items.push({
+                                    type: 'polygon',
+                                    shape: { points: zhang_path },
+                                    style: {
+                                        fill: zhang_rgbaHex(zhang_colors[zhang_i2], 0.4),
+                                        stroke: zhang_rgbaHex(zhang_colors[zhang_i2], 0.55),
+                                        lineWidth: 0.6
+                                    }
+                                });
+                            }
+                        }
+
+                        // 3. 标签（环外）
+                        for (var zhang_k = 0; zhang_k < zhang_cats.length; zhang_k++) {
+                            var zhang_mid = (zhang_layout.group[zhang_k][0] + zhang_layout.group[zhang_k][1]) / 2;
+                            var zhang_lx = zhang_cx + Math.cos(zhang_mid) * (zhang_rOuter + 24);
+                            var zhang_ly = zhang_cy + Math.sin(zhang_mid) * (zhang_rOuter + 24);
+                            var zhang_right = Math.cos(zhang_mid) >= 0;
+                            zhang_items.push({
+                                type: 'text',
+                                style: {
+                                    text: zhang_cats[zhang_k] + '  ' + zhang_layout.totals[zhang_k],
+                                    x: zhang_lx,
+                                    y: zhang_ly,
+                                    fill: '#243441',
+                                    fontSize: 13,
+                                    fontWeight: 'bold',
+                                    align: zhang_right ? 'left' : 'right',
+                                    verticalAlign: 'middle'
+                                }
+                            });
+                        }
+
+                        // 4. 中心说明
+                        zhang_items.push({
+                            type: 'text',
+                            style: {
+                                text: '渠道流转总量\n' + zhang_layout.totals.reduce(function (x, y) { return x + y; }, 0) / 2 + ' 万人次',
+                                x: zhang_cx,
+                                y: zhang_cy,
+                                fill: 'rgba(60, 80, 92, 0.55)',
+                                fontSize: 12,
+                                align: 'center',
+                                verticalAlign: 'middle',
+                                lineHeight: 20
+                            }
+                        });
+
+                        return { type: 'group', children: zhang_items };
+                    }
+                }]
+            };
+        }
+
+        function zhang_renderChord() {
+            var zhang_rect = document.getElementById('zhang_chord').getBoundingClientRect();
+            zhang_chordChart.resize();
+            zhang_chordChart.setOption(zhang_chordOption(zhang_rect.width, zhang_rect.height), true);
+        }
+
+        // 图例
+        var zhang_legendDom = document.getElementById('zhang_chord_legend');
+        zhang_cats.forEach(function (zhang_cat, zhang_i) {
+            var zhang_span = document.createElement('span');
+            zhang_span.innerHTML = '<i style="background:' + zhang_colors[zhang_i] + '"></i>' +
+                zhang_cat + ' · ' + zhang_layout.totals[zhang_i];
+            zhang_legendDom.appendChild(zhang_span);
+        });
+
+        zhang_renderChord();
+
+        /* ========== 自适应 ========== */
+        var zhang_resizeTimer = null;
+        window.addEventListener('resize', function () {
+            clearTimeout(zhang_resizeTimer);
+            zhang_resizeTimer = setTimeout(function () {
+                if (zhang_globeChart) zhang_globeChart.resize();
+                zhang_renderChord();
+            }, 220);
+        });
+
+        // 和弦图首次渲染时容器宽度可能尚未稳定，下一帧再校正一次
+        requestAnimationFrame(function () { zhang_renderChord(); });
+    })();
+    </script>
+</body>
+</html>

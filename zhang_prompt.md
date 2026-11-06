@@ -61,3 +61,46 @@ prompt: 编写两个网页13-1.html和13.2.html.分别显示font awesome图标�
 
 - model: opencode/mimo-v2.6-flash-free
 - prompt: 创建 16-3.html，演示数组的增删改查及遍历
+
+## 2026-11-05-14:07
+
+- model: workbuddy/deepseek-v4.1-flash
+- prompt: 在本地项目 site/ 下新建 18/ 文件夹，产出 18-1.html（canvas + requestAnimationFrame 视觉动画，深色底、统一配色、缓动/物理感，支持鼠标/触摸交互，tab 隐藏暂停 rAF、resize 适配 DPR，分层代码与中文注释）与 18-2.html（纯 canvas 绘制的电商全站分层架构图，覆盖用户接入/网关安全/业务服务/中间件支撑/数据/外部依赖六层，含连线箭头、同步异步图例、hover 高亮与 tooltip、点击信息面板、数据流动画、等比缩放自适应）；两页均为自包含单文件、无 CDN、UTF-8、响应式，风格与 site 现有作业一致，完成后自查渲染并回报结果。[2026-11-05-14:14] model: trae-advanced
+prompt: 1、完成18-1.html和18-2.html，第一个显示canvas动画，第二个显示基于canvas的全站系统的系统架构图（电商系统）
+
+[2026-11-05-14:19] model: trae-advanced
+prompt: 完成18-3.html，其中包括基于知识库智能客服的系统的系统架构图，图的格式为svg，科研方向
+
+[2026-11-05-14:24] model: trae-advanced
+prompt: 帮我修改18-1.html 动画包括文字张婧雅
+
+[2026-11-05-14:32] model: trae-advanced
+prompt: 实现18-4.html，其中包括echarts的两个图：铁质感地球和关键帧描边动画，cdn文件下载到cdn目录下。
+
+[2026-11-05-14:38] model: DeepSeek-V4.1-Flash
+prompt: 实现18-6.html，实现基于mermaid的智能客服系统的流程图和er图，cdn文件下载到cdn目录下。
+
+[2026-11-05-14:47] model: DeepSeek-V4.1-Flash
+prompt: 修改18-1.html  把 文字张婧雅 明显显示出来
+
+[2026-11-06-10:12] model: DeepSeek-V4.1-Flash
+prompt: 帮我把18的所有内容删掉
+
+[2026-11-06-10:14] model: DeepSeek-V4.1-Flash
+prompt: 1、完成18-1.html和18-2.html，第一个显示canvas动画，包括文字张婧雅，第二个显示基于canvas的全站系统的系统架构图（电商系统）。
+
+[2026-11-06-10:24] model: DeepSeek-V4.1-Flash
+prompt: 2、完成18-3.html，其中包括基于图像识别的系统的系统架构图，图的格式为svg，科研方向。
+
+[2026-11-06-10:48] model: DeepSeek-V4.1-Flash
+prompt: 实现18-4.html，其中包括 https://echarts.apache.org/ echarts的两个图：大气层显示和和弦图样式，cdn文件下载到cdn目录下。
+
+
+[2026-11-06-11:03] model: DeepSeek-V4.1-Flash
+prompt: 实现18-6.html，实现基于mermaid的智能客服系统的流程图和er图，cdn文件下载到cdn目录下。
+
+[2026-11-06-11:15] model: DeepSeek-V4.1-Flash
+prompt: 实现18-7.html，实现基于threejs的两个图装，cdn文件下载到cdn目录下。
+
+[2026-11-06-11:26] model: DeepSeek-V4.1-Flash
+prompt: 实现18-8.html，实现基于three.js或echarts的数据大屏，大屏要求：三列，中间上面是某种地理信息的图，cdn文件下载到cdn目录下。

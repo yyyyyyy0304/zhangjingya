@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid · 智能客服流程图与 ER 图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1120px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block; margin-bottom: 20px;
+            color: #bd493c; text-decoration: none; font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+        .zhang_diagram {
+            padding: 26px 20px 30px;
+            background: #fffefb;
+            text-align: center;
+            overflow-x: auto;
+        }
+        .zhang_diagram .mermaid { display: inline-block; min-width: 320px; }
+        .zhang_diagram svg { max-width: 100%; height: auto; }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #a0543f; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+            .zhang_diagram { padding: 18px 10px 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Mermaid · 智能客服流程图与 ER 图</h1>
+        <p class="zhang_subtitle">张婧雅 · Mermaid 文本绘图 · 流程图 + 实体关系图</p>
+
+        <div class="zhang_intro">
+            两个图都由本地 <b>mermaid.min.js</b> 现场渲染：流程图描述智能客服从<b>多渠道接入</b>、
+            <b>意图识别</b>到<b>知识检索、答案生成、转人工</b>的完整链路；
+            ER 图给出会话、消息、意图、知识条目、工单等实体的字段与关系。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图一 · 智能客服业务流程图
+                <span class="zhang_tag">mermaid · flowchart TD</span>
+            </div>
+            <div class="zhang_diagram">
+<pre class="mermaid">
+flowchart TD
+    A["用户发起咨询"] --> B{"接入渠道"}
+    B -->|"在线聊天 / App"| C["消息接入网关"]
+    B -->|"电话语音"| C
+    B -->|"邮件 / 表单"| C
+
+    subgraph S1["接入与预处理层"]
+        C --> D["语音转写 / 文本清洗"]
+        D --> E["会话上下文装配"]
+    end
+
+    subgraph S2["语义理解层"]
+        E --> F["意图识别 NLU"]
+        F --> G{"意图是否明确"}
+        G -->|"否"| H["澄清追问"]
+        H --> F
+    end
+
+    subgraph S3["服务与决策层"]
+        G -->|"是"| I["知识库检索与排序"]
+        I --> J{"命中可信答案"}
+        J -->|"高置信"| K["模板渲染 / 答案生成"]
+        K --> L["回复用户"]
+        J -->|"低置信"| M["转人工客服"]
+        J -->|"需补充信息"| H
+    end
+
+    subgraph S4["运营与沉淀层"]
+        L --> N["会话归档"]
+        M --> O["生成工单"]
+        O --> N
+        N --> P["质检与满意度回访"]
+        P --> Q[("知识库更新")]
+        Q --> I
+    end
+
+    classDef entry fill:#eef6f4,stroke:#2d7c7a,stroke-width:1.4px,color:#17212b;
+    classDef decision fill:#fff7ea,stroke:#a0543f,stroke-width:1.4px,color:#5a3a26;
+    classDef human fill:#fbf0ea,stroke:#bd493c,stroke-width:1.4px,color:#7a2f28;
+    classDef store fill:#eef2f7,stroke:#3a6ea5,stroke-width:1.4px,color:#17324f;
+    class A,C,D,E,K,L entry;
+    class B,F,G,J decision;
+    class H,M,O,P human;
+    class I,N,Q store;
+</pre>
+            </div>
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图二 · 智能客服务员数据 ER 图
+                <span class="zhang_tag">mermaid · erDiagram</span>
+            </div>
+            <div class="zhang_diagram">
+<pre class="mermaid">
+erDiagram
+    USER ||--o{ SESSION : "发起"
+    SESSION ||--o{ MESSAGE : "包含"
+    MESSAGE }o--|| INTENT : "归属"
+    INTENT ||--o{ KNOWLEDGE_ITEM : "匹配"
+    SESSION ||--o| TICKET : "转工单"
+    AGENT ||--o{ TICKET : "处理"
+    USER ||--o{ FEEDBACK : "评价"
+    TICKET ||--o{ FEEDBACK : "产生"
+    KNOWLEDGE_ITEM }o--|| AGENT : "维护"
+
+    USER {
+        string user_id PK "用户主键"
+        string phone "手机号"
+        string nickname "昵称"
+        datetime created_at "注册时间"
+    }
+    SESSION {
+        string session_id PK "会话主键"
+        string user_id FK "所属用户"
+        string channel "接入渠道"
+        datetime started_at "会话开始时间"
+        string status "进行中 / 已结束"
+    }
+    MESSAGE {
+        string message_id PK "消息主键"
+        string session_id FK "所属会话"
+        string role "user / bot / agent"
+        text content "消息内容"
+        datetime sent_at "发送时间"
+    }
+    INTENT {
+        string intent_id PK "意图主键"
+        string intent_name "意图名称"
+        float confidence "识别置信度"
+        string parent_id "父级意图"
+    }
+    KNOWLEDGE_ITEM {
+        string kb_id PK "知识条目主键"
+        string intent_id FK "对应意图"
+        string question "标准问题"
+        text answer "标准答案"
+        string version "版本号"
+        int hit_count "命中次数"
+    }
+    TICKET {
+        string ticket_id PK "工单主键"
+        string session_id FK "来源会话"
+        string agent_id FK "处理坐席"
+        string priority "优先级"
+        string status "待处理 / 处理中 / 已关闭"
+    }
+    AGENT {
+        string agent_id PK "坐席主键"
+        string agent_name "坐席姓名"
+        string skill_group "技能组"
+        int load "当前负载"
+    }
+    FEEDBACK {
+        string feedback_id PK "反馈主键"
+        string ticket_id FK "关联工单"
+        string user_id FK "评价用户"
+        int score "满意度评分"
+        string comment "文字评价"
+    }
+</pre>
+            </div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>为什么用 Mermaid</h3>
+                <p>图的结构写成纯文本，改动业务节点只需改几行代码；渲染结果直接是 SVG，
+                缩放不失真，也方便贴进文档与 PPT。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>流程图要点</h3>
+                <p>四个 subgraph 把接入、理解、服务、运营分开；菱形节点表示分支判断，
+                低置信度自动转人工，澄清追问可回到意图识别形成闭环。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>ER 图要点</h3>
+                <p>会话与消息是一对多，消息归属某个意图；知识条目按意图组织并由坐席维护；
+                一次会话最多生成一个工单，工单与评价形成反馈数据。</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./cdn/mermaid.min.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var zhang_diagrams = document.querySelectorAll('.mermaid');
+        if (typeof mermaid === 'undefined') {
+            zhang_diagrams.forEach(function (zhang_el) {
+                zhang_el.innerHTML = '<p style="color:#bd493c;padding:20px">未找到 mermaid.min.js，请确认 cdn 目录完整。</p>';
+            });
+            return;
+        }
+
+        mermaid.initialize({
+            startOnLoad: true,
+            securityLevel: 'loose',
+            theme: 'base',
+            fontFamily: '"Microsoft YaHei", "宋体", sans-serif',
+            themeVariables: {
+                primaryColor: '#eef6f4',
+                primaryTextColor: '#17212b',
+                primaryBorderColor: '#2d7c7a',
+                lineColor: '#5b6b72',
+                fontSize: '13px',
+                clusterBkg: '#fbfaf6',
+                clusterBorder: '#d9d2c5',
+                edgeLabelBackground: '#fffdf8'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 42,
+                rankSpacing: 56,
+                padding: 12
+            },
+            er: {
+                useMaxWidth: true,
+                minEntityWidth: 110,
+                minEntityHeight: 80,
+                entityPadding: 16,
+                diagramPadding: 22
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

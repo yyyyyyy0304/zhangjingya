@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流场 · 粒子文字动画</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1100px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #bd493c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+        .zhang_stage {
+            position: relative; height: 62vh; min-height: 440px; background: #050b13;
+        }
+        .zhang_stage canvas { display: block; width: 100%; height: 100%; }
+        .zhang_stage-tip {
+            position: absolute; left: 16px; bottom: 12px;
+            font-size: 11.5px; color: rgba(255,255,255,0.45);
+            letter-spacing: 0.03em; pointer-events: none;
+        }
+
+        .zhang_controls {
+            border-top: 1px solid #d9d2c5; padding: 10px 18px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
+            font-size: 12.5px; color: #687681;
+        }
+        .zhang_ctrl { display: flex; align-items: center; gap: 8px; }
+        .zhang_ctrl input[type="range"] {
+            width: 108px; accent-color: #2d7c7a; cursor: pointer;
+        }
+        .zhang_ctrl span { min-width: 40px; color: #17212b; font-variant-numeric: tabular-nums; }
+        .zhang_controls button {
+            border: 1px solid #d9d2c5; background: #fff; color: #2d7c7a;
+            padding: 4px 12px; font-size: 12px; border-radius: 4px;
+            cursor: pointer; font-family: inherit; transition: 150ms ease;
+        }
+        .zhang_controls button:hover { border-color: #2d7c7a; background: #f3f7f5; }
+        .zhang_fps { margin-left: auto; color: #9aa6af; font-size: 11.5px; }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #bd493c; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+            .zhang_stage { height: 52vh; min-height: 360px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>流场 · 粒子文字动画</h1>
+        <p class="zhang_subtitle">张婧雅 · Canvas Flow Field + Particle Text</p>
+
+        <div class="zhang_intro">
+            数千个发光粒子被一层看不见的<b>向量流场</b>推动，其中绝大多数被弹簧吸附到
+            "张婧雅"三字的笔画采样点上——<b>整幅文字完全由粒子点阵堆出来</b>，没有实心字形底纹。
+            移动指针会推开粒子，点击画面会把粒子打散，随即自动回位成形。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                流场粒子 · 张婧雅
+                <span class="zhang_tag">canvas + requestAnimationFrame</span>
+            </div>
+            <div class="zhang_stage">
+                <canvas id="zhang_canvas"></canvas>
+                <div class="zhang_stage-tip">移动指针扰动流场 · 点击画面打散粒子</div>
+            </div>
+            <div class="zhang_controls">
+                <div class="zhang_ctrl">
+                    <label for="zhang_count">粒子数量</label>
+                    <input type="range" id="zhang_count" min="800" max="4000" step="100" value="2600">
+                    <span id="zhang_count_out">2600</span>
+                </div>
+                <div class="zhang_ctrl">
+                    <label for="zhang_speed">流场强度</label>
+                    <input type="range" id="zhang_speed" min="0" max="2.5" step="0.1" value="1">
+                    <span id="zhang_speed_out">1.0x</span>
+                </div>
+                <button type="button" id="zhang_theme_btn">配色：极光</button>
+                <button type="button" id="zhang_pause_btn">暂停</button>
+                <span class="zhang_fps" id="zhang_fps">— FPS</span>
+            </div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>文字怎么来的</h3>
+                <p>离屏 Canvas 用系统黑体写"张婧雅"，读取像素 alpha 得到笔画掩膜；再在掩膜内按六边形网格均匀布点，
+                点位间距与实际笔画面积挂钩，保证粒子铺满又不留空洞。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>为什么会成形</h3>
+                <p>每个粒子被一根比例弹簧拉向自己的目标点（k≈3，约 0.3 秒收敛），流场只保留 5% 的扰动；
+                呼吸相位让笔画轻微起伏，字形始终可辨。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>性能与适配</h3>
+                <p>半透明底色逐帧叠盖形成短拖尾，点阵用 <code>lighter</code> 叠加发光；DPR 自适应、
+                ResizeObserver 重建点位、切到后台自动停表。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var zhang_canvas = document.getElementById('zhang_canvas');
+        var zhang_ctx = zhang_canvas.getContext('2d');
+        var zhang_stage = zhang_canvas.parentElement;
+
+        var zhang_state = {
+            w: 0, h: 0, dpr: 1,
+            time: 0, last: 0,
+            count: 2600, speed: 1, theme: 0,
+            paused: false, frames: 0, fpsClock: 0, fps: 0,
+            textRadius: 1.6
+        };
+
+        var zhang_themes = [
+            {
+                name: '极光',
+                bg: '#050b13',
+                fog: 'rgba(5, 11, 19, 0.13)',
+                colors: ['#8ff0dd', '#6bc0ff', '#c9a4ff', '#ffeaa7']
+            },
+            {
+                name: '暮色',
+                bg: '#140d12',
+                fog: 'rgba(20, 13, 18, 0.13)',
+                colors: ['#ffc08a', '#ffd166', '#f47b9f', '#a8dcff']
+            }
+        ];
+
+        var zhang_particles = [];
+        var zhang_targets = [];
+        var zhang_mask = null;
+        var zhang_maskW = 0, zhang_maskH = 0;
+        var zhang_textCanvas = document.createElement('canvas');
+        var zhang_textCtx = zhang_textCanvas.getContext('2d', { willReadFrequently: true });
+        var zhang_vignette = null;
+        var zhang_mouse = { x: 0, y: 0, active: false };
+
+        function zhang_randomRange(a, b) { return a + Math.random() * (b - a); }
+
+        /* ========== 1. 文字掩膜 + 均匀布点 ========== */
+        function zhang_buildTextTargets() {
+            var w = zhang_state.w, h = zhang_state.h;
+            zhang_textCanvas.width = w;
+            zhang_textCanvas.height = h;
+            zhang_textCtx.clearRect(0, 0, w, h);
+
+            // 字号：短边 42%，同时保证三字完整落在画布内
+            var fs = Math.min(Math.min(w, h) * 0.42, (w * 0.88) / 3);
+            fs = Math.max(48, fs);
+
+            zhang_textCtx.font = '900 ' + Math.round(fs) + 'px "Microsoft YaHei", "Heiti SC", "SimHei", sans-serif';
+            zhang_textCtx.textAlign = 'center';
+            zhang_textCtx.textBaseline = 'middle';
+            zhang_textCtx.fillStyle = '#ffffff';
+            zhang_textCtx.fillText('张婧雅', w / 2, h / 2);
+
+            // 读取像素，得到笔画掩膜
+            var zhang_img = zhang_textCtx.getImageData(0, 0, w, h).data;
+            zhang_maskW = w;
+            zhang_maskH = h;
+            zhang_mask = new Uint8Array(w * h);
+            var zhang_ink = 0;
+            for (var zhang_i = 0, zhang_px = 3; zhang_i < w * h; zhang_i++, zhang_px += 4) {
+                if (zhang_img[zhang_px] > 110) {
+                    zhang_mask[zhang_i] = 1;
+                    zhang_ink++;
+                }
+            }
+            if (zhang_ink === 0) { zhang_targets = []; return; }
+
+            // 布点间距：由"笔画面积 / 需要的点数"推导，点半径取间距一半，笔画自然连成线
+            var zhang_need = Math.min(zhang_ink, Math.round(zhang_state.count * 1.06));
+            var zhang_step = Math.sqrt(zhang_ink / Math.max(1, zhang_need));
+            zhang_step = Math.max(2.4, zhang_step);
+            zhang_state.textRadius = Math.max(1.15, Math.min(2.4, zhang_step * 0.54));
+
+            // 六边形网格布点（奇数行错开半个间距），只在笔画内部埋点
+            var zhang_list = [];
+            var zhang_row = 0;
+            for (var zhang_y = 0; zhang_y < h; zhang_y += zhang_step) {
+                var zhang_off = (zhang_row++ % 2) * zhang_step / 2;
+                for (var zhang_x = zhang_off; zhang_x < w; zhang_x += zhang_step) {
+                    if (zhang_maskAt(zhang_x, zhang_y, zhang_step * 0.55)) {
+                        zhang_list.push({ x: zhang_x, y: zhang_y });
+                    }
+                }
+            }
+
+            // 打乱顺序，避免粒子按行号整片"刷"下来
+            for (var zhang_k = zhang_list.length - 1; zhang_k > 0; zhang_k--) {
+                var zhang_r = Math.floor(Math.random() * (zhang_k + 1));
+                var zhang_t = zhang_list[zhang_k];
+                zhang_list[zhang_k] = zhang_list[zhang_r];
+                zhang_list[zhang_r] = zhang_t;
+            }
+            zhang_targets = zhang_list;
+        }
+
+        function zhang_maskAt(x, y, r) {
+            var w = zhang_maskW, h = zhang_maskH;
+            var cx = Math.round(x), cy = Math.round(y);
+            if (cx < 0 || cy < 0 || cx >= w || cy >= h) {
+                // 边界外也可能靠近笔画，做一次裁剪后的检查
+                cx = Math.min(w - 1, Math.max(0, cx));
+                cy = Math.min(h - 1, Math.max(0, cy));
+            }
+            if (zhang_mask[cy * w + cx]) return true;
+            var dx = Math.max(1, Math.round(r));
+            var dy = Math.max(1, Math.round(r * 0.8));
+            return !!(zhang_mask[cy * w + Math.min(w - 1, cx + dx)] ||
+                     zhang_mask[cy * w + Math.max(0, cx - dx)] ||
+                     zhang_mask[Math.min(h - 1, cy + dy) * w + cx] ||
+                     zhang_mask[Math.max(0, cy - dy) * w + cx]);
+        }
+
+        /* ========== 2. 粒子 ========== */
+        function zhang_seedParticles() {
+            var zhang_n = zhang_state.count;
+            var zhang_colors = zhang_themes[zhang_state.theme].colors;
+
+            if (zhang_particles.length !== zhang_n) {
+                zhang_particles = [];
+                for (var zhang_i = 0; zhang_i < zhang_n; zhang_i++) {
+                    zhang_particles.push({
+                        x: Math.random() * zhang_state.w,
+                        y: Math.random() * zhang_state.h,
+                        px: 0, py: 0,
+                        vx: 0, vy: 0,
+                        color: zhang_i % zhang_colors.length,
+                        phase: Math.random() * Math.PI * 2,
+                        factor: 0.6 + Math.random() * 0.8,
+                        r: zhang_randomRange(0.8, 1.3),
+                        hasText: false,
+                        tx: 0, ty: 0
+                    });
+                }
+            }
+            zhang_bindTargets();
+        }
+
+        function zhang_bindTargets() {
+            var zhang_total = zhang_particles.length;
+            var zhang_cnt = zhang_targets.length;
+            var zhang_bound = Math.round(zhang_total * 0.92);
+
+            for (var zhang_i = 0; zhang_i < zhang_total; zhang_i++) {
+                zhang_particles[zhang_i].hasText = false;
+            }
+            if (zhang_cnt === 0) return;
+
+            for (var zhang_j = 0; zhang_j < zhang_total && zhang_j < zhang_bound; zhang_j++) {
+                var zhang_p = zhang_particles[zhang_j];
+                var zhang_t = zhang_targets[zhang_j % zhang_cnt];
+                zhang_p.hasText = true;
+                zhang_p.tx = zhang_t.x + zhang_randomRange(-0.6, 0.6);
+                zhang_p.ty = zhang_t.y + zhang_randomRange(-0.6, 0.6);
+                zhang_p.r = zhang_state.textRadius * zhang_randomRange(0.85, 1.1);
+                zhang_p.x = zhang_p.tx + zhang_randomRange(-26, 26);
+                zhang_p.y = zhang_p.ty + zhang_randomRange(-26, 26);
+                zhang_p.px = zhang_p.x;
+                zhang_p.py = zhang_p.y;
+                zhang_p.vx = 0;
+                zhang_p.vy = 0;
+            }
+            // 剩余粒子重新散布到画布，作为背景流动
+            for (var zhang_k = zhang_bound; zhang_k < zhang_total; zhang_k++) {
+                var zhang_q = zhang_particles[zhang_k];
+                zhang_q.x = Math.random() * zhang_state.w;
+                zhang_q.y = Math.random() * zhang_state.h;
+                zhang_q.px = zhang_q.x;
+                zhang_q.py = zhang_q.y;
+                zhang_q.vx = 0;
+                zhang_q.vy = 0;
+                zhang_q.r = zhang_randomRange(0.8, 1.4);
+            }
+        }
+
+        /* ========== 3. 尺寸 ========== */
+        function zhang_resize() {
+            var zhang_rect = zhang_stage.getBoundingClientRect();
+            var zhang_w = Math.max(320, Math.round(zhang_rect.width));
+            var zhang_h = Math.max(300, Math.round(zhang_rect.height));
+            var zhang_dpr = Math.min(2, window.devicePixelRatio || 1);
+
+            zhang_state.w = zhang_w;
+            zhang_state.h = zhang_h;
+            zhang_state.dpr = zhang_dpr;
+
+            zhang_canvas.width = Math.round(zhang_w * zhang_dpr);
+            zhang_canvas.height = Math.round(zhang_h * zhang_dpr);
+            zhang_ctx.setTransform(zhang_dpr, 0, 0, zhang_dpr, 0, 0);
+
+            zhang_buildTextTargets();
+            zhang_seedParticles();
+
+            zhang_ctx.fillStyle = zhang_themes[zhang_state.theme].bg;
+            zhang_ctx.fillRect(0, 0, zhang_w, zhang_h);
+
+            zhang_vignette = zhang_ctx.createRadialGradient(
+                zhang_w / 2, zhang_h / 2, Math.min(zhang_w, zhang_h) * 0.28,
+                zhang_w / 2, zhang_h / 2, Math.max(zhang_w, zhang_h) * 0.78
+            );
+            zhang_vignette.addColorStop(0, 'rgba(0,0,0,0)');
+            zhang_vignette.addColorStop(1, 'rgba(0,0,0,0.62)');
+        }
+
+        /* ========== 4. 取色工具 ========== */
+        function zhang_rgba(zhang_hex, zhang_alpha) {
+            var zhang_r = parseInt(zhang_hex.slice(1, 3), 16);
+            var zhang_g = parseInt(zhang_hex.slice(3, 5), 16);
+            var zhang_b = parseInt(zhang_hex.slice(5, 7), 16);
+            return 'rgba(' + zhang_r + ',' + zhang_g + ',' + zhang_b + ',' + zhang_alpha + ')';
+        }
+
+        /* ========== 5. 主循环 ========== */
+        function zhang_frame(zhang_now) {
+            if (!zhang_state.last) zhang_state.last = zhang_now;
+            var zhang_dt = Math.min(0.05, (zhang_now - zhang_state.last) / 1000);
+            zhang_state.last = zhang_now;
+
+            if (!zhang_state.paused) {
+                zhang_state.time += zhang_dt;
+                zhang_update(zhang_dt);
+                zhang_draw();
+            }
+
+            // FPS
+            zhang_state.frames++;
+            if (zhang_now - zhang_state.fpsClock > 500) {
+                zhang_state.fps = Math.round(zhang_state.frames * 1000 / (zhang_now - zhang_state.fpsClock));
+                zhang_state.frames = 0;
+                zhang_state.fpsClock = zhang_now;
+                var zhang_fpsEl = document.getElementById('zhang_fps');
+                if (zhang_fpsEl) zhang_fpsEl.textContent = zhang_state.fps + ' FPS';
+            }
+            requestAnimationFrame(zhang_frame);
+        }
+
+        function zhang_update(zhang_dt) {
+            var zhang_t = zhang_state.time;
+            var zhang_w = zhang_state.w, zhang_h = zhang_state.h;
+            var zhang_ease = 1 - Math.exp(-zhang_dt * 12);
+            var zhang_m = zhang_mouse;
+            var zhang_R = 120;
+
+            for (var zhang_i = 0; zhang_i < zhang_particles.length; zhang_i++) {
+                var zhang_p = zhang_particles[zhang_i];
+
+                // 流场：三角函数叠加，平滑且无随机跳变
+                var zhang_ang =
+                    Math.sin(zhang_p.x * 0.0024 + zhang_t * 0.32) +
+                    Math.cos(zhang_p.y * 0.0029 - zhang_t * 0.24) +
+                    Math.sin((zhang_p.x + zhang_p.y) * 0.0015 + zhang_t * 0.16) * 0.8;
+
+                var zhang_vx = Math.cos(zhang_ang) * 92 * zhang_state.speed * zhang_p.factor;
+                var zhang_vy = Math.sin(zhang_ang) * 92 * zhang_state.speed * zhang_p.factor;
+
+                if (zhang_p.hasText) {
+                    // 呼吸：约 4.5 秒一个周期，强度 0.78 ~ 1.0，字形始终"抓紧"
+                    var zhang_breath = 0.89 + Math.sin(zhang_t * 1.4 + zhang_p.phase) * 0.11;
+                    var zhang_k = 3.0 * zhang_breath;
+                    var zhang_wx = Math.sin(zhang_t * 0.8 + zhang_p.phase) * 0.9;
+                    var zhang_wy = Math.cos(zhang_t * 0.7 + zhang_p.phase * 1.7) * 0.9;
+
+                    zhang_vx = zhang_vx * 0.05 + (zhang_p.tx + zhang_wx - zhang_p.x) * zhang_k;
+                    zhang_vy = zhang_vy * 0.05 + (zhang_p.ty + zhang_wy - zhang_p.y) * zhang_k;
+                }
+
+                // 指针扰动：推开粒子
+                if (zhang_m.active) {
+                    var zhang_dx = zhang_p.x - zhang_m.x;
+                    var zhang_dy = zhang_p.y - zhang_m.y;
+                    var zhang_dist2 = zhang_dx * zhang_dx + zhang_dy * zhang_dy;
+                    if (zhang_dist2 < zhang_R * zhang_R && zhang_dist2 > 0.01) {
+                        var zhang_dist = Math.sqrt(zhang_dist2);
+                        var zhang_push = (1 - zhang_dist / zhang_R) * 420;
+                        zhang_vx += (zhang_dx / zhang_dist) * zhang_push;
+                        zhang_vy += (zhang_dy / zhang_dist) * zhang_push;
+                    }
+                }
+
+                // 速度缓动 + 位置积分
+                zhang_p.vx += (zhang_vx - zhang_p.vx) * zhang_ease;
+                zhang_p.vy += (zhang_vy - zhang_p.vy) * zhang_ease;
+                zhang_p.px = zhang_p.x;
+                zhang_p.py = zhang_p.y;
+                zhang_p.x += zhang_p.vx * zhang_dt;
+                zhang_p.y += zhang_p.vy * zhang_dt;
+
+                // 自由粒子出界回卷；文字粒子限制在画布内
+                if (zhang_p.hasText) {
+                    if (zhang_p.x < 0) zhang_p.x = 0;
+                    if (zhang_p.x > zhang_w) zhang_p.x = zhang_w;
+                    if (zhang_p.y < 0) zhang_p.y = 0;
+                    if (zhang_p.y > zhang_h) zhang_p.y = zhang_h;
+                } else {
+                    if (zhang_p.x < -10) zhang_p.x = zhang_w + 10;
+                    if (zhang_p.x > zhang_w + 10) zhang_p.x = -10;
+                    if (zhang_p.y < -10) zhang_p.y = zhang_h + 10;
+                    if (zhang_p.y > zhang_h + 10) zhang_p.y = -10;
+                }
+            }
+        }
+
+        function zhang_draw() {
+            var zhang_ctx2 = zhang_ctx;
+            var zhang_theme = zhang_themes[zhang_state.theme];
+            var zhang_w = zhang_state.w, zhang_h = zhang_state.h;
+
+            // 7.1 半透明覆盖：形成短拖尾
+            zhang_ctx2.globalCompositeOperation = 'source-over';
+            zhang_ctx2.fillStyle = zhang_theme.fog;
+            zhang_ctx2.fillRect(0, 0, zhang_w, zhang_h);
+
+            // 7.2 粒子（叠加发光）
+            zhang_ctx2.globalCompositeOperation = 'lighter';
+
+            for (var zhang_c = 0; zhang_c < zhang_theme.colors.length; zhang_c++) {
+                var zhang_color = zhang_theme.colors[zhang_c];
+
+                for (var zhang_i = 0; zhang_i < zhang_particles.length; zhang_i++) {
+                    var zhang_p = zhang_particles[zhang_i];
+                    if (zhang_p.color !== zhang_c) continue;
+
+                    if (zhang_p.hasText) {
+                        // 文字粒子：实心光点，点的直径约等于布点间距 → 笔画连成线
+                        zhang_ctx2.fillStyle = zhang_rgba(zhang_color, 0.82);
+                        zhang_ctx2.beginPath();
+                        zhang_ctx2.arc(zhang_p.x, zhang_p.y, zhang_p.r, 0, Math.PI * 2);
+                        zhang_ctx2.fill();
+                    } else {
+                        var zhang_mag = Math.sqrt(zhang_p.vx * zhang_p.vx + zhang_p.vy * zhang_p.vy);
+                        zhang_ctx2.strokeStyle = zhang_rgba(zhang_color, 0.16 + Math.min(0.4, zhang_mag / 480));
+                        zhang_ctx2.lineWidth = 0.7 + Math.min(1.2, zhang_mag / 320);
+                        zhang_ctx2.beginPath();
+                        zhang_ctx2.moveTo(zhang_p.px, zhang_p.py);
+                        zhang_ctx2.lineTo(zhang_p.x, zhang_p.y);
+                        zhang_ctx2.stroke();
+                    }
+                }
+            }
+
+            // 7.3 暗角
+            zhang_ctx2.globalCompositeOperation = 'source-over';
+            if (zhang_vignette) {
+                zhang_ctx2.fillStyle = zhang_vignette;
+                zhang_ctx2.fillRect(0, 0, zhang_w, zhang_h);
+            }
+        }
+
+        /* ========== 6. 交互 ========== */
+        function zhang_pointerPos(zhang_e) {
+            var zhang_rect = zhang_canvas.getBoundingClientRect();
+            var zhang_src = zhang_e.touches ? zhang_e.touches[0] : zhang_e;
+            return {
+                x: (zhang_src.clientX - zhang_rect.left) * (zhang_state.w / zhang_rect.width),
+                y: (zhang_src.clientY - zhang_rect.top) * (zhang_state.h / zhang_rect.height)
+            };
+        }
+
+        zhang_canvas.addEventListener('pointermove', function (zhang_e) {
+            var zhang_pos = zhang_pointerPos(zhang_e);
+            zhang_mouse.x = zhang_pos.x;
+            zhang_mouse.y = zhang_pos.y;
+            zhang_mouse.active = true;
+        });
+        zhang_canvas.addEventListener('pointerleave', function () {
+            zhang_mouse.active = false;
+        });
+        zhang_canvas.addEventListener('pointerdown', function (zhang_e) {
+            // 点击：把粒子打散，弹簧随后自动回位成形
+            var zhang_pos = zhang_pointerPos(zhang_e);
+            var zhang_R = Math.min(zhang_state.w, zhang_state.h) * 0.42;
+            for (var zhang_i = 0; zhang_i < zhang_particles.length; zhang_i++) {
+                var zhang_p = zhang_particles[zhang_i];
+                var zhang_dx = zhang_p.x - zhang_pos.x;
+                var zhang_dy = zhang_p.y - zhang_pos.y;
+                var zhang_dist = Math.sqrt(zhang_dx * zhang_dx + zhang_dy * zhang_dy) || 1;
+                if (zhang_dist > zhang_R) continue;
+                var zhang_force = (1 - zhang_dist / zhang_R) * 380 + 60;
+                zhang_p.vx += (zhang_dx / zhang_dist) * zhang_force;
+                zhang_p.vy += (zhang_dy / zhang_dist) * zhang_force;
+            }
+        });
+
+        var zhang_countInput = document.getElementById('zhang_count');
+        var zhang_countOut = document.getElementById('zhang_count_out');
+        zhang_countInput.addEventListener('input', function () {
+            zhang_state.count = parseInt(this.value, 10);
+            zhang_countOut.textContent = zhang_state.count;
+            zhang_buildTextTargets();
+            zhang_seedParticles();
+        });
+
+        var zhang_speedInput = document.getElementById('zhang_speed');
+        var zhang_speedOut = document.getElementById('zhang_speed_out');
+        zhang_speedInput.addEventListener('input', function () {
+            zhang_state.speed = parseFloat(this.value);
+            zhang_speedOut.textContent = zhang_state.speed.toFixed(1) + 'x';
+        });
+
+        var zhang_themeBtn = document.getElementById('zhang_theme_btn');
+        zhang_themeBtn.addEventListener('click', function () {
+            zhang_state.theme = (zhang_state.theme + 1) % zhang_themes.length;
+            zhang_themeBtn.textContent = '配色：' + zhang_themes[zhang_state.theme].name;
+            zhang_seedParticles();
+            zhang_ctx.globalCompositeOperation = 'source-over';
+            zhang_ctx.fillStyle = zhang_themes[zhang_state.theme].bg;
+            zhang_ctx.fillRect(0, 0, zhang_state.w, zhang_state.h);
+        });
+
+        var zhang_pauseBtn = document.getElementById('zhang_pause_btn');
+        zhang_pauseBtn.addEventListener('click', function () {
+            zhang_state.paused = !zhang_state.paused;
+            zhang_pauseBtn.textContent = zhang_state.paused ? '继续' : '暂停';
+            zhang_state.last = 0;
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            zhang_state.last = 0;
+        });
+
+        /* ========== 7. 启动 ========== */
+        zhang_resize();
+        requestAnimationFrame(zhang_frame);
+
+        if (typeof ResizeObserver !== 'undefined') {
+            var zhang_ro = new ResizeObserver(function () {
+                zhang_resize();
+            });
+            zhang_ro.observe(zhang_stage);
+        } else {
+            window.addEventListener('resize', zhang_resize);
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据大屏 · 城市运行监测</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #040a12;
+            color: #d6ecf5;
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(70, 170, 200, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(70, 170, 200, 0.045) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        body::after {
+            content: "";
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at 50% 30%, rgba(20, 90, 130, 0.22) 0%,
+                rgba(4, 10, 18, 0) 62%);
+        }
+
+        .zhang_screen {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            height: 100vh;
+            padding: 0 18px 10px;
+            display: flex; flex-direction: column;
+        }
+
+        /* ===== 顶部标题 ===== */
+        .zhang_head {
+            flex: 0 0 76px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 1px solid rgba(70, 180, 215, 0.25);
+        }
+        .zhang_head-left { display: flex; flex-direction: column; gap: 4px; }
+        .zhang_back {
+            color: #6fb9d0; text-decoration: none; font-size: 12px;
+            letter-spacing: 0.05em;
+        }
+        .zhang_back:hover { color: #9feaff; }
+        .zhang_clock {
+            color: #5d8698; font-size: 12px; font-family: Consolas, "Courier New", monospace;
+        }
+        .zhang_head h1 {
+            font-size: 27px; font-weight: 600; letter-spacing: 0.2em;
+            color: #e6f8ff; text-shadow: 0 0 22px rgba(80, 200, 255, 0.55);
+            white-space: nowrap;
+        }
+        .zhang_head h1::after {
+            content: "";
+            display: block; height: 2px; margin: 8px auto 0;
+            width: 260px;
+            background: linear-gradient(90deg, transparent, rgba(90, 220, 255, 0.85), transparent);
+        }
+        .zhang_head-right {
+            display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+            color: #79a7b9; font-size: 12px;
+        }
+        .zhang_live {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #48e0a4; box-shadow: 0 0 10px #48e0a4;
+            animation: zhang_pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes zhang_pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.45; transform: scale(0.72); }
+        }
+
+        /* ===== 三列布局 ===== */
+        .zhang_grid {
+            flex: 1; min-height: 0;
+            display: grid;
+            grid-template-columns: 24% 1fr 24%;
+            gap: 14px;
+            padding-top: 12px;
+        }
+        .zhang_col { display: grid; gap: 14px; min-height: 0; }
+        .zhang_col-left, .zhang_col-right { grid-template-rows: 0.92fr 1.12fr 1.02fr; }
+        .zhang_col-mid { grid-template-rows: 1.62fr 0.92fr; }
+
+        .zhang_panel {
+            position: relative; min-height: 0; overflow: hidden;
+            display: flex; flex-direction: column;
+            background: linear-gradient(180deg, rgba(12, 36, 54, 0.78) 0%, rgba(6, 18, 29, 0.72) 100%);
+            border: 1px solid rgba(62, 158, 190, 0.28);
+            border-radius: 4px;
+            box-shadow: inset 0 0 32px rgba(24, 90, 120, 0.18);
+        }
+        .zhang_panel::before, .zhang_panel::after {
+            content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none;
+        }
+        .zhang_panel::before {
+            top: 0; left: 0;
+            border-top: 1px solid rgba(95, 225, 255, 0.7);
+            border-left: 1px solid rgba(95, 225, 255, 0.7);
+        }
+        .zhang_panel::after {
+            right: 0; bottom: 0;
+            border-bottom: 1px solid rgba(95, 225, 255, 0.7);
+            border-right: 1px solid rgba(95, 225, 255, 0.7);
+        }
+        .zhang_panel-title {
+            flex: 0 0 32px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 0 12px;
+            font-size: 12.5px; letter-spacing: 0.08em; color: #9fdcf0;
+            border-bottom: 1px solid rgba(62, 158, 190, 0.16);
+        }
+        .zhang_panel-title::before {
+            content: ""; width: 4px; height: 13px; border-radius: 1px;
+            background: linear-gradient(#5ff0ff, #2b7bb9);
+            box-shadow: 0 0 8px rgba(95, 240, 255, 0.85);
+        }
+        .zhang_panel-title .zhang_meta {
+            margin-left: auto; color: #6b93a4; font-size: 11px; letter-spacing: 0;
+        }
+        .zhang_chart { flex: 1; min-height: 0; width: 100%; }
+
+        /* ===== KPI ===== */
+        .zhang_kpis {
+            flex: 1; min-height: 0;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px;
+        }
+        .zhang_kpi {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 6px 12px;
+            background: rgba(32, 96, 128, 0.13);
+            border: 1px solid rgba(62, 158, 190, 0.16);
+            border-radius: 3px;
+        }
+        .zhang_kpi b {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: clamp(18px, 1.55vw, 27px); font-weight: bold;
+            color: #7ff2ff; text-shadow: 0 0 14px rgba(60, 210, 255, 0.5);
+            line-height: 1.25;
+        }
+        .zhang_kpi small { font-size: 11px; color: #7f9fae; letter-spacing: 0.04em; }
+
+        /* ===== 告警列表 ===== */
+        .zhang_alerts {
+            flex: 1; min-height: 0; overflow: hidden;
+            padding: 9px 12px; display: flex; flex-direction: column; gap: 7px;
+        }
+        .zhang_alert {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: #a9c6d4;
+        }
+        .zhang_alert i {
+            flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%;
+            background: #55c7ff; box-shadow: 0 0 7px currentColor;
+        }
+        .zhang_alert span { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .zhang_alert em {
+            font-style: normal; color: #5f8797;
+            font-family: Consolas, monospace; font-size: 11px;
+        }
+
+        /* ===== 热词 ===== */
+        .zhang_words {
+            flex: 1; min-height: 0; overflow: hidden;
+            padding: 12px; display: flex; flex-wrap: wrap; gap: 7px 10px; align-content: flex-start;
+        }
+        .zhang_word {
+            padding: 2px 10px; border-radius: 12px;
+            border: 1px solid rgba(70, 180, 215, 0.22);
+            background: rgba(28, 92, 122, 0.12);
+            color: #8fd6e8; line-height: 1.6;
+        }
+
+        .zhang_footer {
+            flex: 0 0 26px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-top: 1px solid rgba(70, 180, 215, 0.18);
+            margin-top: 10px;
+            color: #52798a; font-size: 11px; letter-spacing: 0.04em;
+        }
+
+        @media (max-width: 1180px) {
+            .zhang_screen { height: auto; }
+            .zhang_grid { grid-template-columns: 1fr; }
+            .zhang_col { grid-template-rows: none; }
+            .zhang_col > .zhang_panel { min-height: 300px; }
+            .zhang_col-mid > .zhang_panel:first-child { min-height: 440px; }
+            .zhang_head { grid-template-columns: 1fr; gap: 4px; padding: 10px 0; }
+            .zhang_head h1 { font-size: 20px; letter-spacing: 0.1em; }
+            .zhang_head-left, .zhang_head-right { flex-direction: row; align-items: center; justify-content: space-between; }
+            .zhang_head h1::after { width: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_screen">
+        <header class="zhang_head">
+            <div class="zhang_head-left">
+                <a class="zhang_back" href="../index.html">← 返回首页</a>
+                <span class="zhang_clock" id="zhang_clock">2026-11-06 00:00:00</span>
+            </div>
+            <h1>智慧城市 · 运行数据大屏</h1>
+            <div class="zhang_head-right">
+                <span class="zhang_live"></span>
+                <span>张婧雅 · 实时监测</span>
+            </div>
+        </header>
+
+        <main class="zhang_grid">
+            <section class="zhang_col zhang_col-left">
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">运营总览<span class="zhang_meta">今日</span></div>
+                    <div class="zhang_kpis">
+                        <div class="zhang_kpi"><b>12,486</b><small>在线用户</small></div>
+                        <div class="zhang_kpi"><b>86.4<span style="font-size:14px"> 万</span></b><small>今日访问</small></div>
+                        <div class="zhang_kpi"><b>128</b><small>活跃节点</small></div>
+                        <div class="zhang_kpi"><b>42<span style="font-size:14px"> ms</span></b><small>平均响应</small></div>
+                    </div>
+                </div>
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">城市访问排行<span class="zhang_meta">单位 / 万次</span></div>
+                    <div class="zhang_chart" id="zhang_rank"></div>
+                </div>
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">渠道来源占比<span class="zhang_meta">实时</span></div>
+                    <div class="zhang_chart" id="zhang_pie"></div>
+                </div>
+            </section>
+
+            <section class="zhang_col zhang_col-mid">
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">全国节点分布与数据流向<span class="zhang_meta">节点 128 · 链路 7</span></div>
+                    <div class="zhang_chart" id="zhang_map"></div>
+                </div>
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">24 小时访问趋势<span class="zhang_meta">访问量 / 万次</span></div>
+                    <div class="zhang_chart" id="zhang_trend"></div>
+                </div>
+            </section>
+
+            <section class="zhang_col zhang_col-right">
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">实时告警<span class="zhang_meta">近 2 小时</span></div>
+                    <div class="zhang_alerts">
+                        <div class="zhang_alert"><i style="background:#ff5d5d;color:#ff5d5d"></i><span>华东节点 3 响应超时</span><em>11:24</em></div>
+                        <div class="zhang_alert"><i style="background:#ffb454;color:#ffb454"></i><span>知识库索引重建延迟</span><em>11:18</em></div>
+                        <div class="zhang_alert"><i style="background:#55c7ff;color:#55c7ff"></i><span>华南流量峰值达到阈值</span><em>11:07</em></div>
+                        <div class="zhang_alert"><i style="background:#48d99a;color:#48d99a"></i><span>西北链路已自动切换</span><em>10:52</em></div>
+                        <div class="zhang_alert"><i style="background:#55c7ff;color:#55c7ff"></i><span>新版意图模型灰度发布</span><em>10:36</em></div>
+                        <div class="zhang_alert"><i style="background:#48d99a;color:#48d99a"></i><span>用户满意度环比上升 2.3%</span><em>09:48</em></div>
+                        <div class="zhang_alert"><i style="background:#ffb454;color:#ffb454"></i><span>核心数据库主从延迟升高</span><em>09:32</em></div>
+                    </div>
+                </div>
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">服务健康度<span class="zhang_meta">综合评分</span></div>
+                    <div class="zhang_chart" id="zhang_gauge"></div>
+                </div>
+                <div class="zhang_panel">
+                    <div class="zhang_panel-title">热门检索词<span class="zhang_meta">TOP 12</span></div>
+                    <div class="zhang_words">
+                        <span class="zhang_word" style="font-size:16px">智能客服</span>
+                        <span class="zhang_word" style="font-size:13px">数据大屏</span>
+                        <span class="zhang_word" style="font-size:15px">地理信息</span>
+                        <span class="zhang_word" style="font-size:12px">ECharts</span>
+                        <span class="zhang_word" style="font-size:14px">三维地球</span>
+                        <span class="zhang_word" style="font-size:12px">Three.js</span>
+                        <span class="zhang_word" style="font-size:13px">粒子文字</span>
+                        <span class="zhang_word" style="font-size:12px">SVG 架构</span>
+                        <span class="zhang_word" style="font-size:12px">ER 图</span>
+                        <span class="zhang_word" style="font-size:12px">WebGL</span>
+                        <span class="zhang_word" style="font-size:12px">和弦图</span>
+                        <span class="zhang_word" style="font-size:13px">数据可视化</span>
+                        <span class="zhang_word" style="font-size:12px">数据中台</span>
+                        <span class="zhang_word" style="font-size:14px">可视化大屏</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="zhang_footer">
+            <span>张婧雅 · 高级网页设计课堂实践</span>
+            <span>数据为演示模拟 · ECharts 5.5.0 本地 cdn</span>
+        </footer>
+    </div>
+
+    <script src="./cdn/echarts.min.js"></script>
+    <script src="./cdn/china-map.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var zhang_textColor = '#a9c6d4';
+        var zhang_splitColor = 'rgba(70, 150, 180, 0.16)';
+        var zhang_font = '"Microsoft YaHei", sans-serif';
+        var zhang_charts = [];
+        var zhang_mapData = window.ZHANG_CHINA_MAP;
+
+        /* ========== 头部时钟 ========== */
+        function zhang_tick() {
+            var zhang_d = new Date();
+            var zhang_pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+            var zhang_week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][zhang_d.getDay()];
+            document.getElementById('zhang_clock').textContent =
+                zhang_d.getFullYear() + '-' + zhang_pad(zhang_d.getMonth() + 1) + '-' +
+                zhang_pad(zhang_d.getDate()) + ' ' + zhang_week + ' ' +
+                zhang_pad(zhang_d.getHours()) + ':' + zhang_pad(zhang_d.getMinutes()) + ':' +
+                zhang_pad(zhang_d.getSeconds());
+        }
+        zhang_tick();
+        setInterval(zhang_tick, 1000);
+
+        /* ========== 图一：地理信息 ========== */
+        var zhang_cities = [
+            { name: '北京', value: [116.405, 39.905, 128] },
+            { name: '上海', value: [121.473, 31.230, 112] },
+            { name: '深圳', value: [114.058, 22.543, 98] },
+            { name: '广州', value: [113.264, 23.129, 86] },
+            { name: '杭州', value: [120.155, 30.274, 74] },
+            { name: '成都', value: [104.066, 30.572, 62] },
+            { name: '武汉', value: [114.305, 30.593, 55] },
+            { name: '西安', value: [108.940, 34.341, 43] },
+            { name: '南京', value: [118.796, 32.060, 38] },
+            { name: '重庆', value: [106.550, 29.560, 34] },
+            { name: '沈阳', value: [123.430, 41.800, 26] },
+            { name: '乌鲁木齐', value: [87.617, 43.790, 18] }
+        ];
+
+        var zhang_routePairs = [
+            ['北京', '上海'], ['北京', '深圳'], ['北京', '沈阳'],
+            ['上海', '杭州'], ['深圳', '广州'], ['成都', '武汉'], ['西安', '重庆']
+        ];
+
+        function zhang_coordOf(zhang_name) {
+            for (var zhang_i = 0; zhang_i < zhang_cities.length; zhang_i++) {
+                if (zhang_cities[zhang_i].name === zhang_name) {
+                    return [zhang_cities[zhang_i].value[0], zhang_cities[zhang_i].value[1]];
+                }
+            }
+            return null;
+        }
+
+        function zhang_initMap() {
+            var zhang_chart = echarts.init(document.getElementById('zhang_map'));
+            if (zhang_mapData) {
+                echarts.registerMap('china', zhang_mapData);
+            }
+
+            var zhang_routes = zhang_routePairs.map(function (zhang_pair) {
+                return {
+                    coords: [zhang_coordOf(zhang_pair[0]), zhang_coordOf(zhang_pair[1])]
+                };
+            });
+
+            zhang_chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(6, 22, 33, 0.92)',
+                    borderColor: 'rgba(90, 200, 230, 0.4)',
+                    textStyle: { color: '#dff6ff', fontSize: 12 },
+                    formatter: function (zhang_p) {
+                        if (zhang_p.seriesType === 'effectScatter') {
+                            return zhang_p.name + ' · ' + zhang_p.value[2] + ' 个节点';
+                        }
+                        return zhang_p.name || '';
+                    }
+                },
+                geo: {
+                    map: 'china',
+                    roam: true,
+                    zoom: 1.18,
+                    layoutCenter: ['50%', '52%'],
+                    layoutSize: '104%',
+                    itemStyle: {
+                        areaColor: 'rgba(9, 42, 64, 0.82)',
+                        borderColor: 'rgba(88, 200, 230, 0.55)',
+                        borderWidth: 1,
+                        shadowColor: 'rgba(45, 170, 220, 0.55)',
+                        shadowBlur: 12,
+                        shadowOffsetY: 5
+                    },
+                    emphasis: {
+                        itemStyle: { areaColor: 'rgba(26, 98, 132, 0.95)' },
+                        label: { show: false }
+                    },
+                    label: { show: false }
+                },
+                series: [
+                    {
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        silent: true,
+                        lineStyle: {
+                            color: '#38d6ff', width: 1.2, opacity: 0.32, curveness: 0.24
+                        },
+                        effect: {
+                            show: true, period: 4.5, trailLength: 0.22,
+                            symbol: 'circle', symbolSize: 3, color: '#b8f6ff'
+                        },
+                        data: zhang_routes
+                    },
+                    {
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        zlevel: 3,
+                        symbolSize: function (zhang_v) {
+                            return 5 + Math.sqrt(zhang_v[2]) * 0.8;
+                        },
+                        rippleEffect: { brushType: 'stroke', scale: 3.6, period: 4 },
+                        itemStyle: {
+                            color: '#ffd479',
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(255, 181, 71, 0.85)'
+                        },
+                        label: {
+                            show: true, formatter: '{b}', position: 'right',
+                            color: '#c2e6f3', fontSize: 11, distance: 5
+                        },
+                        data: zhang_cities
+                    }
+                ]
+            });
+            zhang_charts.push(zhang_chart);
+        }
+
+        /* ========== 图二：城市排行 ========== */
+        function zhang_initRank() {
+            var zhang_chart = echarts.init(document.getElementById('zhang_rank'));
+            var zhang_names = ['北京', '上海', '深圳', '广州', '杭州', '成都', '武汉', '西安'];
+            var zhang_vals = [128, 112, 98, 86, 74, 62, 55, 43];
+
+            zhang_chart.setOption({
+                backgroundColor: 'transparent',
+                grid: { left: 46, right: 40, top: 8, bottom: 2 },
+                xAxis: { type: 'value', show: false, max: 150 },
+                yAxis: {
+                    type: 'category', inverse: true, data: zhang_names,
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: zhang_textColor, fontSize: 11, margin: 10 }
+                },
+                series: [{
+                    type: 'bar',
+                    barWidth: 9,
+                    showBackground: true,
+                    backgroundStyle: {
+                        color: 'rgba(50, 130, 160, 0.12)',
+                        borderRadius: [0, 5, 5, 0]
+                    },
+                    itemStyle: {
+                        borderRadius: [0, 5, 5, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#1f9dd0' },
+                            { offset: 1, color: '#7a6bff' }
+                        ])
+                    },
+                    label: {
+                        show: true, position: 'right',
+                        color: '#a8e6f6', fontSize: 11, fontFamily: 'Consolas, monospace'
+                    },
+                    data: zhang_vals
+                }]
+            });
+            zhang_charts.push(zhang_chart);
+        }
+
+        /* ========== 图三：渠道占比 ========== */
+        function zhang_initPie() {
+            var zhang_chart = echarts.init(document.getElementById('zhang_pie'));
+            zhang_chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(6, 22, 33, 0.92)',
+                    borderColor: 'rgba(90, 200, 230, 0.4)',
+                    textStyle: { color: '#dff6ff', fontSize: 12 },
+                    formatter: '{b}<br/>{c} 万次 · {d}%'
+                },
+                legend: {
+                    orient: 'vertical', right: '6%', top: 'center',
+                    itemWidth: 8, itemHeight: 8, itemGap: 12,
+                    textStyle: { color: zhang_textColor, fontSize: 11 },
+                    icon: 'circle'
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['44%', '70%'],
+                    center: ['36%', '52%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: {
+                        borderColor: 'rgba(5, 16, 26, 0.9)',
+                        borderWidth: 2
+                    },
+                    label: { show: false },
+                    emphasis: {
+                        scale: true, scaleSize: 6,
+                        label: { show: false }
+                    },
+                    data: [
+                        { name: '小程序', value: 38, itemStyle: { color: '#2bd4ff' } },
+                        { name: '移动 App', value: 27, itemStyle: { color: '#5a8dff' } },
+                        { name: '官网', value: 18, itemStyle: { color: '#7a6bff' } },
+                        { name: '公众号', value: 11, itemStyle: { color: '#38d1a4' } },
+                        { name: '第三方', value: 6, itemStyle: { color: '#ffb454' } }
+                    ]
+                }]
+            });
+            zhang_charts.push(zhang_chart);
+        }
+
+        /* ========== 图四：24 小时趋势 ========== */
+        function zhang_initTrend() {
+            var zhang_chart = echarts.init(document.getElementById('zhang_trend'));
+            var zhang_hours = [];
+            for (var zhang_i = 0; zhang_i < 24; zhang_i++) zhang_hours.push(zhang_i + '时');
+
+            var zhang_today = [12, 9, 7, 6, 8, 18, 36, 58, 72, 68, 64, 70,
+                               66, 74, 82, 88, 96, 92, 84, 76, 62, 48, 32, 20];
+            var zhang_last = [10, 8, 7, 5, 7, 16, 31, 52, 66, 64, 61, 66,
+                              62, 70, 76, 80, 88, 86, 78, 70, 58, 44, 29, 18];
+
+            zhang_chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(6, 22, 33, 0.92)',
+                    borderColor: 'rgba(90, 200, 230, 0.4)',
+                    textStyle: { color: '#dff6ff', fontSize: 12 }
+                },
+                legend: {
+                    right: 10, top: 4, itemWidth: 12, itemHeight: 6,
+                    textStyle: { color: zhang_textColor, fontSize: 11 },
+                    data: ['今日', '昨日同期']
+                },
+                grid: { left: 40, right: 14, top: 28, bottom: 22 },
+                xAxis: {
+                    type: 'category', boundaryGap: false, data: zhang_hours,
+                    axisLine: { lineStyle: { color: 'rgba(70, 150, 180, 0.28)' } },
+                    axisTick: { show: false },
+                    axisLabel: {
+                        color: '#61808f', fontSize: 10,
+                        interval: 2
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: '#61808f', fontSize: 10 },
+                    splitLine: { lineStyle: { color: zhang_splitColor } }
+                },
+                series: [
+                    {
+                        name: '今日', type: 'line', smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#38d6ff', width: 2 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(56, 214, 255, 0.38)' },
+                                { offset: 1, color: 'rgba(56, 214, 255, 0.02)' }
+                            ])
+                        },
+                        data: zhang_today
+                    },
+                    {
+                        name: '昨日同期', type: 'line', smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#ff9d6c', width: 1.2, type: 'dashed', opacity: 0.8 },
+                        data: zhang_last
+                    }
+                ]
+            });
+            zhang_charts.push(zhang_chart);
+        }
+
+        /* ========== 图五：健康度仪表 ========== */
+        function zhang_initGauge() {
+            var zhang_chart = echarts.init(document.getElementById('zhang_gauge'));
+            zhang_chart.setOption({
+                backgroundColor: 'transparent',
+                series: [{
+                    type: 'gauge',
+                    center: ['50%', '56%'],
+                    radius: '76%',
+                    startAngle: 210,
+                    endAngle: -30,
+                    min: 0,
+                    max: 100,
+                    splitNumber: 5,
+                    progress: {
+                        show: true, width: 10,
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: '#2bd4ff' },
+                                { offset: 1, color: '#7a6bff' }
+                            ])
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            width: 10,
+                            color: [[1, 'rgba(44, 108, 138, 0.3)']]
+                        }
+                    },
+                    pointer: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { show: false },
+                    axisLabel: { show: false },
+                    detail: {
+                        valueAnimation: true,
+                        formatter: '{value}%',
+                        color: '#a8f4ff',
+                        fontSize: 28,
+                        fontFamily: 'Consolas, monospace',
+                        offsetCenter: [0, '-4%']
+                    },
+                    title: {
+                        show: true,
+                        offsetCenter: [0, '48%'],
+                        color: '#7e9dab',
+                        fontSize: 11
+                    },
+                    data: [{ value: 92, name: '服务健康度' }]
+                }]
+            });
+            zhang_charts.push(zhang_chart);
+        }
+
+        /* ========== 初始化 ========== */
+        try {
+            zhang_initMap();
+            zhang_initRank();
+            zhang_initPie();
+            zhang_initTrend();
+            zhang_initGauge();
+        } catch (zhang_e) {
+            document.getElementById('zhang_map').innerHTML =
+                '<p style="color:#8aa9b8;padding:20px">图表初始化失败：' + zhang_e.message + '</p>';
+        }
+
+        var zhang_resizeTimer = null;
+        window.addEventListener('resize', function () {
+            clearTimeout(zhang_resizeTimer);
+            zhang_resizeTimer = setTimeout(function () {
+                zhang_charts.forEach(function (zhang_c) { zhang_c.resize(); });
+            }, 120);
+        });
+    })();
+    </script>
+</body>
+</html>

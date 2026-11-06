@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas · 电商系统总体架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1180px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block; margin-bottom: 20px;
+            color: #bd493c; text-decoration: none; font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+        .zhang_stage {
+            position: relative; height: clamp(540px, 70vh, 700px); background: #0b131b;
+        }
+        .zhang_stage canvas { display: block; width: 100%; height: 100%; cursor: default; }
+        .zhang_tip {
+            position: absolute; pointer-events: none;
+            background: rgba(12, 20, 28, 0.94);
+            border: 1px solid rgba(122, 180, 210, 0.45);
+            border-left: 3px solid #6fa8c8;
+            color: #e8f1f7; font-size: 12px; line-height: 1.6;
+            padding: 8px 12px; border-radius: 4px; max-width: 240px;
+            opacity: 0; transform: translateY(4px);
+            transition: opacity 120ms ease, transform 120ms ease;
+        }
+        .zhang_tip.zhang_show { opacity: 1; transform: translateY(0); }
+        .zhang_tip strong { color: #8fd5e8; font-size: 12.5px; }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #bd493c; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+            .zhang_stage { height: 540px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Canvas · 电商系统总体架构图</h1>
+        <p class="zhang_subtitle">张婧雅 · 纯 Canvas 2D 手绘架构图</p>
+
+        <div class="zhang_intro">
+            整张图由 Canvas 2D API 逐帧绘制：<b>客户端 / 接入 / 业务服务 / 数据存储</b> 四层分区，
+            23 个功能节点、30 余条调用与数据链路。连线上的<b>流动光点</b>表示流量方向，
+            鼠标悬停节点可查看说明，点击节点会高亮其全部上下游链路。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                电商系统 · 四层架构
+                <span class="zhang_tag">canvas 2d · 自绘节点与贝塞尔连线</span>
+            </div>
+            <div class="zhang_stage" id="zhang_stage">
+                <canvas id="zhang_canvas"></canvas>
+                <div class="zhang_tip" id="zhang_tip"></div>
+            </div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>分层设计</h3>
+                <p>客户端层负责多端入口，接入层做 CDN、负载均衡、反向代理与统一鉴权，
+                业务服务层按领域拆分微服务，数据层按读写特征选择 MySQL / Redis / ES / MQ。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>绘制方式</h3>
+                <p>圆角矩形 + 分层色带 + 竖排层名；跨层连线用三次贝塞尔曲线，
+                同层链路走水平曲线；端点自绘箭头，连线上叠加沿路径运动的高光点。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>交互与适配</h3>
+                <p>节点命中检测基于矩形坐标；悬停显示说明气泡，点击锁定高亮，
+                其余元素淡出；DPR 自适应，窗口变化时重新计算四层布局。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var zhang_canvas = document.getElementById('zhang_canvas');
+        var zhang_ctx = zhang_canvas.getContext('2d');
+        var zhang_stage = document.getElementById('zhang_stage');
+        var zhang_tip = document.getElementById('zhang_tip');
+
+        var zhang_state = {
+            w: 0, h: 0, dpr: 1,
+            time: 0, last: 0,
+            hover: null, selected: null,
+            mouseX: 0, mouseY: 0
+        };
+
+        /* ========== 分层与节点 ========== */
+        var zhang_layers = [
+            {
+                id: 'client', name: '客户端层', color: '#4f9ac2', hint: '多端入口',
+                nodes: [
+                    { id: 'c_web', label: 'Web H5', desc: 'PC 与移动浏览器的商城前台' },
+                    { id: 'c_ios', label: 'iOS App', desc: 'iOS 原生客户端，商品/订单/支付全流程' },
+                    { id: 'c_and', label: 'Android App', desc: 'Android 原生客户端，支持推送与扫码' },
+                    { id: 'c_wx', label: '小程序', desc: '微信小程序入口，支付与分享闭环' }
+                ]
+            },
+            {
+                id: 'gateway', name: '接入层', color: '#5fb39a', hint: '流量入口',
+                nodes: [
+                    { id: 'g_cdn', label: 'CDN', desc: '静态资源与图片分发，就近加速' },
+                    { id: 'g_lb', label: '负载均衡', desc: '四层/七层负载均衡，健康检查与转发' },
+                    { id: 'g_nginx', label: 'Nginx', desc: '反向代理、TLS 终止、限流与灰度' },
+                    { id: 'g_gw', label: 'API 网关', desc: '统一路由、协议转换、日志与熔断' },
+                    { id: 'g_auth', label: '认证中心', desc: 'OAuth2 / JWT 鉴权、单点登录、权限校验' }
+                ]
+            },
+            {
+                id: 'service', name: '业务服务层', color: '#c98a56', hint: '领域微服务',
+                nodes: [
+                    { id: 's_user', label: '用户服务', desc: '账号、会员等级、收货地址与积分' },
+                    { id: 's_goods', label: '商品服务', desc: 'SPU/SKU、类目、价格与库存中心' },
+                    { id: 's_order', label: '订单服务', desc: '下单、拆单、状态机与超时关闭' },
+                    { id: 's_pay', label: '支付服务', desc: '支付单、渠道对接、对账与退款' },
+                    { id: 's_cart', label: '购物车', desc: '购物车合并、选中与优惠试算' },
+                    { id: 's_search', label: '搜索服务', desc: '分词检索、筛选排序与联想词' },
+                    { id: 's_rec', label: '推荐引擎', desc: '召回、排序、千人千面商品推荐' },
+                    { id: 's_msg', label: '消息服务', desc: '站内信、短信、推送与模板消息' }
+                ]
+            },
+            {
+                id: 'data', name: '数据存储层', color: '#8f7ec4', hint: '读写分离',
+                nodes: [
+                    { id: 'd_mysql', label: 'MySQL', desc: '交易与用户主数据，分库分表' },
+                    { id: 'd_redis', label: 'Redis', desc: '热点缓存、会话、购物车与库存扣减' },
+                    { id: 'd_mongo', label: 'MongoDB', desc: '商品详情、日志与灵活结构文档' },
+                    { id: 'd_es', label: 'Elasticsearch', desc: '商品索引、全文检索与聚合分析' },
+                    { id: 'd_oss', label: '对象存储', desc: '图片、视频等静态资源的对象存储' },
+                    { id: 'd_mq', label: 'Kafka / MQ', desc: '异步消息、订单事件与削峰填谷' }
+                ]
+            }
+        ];
+
+        /* ========== 链路定义 ========== */
+        var zhang_edges = [
+            { f: 'c_web', t: 'g_cdn', kind: 'sync' },
+            { f: 'c_ios', t: 'g_lb', kind: 'sync' },
+            { f: 'c_and', t: 'g_lb', kind: 'sync' },
+            { f: 'c_wx', t: 'g_gw', kind: 'sync' },
+            { f: 'g_cdn', t: 'g_lb', kind: 'async' },
+            { f: 'g_lb', t: 'g_nginx', kind: 'sync' },
+            { f: 'g_nginx', t: 'g_gw', kind: 'sync' },
+            { f: 'g_gw', t: 'g_auth', kind: 'async' },
+            { f: 'g_auth', t: 'g_gw', kind: 'async' },
+
+            { f: 'g_gw', t: 's_user', kind: 'sync' },
+            { f: 'g_gw', t: 's_goods', kind: 'sync' },
+            { f: 'g_gw', t: 's_order', kind: 'sync' },
+            { f: 'g_gw', t: 's_pay', kind: 'sync' },
+            { f: 'g_gw', t: 's_cart', kind: 'sync' },
+            { f: 'g_gw', t: 's_search', kind: 'sync' },
+            { f: 'g_gw', t: 's_rec', kind: 'sync' },
+            { f: 'g_gw', t: 's_msg', kind: 'sync' },
+
+            { f: 's_user', t: 'd_mysql', kind: 'data' },
+            { f: 's_user', t: 'd_redis', kind: 'data' },
+            { f: 's_goods', t: 'd_mysql', kind: 'data' },
+            { f: 's_goods', t: 'd_oss', kind: 'data' },
+            { f: 's_goods', t: 'd_es', kind: 'data' },
+            { f: 's_order', t: 'd_mysql', kind: 'data' },
+            { f: 's_order', t: 'd_mq', kind: 'async' },
+            { f: 's_pay', t: 'd_mysql', kind: 'data' },
+            { f: 's_pay', t: 'd_mq', kind: 'async' },
+            { f: 's_cart', t: 'd_redis', kind: 'data' },
+            { f: 's_search', t: 'd_es', kind: 'data' },
+            { f: 's_rec', t: 'd_redis', kind: 'data' },
+            { f: 's_rec', t: 'd_es', kind: 'data' },
+            { f: 's_msg', t: 'd_mq', kind: 'async' },
+            { f: 's_msg', t: 'd_mongo', kind: 'data' }
+        ];
+
+        var zhang_kindColor = {
+            sync: '#7fb6cd',
+            data: '#d9a05b',
+            async: '#a58bd0'
+        };
+
+        var zhang_nodeMap = {};
+        var zhang_layerOf = {};
+        zhang_layers.forEach(function (zhang_layer) {
+            zhang_layer.nodes.forEach(function (zhang_node) {
+                zhang_nodeMap[zhang_node.id] = zhang_node;
+                zhang_layerOf[zhang_node.id] = zhang_layer;
+            });
+        });
+        zhang_edges.forEach(function (zhang_e, zhang_i) {
+            zhang_e.phase = (zhang_i * 0.37) % 1;
+        });
+
+        /* ========== 布局 ========== */
+        function zhang_layout() {
+            var zhang_w = zhang_state.w, zhang_h = zhang_state.h;
+            var zhang_padX = 18;
+            var zhang_top = 56;
+            var zhang_bottom = 58;
+            var zhang_bandGap = 16;
+            var zhang_labelW = 34;
+            var zhang_bandH = (zhang_h - zhang_top - zhang_bottom - zhang_bandGap * 3) / 4;
+
+            zhang_layers.forEach(function (zhang_layer, zhang_li) {
+                var zhang_y = zhang_top + zhang_li * (zhang_bandH + zhang_bandGap);
+                zhang_layer.band = { x: zhang_padX, y: zhang_y, w: zhang_w - zhang_padX * 2, h: zhang_bandH };
+
+                var zhang_innerX = zhang_padX + zhang_labelW + 12;
+                var zhang_innerW = zhang_w - zhang_padX * 2 - zhang_labelW - 24;
+                var zhang_n = zhang_layer.nodes.length;
+                var zhang_gap = Math.max(8, Math.min(16, zhang_innerW * 0.018));
+                var zhang_nw = Math.min(152, (zhang_innerW - zhang_gap * (zhang_n - 1)) / zhang_n);
+                var zhang_nh = Math.min(58, zhang_bandH - 24);
+                var zhang_totalW = zhang_nw * zhang_n + zhang_gap * (zhang_n - 1);
+                var zhang_startX = zhang_innerX + (zhang_innerW - zhang_totalW) / 2;
+                var zhang_startY = zhang_y + (zhang_bandH - zhang_nh) / 2 + 4;
+
+                zhang_layer.nodes.forEach(function (zhang_node, zhang_i) {
+                    zhang_node.x = zhang_startX + zhang_i * (zhang_nw + zhang_gap);
+                    zhang_node.y = zhang_startY;
+                    zhang_node.w = zhang_nw;
+                    zhang_node.h = zhang_nh;
+                    zhang_node.layer = zhang_layer;
+                });
+            });
+        }
+
+        function zhang_resize() {
+            var zhang_rect = zhang_stage.getBoundingClientRect();
+            var zhang_w = Math.max(320, Math.round(zhang_rect.width));
+            var zhang_h = Math.max(320, Math.round(zhang_rect.height));
+            var zhang_dpr = Math.min(2, window.devicePixelRatio || 1);
+
+            zhang_state.w = zhang_w;
+            zhang_state.h = zhang_h;
+            zhang_state.dpr = zhang_dpr;
+
+            zhang_canvas.width = Math.round(zhang_w * zhang_dpr);
+            zhang_canvas.height = Math.round(zhang_h * zhang_dpr);
+            zhang_ctx.setTransform(zhang_dpr, 0, 0, zhang_dpr, 0, 0);
+
+            zhang_layout();
+        }
+
+        /* ========== 绘图工具 ========== */
+        function zhang_roundRect(zhang_c, zhang_x, zhang_y, zhang_w, zhang_h, zhang_r) {
+            zhang_c.beginPath();
+            zhang_c.moveTo(zhang_x + zhang_r, zhang_y);
+            zhang_c.lineTo(zhang_x + zhang_w - zhang_r, zhang_y);
+            zhang_c.quadraticCurveTo(zhang_x + zhang_w, zhang_y, zhang_x + zhang_w, zhang_y + zhang_r);
+            zhang_c.lineTo(zhang_x + zhang_w, zhang_y + zhang_h - zhang_r);
+            zhang_c.quadraticCurveTo(zhang_x + zhang_w, zhang_y + zhang_h, zhang_x + zhang_w - zhang_r, zhang_y + zhang_h);
+            zhang_c.lineTo(zhang_x + zhang_r, zhang_y + zhang_h);
+            zhang_c.quadraticCurveTo(zhang_x, zhang_y + zhang_h, zhang_x, zhang_y + zhang_h - zhang_r);
+            zhang_c.lineTo(zhang_x, zhang_y + zhang_r);
+            zhang_c.quadraticCurveTo(zhang_x, zhang_y, zhang_x + zhang_r, zhang_y);
+            zhang_c.closePath();
+        }
+
+        function zhang_rgba(zhang_hex, zhang_alpha) {
+            var zhang_r = parseInt(zhang_hex.slice(1, 3), 16);
+            var zhang_g = parseInt(zhang_hex.slice(3, 5), 16);
+            var zhang_b = parseInt(zhang_hex.slice(5, 7), 16);
+            return 'rgba(' + zhang_r + ',' + zhang_g + ',' + zhang_b + ',' + zhang_alpha + ')';
+        }
+
+        function zhang_edgePath(zhang_e) {
+            var zhang_from = zhang_nodeMap[zhang_e.f];
+            var zhang_to = zhang_nodeMap[zhang_e.t];
+            if (!zhang_from || !zhang_to) return null;
+
+            if (zhang_from.layer === zhang_to.layer) {
+                // 同层：水平曲线
+                var zhang_y = zhang_from.y + zhang_from.h / 2;
+                var zhang_ax = zhang_from.x + (zhang_to.x > zhang_from.x ? zhang_from.w : 0);
+                var zhang_bx = zhang_to.x + (zhang_to.x > zhang_from.x ? 0 : zhang_to.w);
+                var zhang_mx = (zhang_ax + zhang_bx) / 2;
+                return {
+                    p0: { x: zhang_ax, y: zhang_y },
+                    p1: { x: zhang_mx, y: zhang_y - 14 },
+                    p2: { x: zhang_mx, y: zhang_y + 14 },
+                    p3: { x: zhang_bx, y: zhang_y },
+                    horizontal: true
+                };
+            }
+            // 跨层：从下沿到上沿
+            var zhang_x0 = zhang_from.x + zhang_from.w / 2;
+            var zhang_y0 = zhang_from.y + zhang_from.h;
+            var zhang_x3 = zhang_to.x + zhang_to.w / 2;
+            var zhang_y3 = zhang_to.y;
+            var zhang_cy = (zhang_y0 + zhang_y3) / 2;
+            return {
+                p0: { x: zhang_x0, y: zhang_y0 },
+                p1: { x: zhang_x0, y: zhang_cy - 8 },
+                p2: { x: zhang_x3, y: zhang_cy + 8 },
+                p3: { x: zhang_x3, y: zhang_y3 },
+                horizontal: false
+            };
+        }
+
+        function zhang_bezier(zhang_path, zhang_t) {
+            var zhang_u = 1 - zhang_t;
+            var zhang_a = zhang_u * zhang_u * zhang_u;
+            var zhang_b = 3 * zhang_u * zhang_u * zhang_t;
+            var zhang_c = 3 * zhang_u * zhang_t * zhang_t;
+            var zhang_d = zhang_t * zhang_t * zhang_t;
+            return {
+                x: zhang_a * zhang_path.p0.x + zhang_b * zhang_path.p1.x + zhang_c * zhang_path.p2.x + zhang_d * zhang_path.p3.x,
+                y: zhang_a * zhang_path.p0.y + zhang_b * zhang_path.p1.y + zhang_c * zhang_path.p2.y + zhang_d * zhang_path.p3.y
+            };
+        }
+
+        /* ========== 绘制 ========== */
+        function zhang_draw() {
+            var zhang_c = zhang_ctx;
+            var zhang_w = zhang_state.w, zhang_h = zhang_state.h;
+
+            // 背景
+            zhang_c.globalCompositeOperation = 'source-over';
+            var zhang_bg = zhang_c.createLinearGradient(0, 0, zhang_w, zhang_h);
+            zhang_bg.addColorStop(0, '#0a1219');
+            zhang_bg.addColorStop(1, '#0d1a22');
+            zhang_c.fillStyle = zhang_bg;
+            zhang_c.fillRect(0, 0, zhang_w, zhang_h);
+
+            // 网格
+            zhang_c.strokeStyle = 'rgba(120, 165, 190, 0.06)';
+            zhang_c.lineWidth = 1;
+            var zhang_grid = 34;
+            for (var zhang_x = 0; zhang_x < zhang_w; zhang_x += zhang_grid) {
+                zhang_c.beginPath();
+                zhang_c.moveTo(zhang_x, 0);
+                zhang_c.lineTo(zhang_x, zhang_h);
+                zhang_c.stroke();
+            }
+            for (var zhang_y = 0; zhang_y < zhang_h; zhang_y += zhang_grid) {
+                zhang_c.beginPath();
+                zhang_c.moveTo(0, zhang_y);
+                zhang_c.lineTo(zhang_w, zhang_y);
+                zhang_c.stroke();
+            }
+
+            // 标题
+            zhang_c.textAlign = 'left';
+            zhang_c.textBaseline = 'alphabetic';
+            zhang_c.font = 'bold 19px "Microsoft YaHei", sans-serif';
+            zhang_c.fillStyle = '#e8f1f7';
+            zhang_c.fillText('电商系统总体架构', 20, 32);
+            zhang_c.font = '11px Consolas, "Microsoft YaHei", monospace';
+            zhang_c.fillStyle = 'rgba(160, 200, 220, 0.62)';
+            zhang_c.fillText('E-COMMERCE PLATFORM ARCHITECTURE · 4 LAYERS / 23 NODES', 20, 48);
+
+            // 层带
+            zhang_layers.forEach(function (zhang_layer, zhang_li) {
+                var zhang_band = zhang_layer.band;
+                zhang_roundRect(zhang_c, zhang_band.x, zhang_band.y, zhang_band.w, zhang_band.h, 8);
+                zhang_c.fillStyle = 'rgba(150, 190, 210, 0.035)';
+                zhang_c.fill();
+                zhang_c.strokeStyle = zhang_rgba(zhang_layer.color, 0.22);
+                zhang_c.lineWidth = 1;
+                zhang_c.stroke();
+
+                // 左侧色条
+                zhang_c.fillStyle = zhang_rgba(zhang_layer.color, 0.85);
+                zhang_roundRect(zhang_c, zhang_band.x + 4, zhang_band.y + 8, 4, zhang_band.h - 16, 2);
+                zhang_c.fill();
+
+                // 竖排层名
+                zhang_c.save();
+                zhang_c.translate(zhang_band.x + 22, zhang_band.y + zhang_band.h / 2);
+                zhang_c.rotate(-Math.PI / 2);
+                zhang_c.textAlign = 'center';
+                zhang_c.textBaseline = 'middle';
+                zhang_c.font = 'bold 12px "Microsoft YaHei", sans-serif';
+                zhang_c.fillStyle = zhang_rgba(zhang_layer.color, 0.95);
+                zhang_c.fillText(zhang_layer.name, 0, 0);
+                zhang_c.restore();
+
+                // 层编号
+                zhang_c.textAlign = 'left';
+                zhang_c.textBaseline = 'alphabetic';
+                zhang_c.font = '10px Consolas, monospace';
+                zhang_c.fillStyle = 'rgba(150, 185, 205, 0.4)';
+                zhang_c.fillText('0' + (zhang_li + 1), zhang_band.x + 12, zhang_band.y + 16);
+            });
+
+            // 高亮集合
+            var zhang_active = zhang_state.selected || zhang_state.hover;
+            var zhang_relatedEdges = {};
+            var zhang_relatedNodes = {};
+            if (zhang_active) {
+                zhang_relatedNodes[zhang_active] = true;
+                zhang_edges.forEach(function (zhang_e) {
+                    if (zhang_e.f === zhang_active || zhang_e.t === zhang_active) {
+                        zhang_relatedEdges[zhang_e.f + '>' + zhang_e.t] = true;
+                        zhang_relatedNodes[zhang_e.f] = true;
+                        zhang_relatedNodes[zhang_e.t] = true;
+                    }
+                });
+            }
+
+            // 连线
+            zhang_edges.forEach(function (zhang_e) {
+                var zhang_path = zhang_edgePath(zhang_e);
+                if (!zhang_path) return;
+
+                var zhang_hl = zhang_relatedEdges[zhang_e.f + '>' + zhang_e.t];
+                var zhang_dim = zhang_active && !zhang_hl;
+                var zhang_alpha = zhang_dim ? 0.12 : (zhang_hl ? 0.95 : 0.4);
+                var zhang_color = zhang_hl ? '#ffb266' : zhang_kindColor[zhang_e.kind];
+
+                zhang_c.strokeStyle = zhang_rgba(zhang_color, zhang_alpha);
+                zhang_c.lineWidth = zhang_hl ? 2 : 1.2;
+                if (zhang_e.kind === 'async') {
+                    zhang_c.setLineDash([5, 4]);
+                } else {
+                    zhang_c.setLineDash([]);
+                }
+                zhang_c.beginPath();
+                zhang_c.moveTo(zhang_path.p0.x, zhang_path.p0.y);
+                zhang_c.bezierCurveTo(
+                    zhang_path.p1.x, zhang_path.p1.y,
+                    zhang_path.p2.x, zhang_path.p2.y,
+                    zhang_path.p3.x, zhang_path.p3.y
+                );
+                zhang_c.stroke();
+                zhang_c.setLineDash([]);
+
+                // 箭头
+                var zhang_end = zhang_path.p3;
+                var zhang_prev = zhang_bezier(zhang_path, 0.9);
+                var zhang_ang = Math.atan2(zhang_end.y - zhang_prev.y, zhang_end.x - zhang_prev.x);
+                var zhang_size = zhang_hl ? 6 : 4.5;
+                zhang_c.fillStyle = zhang_rgba(zhang_color, zhang_dim ? 0.12 : 0.9);
+                zhang_c.beginPath();
+                zhang_c.moveTo(zhang_end.x, zhang_end.y);
+                zhang_c.lineTo(
+                    zhang_end.x - zhang_size * Math.cos(zhang_ang - 0.42),
+                    zhang_end.y - zhang_size * Math.sin(zhang_ang - 0.42)
+                );
+                zhang_c.lineTo(
+                    zhang_end.x - zhang_size * Math.cos(zhang_ang + 0.42),
+                    zhang_end.y - zhang_size * Math.sin(zhang_ang + 0.42)
+                );
+                zhang_c.closePath();
+                zhang_c.fill();
+
+                // 流动光点
+                if (!zhang_dim) {
+                    zhang_c.globalCompositeOperation = 'lighter';
+                    for (var zhang_d = 0; zhang_d < 2; zhang_d++) {
+                        var zhang_tt = (zhang_state.time * 0.42 + zhang_e.phase + zhang_d * 0.5) % 1;
+                        var zhang_pt = zhang_bezier(zhang_path, zhang_tt);
+                        var zhang_pr = zhang_hl ? 2.6 : 1.9;
+                        zhang_c.fillStyle = zhang_rgba(zhang_hl ? '#ffcf9a' : zhang_color, zhang_hl ? 0.95 : 0.7);
+                        zhang_c.beginPath();
+                        zhang_c.arc(zhang_pt.x, zhang_pt.y, zhang_pr, 0, Math.PI * 2);
+                        zhang_c.fill();
+                    }
+                    zhang_c.globalCompositeOperation = 'source-over';
+                }
+            });
+
+            // 节点
+            zhang_layers.forEach(function (zhang_layer) {
+                zhang_layer.nodes.forEach(function (zhang_node) {
+                    var zhang_isActive = zhang_active && zhang_node.id === zhang_active;
+                    var zhang_isRelated = zhang_relatedNodes[zhang_node.id];
+                    var zhang_dim = zhang_active && !zhang_isRelated;
+
+                    var zhang_fill = zhang_rgba(zhang_layer.color, zhang_dim ? 0.05 : (zhang_isActive ? 0.3 : 0.15));
+                    var zhang_border = zhang_rgba(
+                        zhang_isActive ? '#ffb266' : zhang_layer.color,
+                        zhang_dim ? 0.18 : (zhang_isActive ? 1 : 0.65)
+                    );
+
+                    zhang_roundRect(zhang_c, zhang_node.x, zhang_node.y, zhang_node.w, zhang_node.h, 6);
+                    zhang_c.fillStyle = zhang_fill;
+                    zhang_c.fill();
+                    zhang_c.strokeStyle = zhang_border;
+                    zhang_c.lineWidth = zhang_isActive ? 2 : 1;
+                    zhang_c.stroke();
+
+                    // 左侧高光条
+                    zhang_c.fillStyle = zhang_rgba(zhang_layer.color, zhang_dim ? 0.15 : 0.75);
+                    zhang_c.fillRect(zhang_node.x + 1, zhang_node.y + 6, 2.5, zhang_node.h - 12);
+
+                    zhang_c.textAlign = 'center';
+                    zhang_c.textBaseline = 'middle';
+                    var zhang_fs = Math.max(10, Math.min(14, zhang_node.w / 6.6));
+                    zhang_c.font = 'bold ' + zhang_fs.toFixed(1) + 'px "Microsoft YaHei", sans-serif';
+                    zhang_c.fillStyle = zhang_dim ? 'rgba(220, 235, 245, 0.38)' : '#eaf2f7';
+                    zhang_c.fillText(zhang_node.label, zhang_node.x + zhang_node.w / 2, zhang_node.y + zhang_node.h / 2);
+                });
+            });
+
+            // 图例
+            var zhang_legendY = zhang_h - 26;
+            var zhang_items = [
+                { color: zhang_kindColor.sync, text: '同步调用', dash: false },
+                { color: zhang_kindColor.data, text: '数据读写', dash: false },
+                { color: zhang_kindColor.async, text: '异步消息', dash: true }
+            ];
+            var zhang_lx = 20;
+            zhang_c.font = '11.5px "Microsoft YaHei", sans-serif';
+            zhang_c.textAlign = 'left';
+            zhang_c.textBaseline = 'middle';
+            zhang_items.forEach(function (zhang_item) {
+                zhang_c.strokeStyle = zhang_rgba(zhang_item.color, 0.85);
+                zhang_c.lineWidth = 1.6;
+                if (zhang_item.dash) zhang_c.setLineDash([5, 4]);
+                zhang_c.beginPath();
+                zhang_c.moveTo(zhang_lx, zhang_legendY);
+                zhang_c.lineTo(zhang_lx + 22, zhang_legendY);
+                zhang_c.stroke();
+                zhang_c.setLineDash([]);
+                zhang_c.fillStyle = 'rgba(190, 215, 230, 0.8)';
+                zhang_c.fillText(zhang_item.text, zhang_lx + 30, zhang_legendY);
+                zhang_lx += 30 + zhang_c.measureText(zhang_item.text).width + 22;
+            });
+
+            zhang_c.fillStyle = 'rgba(160, 195, 215, 0.5)';
+            zhang_c.textAlign = 'right';
+            zhang_c.font = '11.5px "Microsoft YaHei", sans-serif';
+            zhang_c.fillText('悬停查看说明 · 点击高亮链路', zhang_w - 20, zhang_legendY);
+        }
+
+        /* ========== 交互 ========== */
+        function zhang_hitTest(zhang_x, zhang_y) {
+            var zhang_result = null;
+            zhang_layers.forEach(function (zhang_layer) {
+                zhang_layer.nodes.forEach(function (zhang_node) {
+                    if (zhang_x >= zhang_node.x && zhang_x <= zhang_node.x + zhang_node.w &&
+                        zhang_y >= zhang_node.y && zhang_y <= zhang_node.y + zhang_node.h) {
+                        zhang_result = zhang_node;
+                    }
+                });
+            });
+            return zhang_result;
+        }
+
+        function zhang_eventPos(zhang_e) {
+            var zhang_rect = zhang_canvas.getBoundingClientRect();
+            return {
+                x: (zhang_e.clientX - zhang_rect.left) * (zhang_state.w / zhang_rect.width),
+                y: (zhang_e.clientY - zhang_rect.top) * (zhang_state.h / zhang_rect.height),
+                cx: zhang_e.clientX - zhang_rect.left,
+                cy: zhang_e.clientY - zhang_rect.top
+            };
+        }
+
+        zhang_canvas.addEventListener('mousemove', function (zhang_e) {
+            var zhang_pos = zhang_eventPos(zhang_e);
+            var zhang_node = zhang_hitTest(zhang_pos.x, zhang_pos.y);
+            zhang_state.hover = zhang_node ? zhang_node.id : null;
+            zhang_canvas.style.cursor = zhang_node ? 'pointer' : 'default';
+
+            if (zhang_node) {
+                zhang_tip.innerHTML = '<strong>' + zhang_node.label + '</strong><br>' + zhang_node.desc;
+                zhang_tip.classList.add('zhang_show');
+                var zhang_tw = zhang_tip.offsetWidth;
+                var zhang_left = zhang_pos.cx + 16;
+                if (zhang_left + zhang_tw > zhang_state.w - 8) {
+                    zhang_left = zhang_pos.cx - zhang_tw - 16;
+                }
+                zhang_tip.style.left = Math.max(8, zhang_left) + 'px';
+                zhang_tip.style.top = Math.max(8, zhang_pos.cy - 12) + 'px';
+            } else {
+                zhang_tip.classList.remove('zhang_show');
+            }
+        });
+
+        zhang_canvas.addEventListener('mouseleave', function () {
+            zhang_state.hover = null;
+            zhang_tip.classList.remove('zhang_show');
+        });
+
+        zhang_canvas.addEventListener('click', function (zhang_e) {
+            var zhang_pos = zhang_eventPos(zhang_e);
+            var zhang_node = zhang_hitTest(zhang_pos.x, zhang_pos.y);
+            if (!zhang_node) {
+                zhang_state.selected = null;
+                return;
+            }
+            zhang_state.selected = (zhang_state.selected === zhang_node.id) ? null : zhang_node.id;
+        });
+
+        /* ========== 循环 ========== */
+        function zhang_frame(zhang_now) {
+            if (!zhang_state.last) zhang_state.last = zhang_now;
+            var zhang_dt = Math.min(0.05, (zhang_now - zhang_state.last) / 1000);
+            zhang_state.last = zhang_now;
+            zhang_state.time += zhang_dt;
+            zhang_draw();
+            requestAnimationFrame(zhang_frame);
+        }
+
+        zhang_resize();
+        requestAnimationFrame(zhang_frame);
+
+        if (typeof ResizeObserver !== 'undefined') {
+            var zhang_ro = new ResizeObserver(function () {
+                zhang_resize();
+            });
+            zhang_ro.observe(zhang_stage);
+        } else {
+            window.addEventListener('resize', zhang_resize);
+        }
+    })();
+    </script>
+</body>
+</html>

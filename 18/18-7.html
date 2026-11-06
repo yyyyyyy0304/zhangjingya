@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js · 螺旋星系与 3D 柱状图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1120px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block; margin-bottom: 20px;
+            color: #bd493c; text-decoration: none; font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+
+        .zhang_stage {
+            position: relative; height: 540px;
+            background: #05070f;
+            touch-action: none;
+        }
+        .zhang_stage-galaxy {
+            background:
+                radial-gradient(circle at 50% 52%, rgba(90, 60, 160, 0.22) 0%,
+                rgba(30, 40, 90, 0.12) 38%, rgba(5, 7, 15, 0) 66%),
+                linear-gradient(165deg, #060912 0%, #05070f 55%, #080b16 100%);
+        }
+        .zhang_stage-bars {
+            background:
+                radial-gradient(circle at 50% 20%, rgba(40, 110, 130, 0.18) 0%,
+                rgba(10, 20, 28, 0) 60%),
+                linear-gradient(170deg, #081218 0%, #061016 60%, #0a1a22 100%);
+        }
+        .zhang_stage canvas { display: block; width: 100%; height: 100%; }
+        .zhang_hint {
+            position: absolute; right: 14px; top: 12px; z-index: 2;
+            font-size: 11px; letter-spacing: 0.04em; pointer-events: none;
+            color: rgba(180, 210, 235, 0.55);
+        }
+        .zhang_tip {
+            position: absolute; z-index: 3; display: none;
+            transform: translate(-50%, -130%);
+            padding: 5px 10px; border-radius: 4px;
+            background: rgba(8, 20, 28, 0.92);
+            border: 1px solid rgba(110, 200, 220, 0.35);
+            color: #dff3f8; font-size: 12px; white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #a0543f; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+            .zhang_stage { height: 430px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>Three.js · 螺旋星系与 3D 柱状图</h1>
+        <p class="zhang_subtitle">张婧雅 · WebGL 粒子星系 + 立体数据柱</p>
+
+        <div class="zhang_intro">
+            两幅 3D 图形全部由本地 <b>three.min.js</b> 渲染，不依赖任何外部贴图：
+            上图是九千颗粒子按对数螺旋线排布的<b>星系</b>，
+            下图是把 12 个月数据立起来的<b>3D 柱状图</b>，都支持拖拽旋转与滚轮缩放。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图一 · 螺旋星系粒子系统
+                <span class="zhang_tag">three.js · Points + AdditiveBlending</span>
+            </div>
+            <div class="zhang_stage zhang_stage-galaxy" id="zhang_galaxy">
+                <div class="zhang_hint">拖拽旋转 · 滚轮缩放</div>
+            </div>
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图二 · 月度访问量 3D 柱状图
+                <span class="zhang_tag">three.js · Mesh + Light + Raycast</span>
+            </div>
+            <div class="zhang_stage zhang_stage-bars" id="zhang_bars">
+                <div class="zhang_hint">拖拽环绕 · 滚轮缩放 · 悬停查看数值</div>
+                <div class="zhang_tip" id="zhang_bar_tip"></div>
+            </div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>星系怎么生成</h3>
+                <p>每颗粒子的半径与分支角决定它在旋臂上的位置，再叠加三次方随机扰动形成厚度；
+                颜色按半径从青蓝渐变到紫粉，用叠加混合让密集处自然发亮。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>柱状图怎么做</h3>
+                <p>12 根 <code>BoxGeometry</code> 按数据缩放到不同高度，颜色随数值从青绿过渡到珊瑚红；
+                射线拾取命中柱子时提高自发光，并在指针旁显示月份与数值。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>性能与适配</h3>
+                <p>两幅场景共用一条 requestAnimationFrame 循环；像素比上限设为 2，
+                容器尺寸变化时同步更新渲染尺寸与相机比例，移动端自动降低画布高度。</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./cdn/three.min.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var zhang_galaxyDom = document.getElementById('zhang_galaxy');
+        var zhang_barsDom = document.getElementById('zhang_bars');
+        var zhang_tipDom = document.getElementById('zhang_bar_tip');
+
+        if (typeof THREE === 'undefined') {
+            zhang_galaxyDom.innerHTML = '<p style="color:#9fb6c8;padding:28px">未找到 three.min.js，请确认 cdn 目录完整。</p>';
+            return;
+        }
+
+        var zhang_clock = new THREE.Clock();
+
+        var zhang_galaxyRenderer = null, zhang_galaxyScene = null,
+            zhang_galaxyCamera = null, zhang_galaxyGroup = null;
+        var zhang_barRenderer = null, zhang_barScene = null,
+            zhang_barCamera = null, zhang_barMeshes = [], zhang_barHover = null;
+        var zhang_barTarget = new THREE.Vector3(0, 4, 0);
+
+        /* ========== 公共：点精灵贴图 ========== */
+        function zhang_dotTexture(zhang_inner, zhang_outer) {
+            var zhang_c = document.createElement('canvas');
+            zhang_c.width = 64;
+            zhang_c.height = 64;
+            var zhang_g = zhang_c.getContext('2d');
+            var zhang_rg = zhang_g.createRadialGradient(32, 32, 0, 32, 32, 32);
+            zhang_rg.addColorStop(0, zhang_inner);
+            zhang_rg.addColorStop(0.35, zhang_outer);
+            zhang_rg.addColorStop(1, 'rgba(255,255,255,0)');
+            zhang_g.fillStyle = zhang_rg;
+            zhang_g.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(zhang_c);
+        }
+
+        function zhang_textSprite(zhang_text, zhang_color, zhang_bold) {
+            var zhang_c = document.createElement('canvas');
+            zhang_c.width = 256;
+            zhang_c.height = 128;
+            var zhang_g = zhang_c.getContext('2d');
+            zhang_g.font = (zhang_bold ? 'bold ' : '') + '44px "Microsoft YaHei", "SimHei", sans-serif';
+            zhang_g.textAlign = 'center';
+            zhang_g.textBaseline = 'middle';
+            zhang_g.fillStyle = zhang_color;
+            zhang_g.fillText(zhang_text, 128, 64);
+            var zhang_tex = new THREE.CanvasTexture(zhang_c);
+            zhang_tex.minFilter = THREE.LinearFilter;
+            var zhang_mat = new THREE.SpriteMaterial({
+                map: zhang_tex, transparent: true, depthWrite: false
+            });
+            return new THREE.Sprite(zhang_mat);
+        }
+
+        /* ========== 图一：螺旋星系 ========== */
+        var zhang_galaxyState = {
+            spin: 0, rotY: 0, rotX: 0.3, targetX: 0.3,
+            dist: 25, targetDist: 25, dragging: false, px: 0, py: 0
+        };
+
+        function zhang_buildGalaxy() {
+            var zhang_group = new THREE.Group();
+            var zhang_count = 9000;
+            var zhang_radius = 13;
+            var zhang_branches = 3;
+            var zhang_spin = 1.2;
+            var zhang_randomness = 0.32;
+            var zhang_power = 2.4;
+
+            var zhang_pos = new Float32Array(zhang_count * 3);
+            var zhang_col = new Float32Array(zhang_count * 3);
+            var zhang_in = new THREE.Color('#5ce9ff');
+            var zhang_out = new THREE.Color('#a868ff');
+            var zhang_mix = new THREE.Color();
+
+            for (var zhang_i = 0; zhang_i < zhang_count; zhang_i++) {
+                var zhang_r = Math.pow(Math.random(), 0.66) * zhang_radius;
+                var zhang_branch = (zhang_i % zhang_branches) / zhang_branches * Math.PI * 2;
+                var zhang_angle = zhang_branch + zhang_r * zhang_spin;
+
+                var zhang_rx = Math.pow(Math.random(), zhang_power) *
+                    (Math.random() < 0.5 ? 1 : -1) * zhang_randomness * zhang_r;
+                var zhang_ry = Math.pow(Math.random(), zhang_power) *
+                    (Math.random() < 0.5 ? 1 : -1) * zhang_randomness * zhang_r * 0.32;
+                var zhang_rz = Math.pow(Math.random(), zhang_power) *
+                    (Math.random() < 0.5 ? 1 : -1) * zhang_randomness * zhang_r;
+
+                zhang_pos[zhang_i * 3] = Math.cos(zhang_angle) * zhang_r + zhang_rx;
+                zhang_pos[zhang_i * 3 + 1] = zhang_ry;
+                zhang_pos[zhang_i * 3 + 2] = Math.sin(zhang_angle) * zhang_r + zhang_rz;
+
+                zhang_mix.copy(zhang_in).lerp(zhang_out, Math.min(1, zhang_r / zhang_radius));
+                zhang_col[zhang_i * 3] = zhang_mix.r;
+                zhang_col[zhang_i * 3 + 1] = zhang_mix.g;
+                zhang_col[zhang_i * 3 + 2] = zhang_mix.b;
+            }
+
+            var zhang_geo = new THREE.BufferGeometry();
+            zhang_geo.setAttribute('position', new THREE.BufferAttribute(zhang_pos, 3));
+            zhang_geo.setAttribute('color', new THREE.BufferAttribute(zhang_col, 3));
+
+            var zhang_mat = new THREE.PointsMaterial({
+                size: 0.26,
+                map: zhang_dotTexture('rgba(255,255,255,0.92)', 'rgba(255,255,255,0.42)'),
+                vertexColors: true,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+            zhang_group.add(new THREE.Points(zhang_geo, zhang_mat));
+
+            // 星系核心
+            var zhang_core = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: zhang_dotTexture('rgba(255,246,222,1)', 'rgba(255,214,160,0.45)'),
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            }));
+            zhang_core.scale.set(6.5, 6.5, 1);
+            zhang_group.add(zhang_core);
+
+            // 远景星场
+            var zhang_starCount = 1400;
+            var zhang_starPos = new Float32Array(zhang_starCount * 3);
+            for (var zhang_s = 0; zhang_s < zhang_starCount; zhang_s++) {
+                var zhang_sr = 44 + Math.random() * 34;
+                var zhang_theta = Math.random() * Math.PI * 2;
+                var zhang_phi = Math.acos(2 * Math.random() - 1);
+                zhang_starPos[zhang_s * 3] = zhang_sr * Math.sin(zhang_phi) * Math.cos(zhang_theta);
+                zhang_starPos[zhang_s * 3 + 1] = zhang_sr * Math.cos(zhang_phi);
+                zhang_starPos[zhang_s * 3 + 2] = zhang_sr * Math.sin(zhang_phi) * Math.sin(zhang_theta);
+            }
+            var zhang_starGeo = new THREE.BufferGeometry();
+            zhang_starGeo.setAttribute('position', new THREE.BufferAttribute(zhang_starPos, 3));
+            var zhang_starMat = new THREE.PointsMaterial({
+                size: 0.45,
+                color: 0xbcd8ff,
+                transparent: true,
+                opacity: 0.32,
+                map: zhang_dotTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0.35)'),
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+            zhang_group.add(new THREE.Points(zhang_starGeo, zhang_starMat));
+
+            return zhang_group;
+        }
+
+        function zhang_initGalaxy() {
+            var zhang_w = zhang_galaxyDom.clientWidth;
+            var zhang_h = zhang_galaxyDom.clientHeight;
+
+            zhang_galaxyRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            zhang_galaxyRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            zhang_galaxyRenderer.setSize(zhang_w, zhang_h, false);
+            zhang_galaxyDom.appendChild(zhang_galaxyRenderer.domElement);
+
+            zhang_galaxyScene = new THREE.Scene();
+            zhang_galaxyCamera = new THREE.PerspectiveCamera(50, zhang_w / zhang_h, 0.1, 300);
+            zhang_galaxyGroup = zhang_buildGalaxy();
+            zhang_galaxyScene.add(zhang_galaxyGroup);
+
+            zhang_updateGalaxyCamera();
+
+            var zhang_el = zhang_galaxyRenderer.domElement;
+            zhang_el.style.cursor = 'grab';
+
+            zhang_el.addEventListener('pointerdown', function (zhang_e) {
+                zhang_galaxyState.dragging = true;
+                zhang_galaxyState.px = zhang_e.clientX;
+                zhang_galaxyState.py = zhang_e.clientY;
+                zhang_el.style.cursor = 'grabbing';
+                if (zhang_el.setPointerCapture) zhang_el.setPointerCapture(zhang_e.pointerId);
+            });
+
+            zhang_el.addEventListener('pointermove', function (zhang_e) {
+                if (!zhang_galaxyState.dragging) return;
+                var zhang_dx = zhang_e.clientX - zhang_galaxyState.px;
+                var zhang_dy = zhang_e.clientY - zhang_galaxyState.py;
+                zhang_galaxyState.px = zhang_e.clientX;
+                zhang_galaxyState.py = zhang_e.clientY;
+                zhang_galaxyState.rotY += zhang_dx * 0.006;
+                zhang_galaxyState.targetX = Math.max(-0.95,
+                    Math.min(0.95, zhang_galaxyState.targetX + zhang_dy * 0.004));
+            });
+
+            function zhang_galaxyUp() {
+                zhang_galaxyState.dragging = false;
+                zhang_el.style.cursor = 'grab';
+            }
+            zhang_el.addEventListener('pointerup', zhang_galaxyUp);
+            zhang_el.addEventListener('pointercancel', zhang_galaxyUp);
+            zhang_el.addEventListener('wheel', function (zhang_e) {
+                zhang_e.preventDefault();
+                zhang_galaxyState.targetDist = Math.max(14,
+                    Math.min(55, zhang_galaxyState.targetDist + zhang_e.deltaY * 0.022));
+            }, { passive: false });
+        }
+
+        function zhang_updateGalaxyCamera() {
+            var zhang_elev = 0.47;
+            zhang_galaxyCamera.position.set(
+                0,
+                Math.sin(zhang_elev) * zhang_galaxyState.dist,
+                Math.cos(zhang_elev) * zhang_galaxyState.dist
+            );
+            zhang_galaxyCamera.lookAt(0, 0, 0);
+        }
+
+        /* ========== 图二：3D 柱状图 ========== */
+        var zhang_barCats = ['1月', '2月', '3月', '4月', '5月', '6月',
+                             '7月', '8月', '9月', '10月', '11月', '12月'];
+        var zhang_barVals = [32, 45, 38, 52, 61, 58, 73, 69, 81, 76, 88, 84];
+
+        var zhang_barState = {
+            azim: 0, polar: 0.36, dist: 24, targetAzim: 0,
+            targetPolar: 0.36, targetDist: 24, dragging: false, px: 0, py: 0
+        };
+
+        function zhang_barColor(zhang_v, zhang_min, zhang_max) {
+            var zhang_t = (zhang_v - zhang_min) / (zhang_max - zhang_min);
+            return new THREE.Color('#2d7c7a').lerp(new THREE.Color('#e96c55'), zhang_t);
+        }
+
+        function zhang_initBars() {
+            var zhang_w = zhang_barsDom.clientWidth;
+            var zhang_h = zhang_barsDom.clientHeight;
+
+            zhang_barRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            zhang_barRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            zhang_barRenderer.setSize(zhang_w, zhang_h, false);
+            zhang_barRenderer.shadowMap.enabled = true;
+            zhang_barRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            zhang_barsDom.appendChild(zhang_barRenderer.domElement);
+
+            zhang_barScene = new THREE.Scene();
+            zhang_barCamera = new THREE.PerspectiveCamera(45, zhang_w / zhang_h, 0.1, 300);
+
+            var zhang_hemi = new THREE.HemisphereLight(0x9fd8ff, 0x081018, 0.55);
+            zhang_barScene.add(zhang_hemi);
+
+            var zhang_key = new THREE.DirectionalLight(0xffeedd, 1.25);
+            zhang_key.position.set(14, 24, 12);
+            zhang_key.castShadow = true;
+            zhang_key.shadow.mapSize.width = 1024;
+            zhang_key.shadow.mapSize.height = 1024;
+            zhang_key.shadow.camera.left = -20;
+            zhang_key.shadow.camera.right = 20;
+            zhang_key.shadow.camera.top = 20;
+            zhang_key.shadow.camera.bottom = -20;
+            zhang_key.shadow.camera.near = 1;
+            zhang_key.shadow.camera.far = 70;
+            zhang_barScene.add(zhang_key);
+
+            var zhang_fill = new THREE.DirectionalLight(0x4ab0ff, 0.4);
+            zhang_fill.position.set(-16, 10, -10);
+            zhang_barScene.add(zhang_fill);
+
+            var zhang_floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(40, 40),
+                new THREE.MeshBasicMaterial({ color: 0x06121a })
+            );
+            zhang_floor.rotation.x = -Math.PI / 2;
+            zhang_floor.position.y = -0.01;
+            zhang_barScene.add(zhang_floor);
+
+            var zhang_shadowFloor = new THREE.Mesh(
+                new THREE.PlaneGeometry(40, 40),
+                new THREE.ShadowMaterial({ opacity: 0.45 })
+            );
+            zhang_shadowFloor.rotation.x = -Math.PI / 2;
+            zhang_shadowFloor.receiveShadow = true;
+            zhang_barScene.add(zhang_shadowFloor);
+
+            var zhang_grid = new THREE.GridHelper(32, 32, 0x2f6070, 0x16303a);
+            zhang_grid.position.y = 0.02;
+            zhang_grid.material.transparent = true;
+            zhang_grid.material.opacity = 0.4;
+            zhang_barScene.add(zhang_grid);
+
+            var zhang_vmin = Math.min.apply(null, zhang_barVals);
+            var zhang_vmax = Math.max.apply(null, zhang_barVals);
+            var zhang_scale = 9.2 / zhang_vmax;
+            var zhang_gap = 1.55;
+            var zhang_start = -(zhang_barCats.length - 1) * zhang_gap / 2;
+
+            zhang_barCats.forEach(function (zhang_cat, zhang_i) {
+                var zhang_hgt = zhang_barVals[zhang_i] * zhang_scale;
+                var zhang_color = zhang_barColor(zhang_barVals[zhang_i], zhang_vmin, zhang_vmax);
+
+                var zhang_mesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.92, 1, 0.92),
+                    new THREE.MeshStandardMaterial({
+                        color: zhang_color,
+                        emissive: zhang_color,
+                        emissiveIntensity: 0.2,
+                        metalness: 0.35,
+                        roughness: 0.42
+                    })
+                );
+                zhang_mesh.scale.y = zhang_hgt;
+                zhang_mesh.position.set(zhang_start + zhang_i * zhang_gap, zhang_hgt / 2, 0);
+                zhang_mesh.castShadow = true;
+                zhang_mesh.receiveShadow = true;
+                zhang_mesh.userData.zhangIndex = zhang_i;
+                zhang_barScene.add(zhang_mesh);
+                zhang_barMeshes.push(zhang_mesh);
+
+                var zhang_edge = new THREE.LineSegments(
+                    new THREE.EdgesGeometry(zhang_mesh.geometry),
+                    new THREE.LineBasicMaterial({
+                        color: 0xbfeef2, transparent: true, opacity: 0.22
+                    })
+                );
+                zhang_edge.scale.set(1, zhang_hgt, 1);
+                zhang_edge.position.copy(zhang_mesh.position);
+                zhang_barScene.add(zhang_edge);
+
+                var zhang_month = zhang_textSprite(zhang_cat, 'rgba(178,209,219,0.95)', false);
+                zhang_month.scale.set(1.5, 0.75, 1);
+                zhang_month.position.set(zhang_start + zhang_i * zhang_gap, 0.4, 1.45);
+                zhang_barScene.add(zhang_month);
+
+                var zhang_value = zhang_textSprite(zhang_barVals[zhang_i] + '', 'rgba(230,247,250,0.95)', true);
+                zhang_value.scale.set(1.8, 0.9, 1);
+                zhang_value.position.set(zhang_start + zhang_i * zhang_gap, zhang_hgt + 0.78, 0);
+                zhang_barScene.add(zhang_value);
+            });
+
+            zhang_updateBarsCamera();
+
+            // 指针交互
+            var zhang_el = zhang_barRenderer.domElement;
+            var zhang_raycaster = new THREE.Raycaster();
+            var zhang_pointer = new THREE.Vector2();
+            zhang_el.style.cursor = 'grab';
+
+            function zhang_setHover(zhang_mesh) {
+                if (zhang_barHover === zhang_mesh) return;
+                if (zhang_barHover) zhang_barHover.material.emissiveIntensity = 0.2;
+                zhang_barHover = zhang_mesh;
+                if (zhang_barHover) zhang_barHover.material.emissiveIntensity = 0.6;
+            }
+
+            zhang_el.addEventListener('pointerdown', function (zhang_e) {
+                zhang_barState.dragging = true;
+                zhang_barState.px = zhang_e.clientX;
+                zhang_barState.py = zhang_e.clientY;
+                zhang_el.style.cursor = 'grabbing';
+                if (zhang_el.setPointerCapture) zhang_el.setPointerCapture(zhang_e.pointerId);
+            });
+
+            zhang_el.addEventListener('pointermove', function (zhang_e) {
+                var zhang_rect = zhang_el.getBoundingClientRect();
+
+                if (zhang_barState.dragging) {
+                    var zhang_dx = zhang_e.clientX - zhang_barState.px;
+                    var zhang_dy = zhang_e.clientY - zhang_barState.py;
+                    zhang_barState.px = zhang_e.clientX;
+                    zhang_barState.py = zhang_e.clientY;
+                    zhang_barState.targetAzim = Math.max(-1.1,
+                        Math.min(1.1, zhang_barState.targetAzim + zhang_dx * 0.006));
+                    zhang_barState.targetPolar = Math.max(0.12,
+                        Math.min(1.25, zhang_barState.targetPolar + zhang_dy * 0.004));
+                }
+
+                zhang_pointer.x = ((zhang_e.clientX - zhang_rect.left) / zhang_rect.width) * 2 - 1;
+                zhang_pointer.y = -((zhang_e.clientY - zhang_rect.top) / zhang_rect.height) * 2 + 1;
+                zhang_raycaster.setFromCamera(zhang_pointer, zhang_barCamera);
+                var zhang_hits = zhang_raycaster.intersectObjects(zhang_barMeshes);
+
+                if (zhang_hits.length && !zhang_barState.dragging) {
+                    var zhang_mesh = zhang_hits[0].object;
+                    var zhang_idx = zhang_mesh.userData.zhangIndex;
+                    zhang_setHover(zhang_mesh);
+                    zhang_tipDom.style.display = 'block';
+                    zhang_tipDom.style.left = (zhang_e.clientX - zhang_rect.left) + 'px';
+                    zhang_tipDom.style.top = (zhang_e.clientY - zhang_rect.top) + 'px';
+                    zhang_tipDom.textContent = zhang_barCats[zhang_idx] + ' · ' +
+                        zhang_barVals[zhang_idx] + ' 万次访问';
+                    zhang_el.style.cursor = 'pointer';
+                } else {
+                    zhang_setHover(null);
+                    zhang_tipDom.style.display = 'none';
+                    zhang_el.style.cursor = zhang_barState.dragging ? 'grabbing' : 'grab';
+                }
+            });
+
+            function zhang_barsUp() {
+                zhang_barState.dragging = false;
+                zhang_el.style.cursor = 'grab';
+            }
+            zhang_el.addEventListener('pointerup', zhang_barsUp);
+            zhang_el.addEventListener('pointercancel', zhang_barsUp);
+            zhang_el.addEventListener('pointerleave', function () {
+                zhang_setHover(null);
+                zhang_tipDom.style.display = 'none';
+            });
+            zhang_el.addEventListener('wheel', function (zhang_e) {
+                zhang_e.preventDefault();
+                zhang_barState.targetDist = Math.max(15,
+                    Math.min(42, zhang_barState.targetDist + zhang_e.deltaY * 0.022));
+            }, { passive: false });
+        }
+
+        function zhang_updateBarsCamera() {
+            var zhang_s = zhang_barState;
+            zhang_barCamera.position.set(
+                zhang_barTarget.x + zhang_s.dist * Math.cos(zhang_s.polar) * Math.sin(zhang_s.azim),
+                zhang_barTarget.y + zhang_s.dist * Math.sin(zhang_s.polar),
+                zhang_barTarget.z + zhang_s.dist * Math.cos(zhang_s.polar) * Math.cos(zhang_s.azim)
+            );
+            zhang_barCamera.lookAt(zhang_barTarget);
+        }
+
+        /* ========== 初始化与动画 ========== */
+        try {
+            zhang_initGalaxy();
+            zhang_initBars();
+        } catch (zhang_e) {
+            zhang_galaxyDom.innerHTML = '<p style="color:#9fb6c8;padding:28px">当前浏览器不支持 WebGL，无法渲染 3D 场景。</p>';
+        }
+
+        function zhang_renderGalaxy(zhang_dt) {
+            var zhang_s = zhang_galaxyState;
+            zhang_s.spin += zhang_dt * 0.075;
+            zhang_s.rotX += (zhang_s.targetX - zhang_s.rotX) * Math.min(1, zhang_dt * 6);
+            zhang_s.dist += (zhang_s.targetDist - zhang_s.dist) * Math.min(1, zhang_dt * 8);
+            zhang_galaxyGroup.rotation.y = zhang_s.spin + zhang_s.rotY;
+            zhang_galaxyGroup.rotation.x = zhang_s.rotX;
+            zhang_updateGalaxyCamera();
+            zhang_galaxyRenderer.render(zhang_galaxyScene, zhang_galaxyCamera);
+        }
+
+        function zhang_renderBars(zhang_dt) {
+            var zhang_s = zhang_barState;
+            zhang_s.azim += (zhang_s.targetAzim - zhang_s.azim) * Math.min(1, zhang_dt * 7);
+            zhang_s.polar += (zhang_s.targetPolar - zhang_s.polar) * Math.min(1, zhang_dt * 7);
+            zhang_s.dist += (zhang_s.targetDist - zhang_s.dist) * Math.min(1, zhang_dt * 7);
+            zhang_updateBarsCamera();
+            zhang_barRenderer.render(zhang_barScene, zhang_barCamera);
+        }
+
+        function zhang_animate() {
+            requestAnimationFrame(zhang_animate);
+            var zhang_dt = Math.min(zhang_clock.getDelta(), 0.05);
+            if (zhang_galaxyRenderer) zhang_renderGalaxy(zhang_dt);
+            if (zhang_barRenderer) zhang_renderBars(zhang_dt);
+        }
+        zhang_animate();
+
+        // 尺寸自适应
+        function zhang_fitGalaxy() {
+            var zhang_w = zhang_galaxyDom.clientWidth;
+            var zhang_h = zhang_galaxyDom.clientHeight;
+            if (!zhang_w || !zhang_h || !zhang_galaxyRenderer) return;
+            zhang_galaxyRenderer.setSize(zhang_w, zhang_h, false);
+            zhang_galaxyCamera.aspect = zhang_w / zhang_h;
+            zhang_galaxyCamera.updateProjectionMatrix();
+        }
+        function zhang_fitBars() {
+            var zhang_w = zhang_barsDom.clientWidth;
+            var zhang_h = zhang_barsDom.clientHeight;
+            if (!zhang_w || !zhang_h || !zhang_barRenderer) return;
+            zhang_barRenderer.setSize(zhang_w, zhang_h, false);
+            zhang_barCamera.aspect = zhang_w / zhang_h;
+            zhang_barCamera.updateProjectionMatrix();
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(zhang_fitGalaxy).observe(zhang_galaxyDom);
+            new ResizeObserver(zhang_fitBars).observe(zhang_barsDom);
+        } else {
+            window.addEventListener('resize', function () {
+                zhang_fitGalaxy();
+                zhang_fitBars();
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

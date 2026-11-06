@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG · 图像识别系统架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "宋体", sans-serif;
+            background: #f6f2ea;
+            color: #17212b;
+            padding: 40px 20px 60px;
+            line-height: 1.8;
+        }
+        .zhang_container { max-width: 1240px; margin: 0 auto; }
+        .zhang_home-link {
+            display: inline-block; margin-bottom: 20px;
+            color: #bd493c; text-decoration: none; font-size: 14px;
+        }
+        .zhang_home-link:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #2d7c7a; }
+        .zhang_subtitle {
+            text-align: center; color: #687681; margin-bottom: 34px;
+            font-size: 13px; letter-spacing: 0.05em;
+        }
+        .zhang_intro {
+            background: #fffdf8; border-left: 4px solid #2d7c7a;
+            padding: 12px 18px; font-size: 13.5px; margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+        }
+        .zhang_intro b { color: #2d7c7a; }
+
+        .zhang_panel {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-radius: 6px; overflow: hidden; margin-bottom: 24px;
+        }
+        .zhang_panel-head {
+            background: #2d7c7a; color: #fffdf8; padding: 10px 18px;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .zhang_tag {
+            background: rgba(255,255,255,0.22); padding: 2px 10px;
+            border-radius: 12px; font-size: 11.5px; font-weight: normal; white-space: nowrap;
+        }
+        .zhang_figure {
+            overflow-x: auto; padding: 8px 12px 14px; background: #fffdf9;
+        }
+        .zhang_figure svg {
+            display: block; width: 1180px; height: auto;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        .zhang_legend-note {
+            border-top: 1px solid #e6e0d4; padding: 8px 16px;
+            font-size: 11.5px; color: #7b8790;
+        }
+
+        .zhang_node { cursor: default; }
+        .zhang_node-box { transition: 160ms ease; }
+        .zhang_node:hover .zhang_node-box {
+            fill-opacity: 0.24; stroke-opacity: 0.95; stroke-width: 1.6;
+        }
+        @keyframes zhang_dash_move {
+            to { stroke-dashoffset: -22; }
+        }
+        .zhang_loop { animation: zhang_dash_move 1.6s linear infinite; }
+
+        .zhang_notes {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+        }
+        .zhang_note {
+            background: #fffdf8; border: 1px solid #d9d2c5;
+            border-top: 3px solid #2d7c7a; border-radius: 0 0 6px 6px; padding: 14px 16px;
+        }
+        .zhang_note:nth-child(2) { border-top-color: #3a6ea5; }
+        .zhang_note:nth-child(3) { border-top-color: #a0543f; }
+        .zhang_note h3 { font-size: 14px; color: #17212b; margin-bottom: 6px; }
+        .zhang_note p { font-size: 12.5px; color: #687681; line-height: 1.8; }
+
+        @media (max-width: 780px) {
+            .zhang_notes { grid-template-columns: 1fr; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zhang_container">
+        <a class="zhang_home-link" href="../index.html">← 返回首页</a>
+        <h1>SVG · 图像识别系统总体架构</h1>
+        <p class="zhang_subtitle">张婧雅 · 科研方向 · 内联 SVG 矢量架构图</p>
+
+        <div class="zhang_intro">
+            整张图是<b>纯内联 SVG</b>：所有节点、分层底带与连线均为矢量元素，可无损放大到任意尺寸。
+            架构按 <b>数据采集 → 预处理与标注 → 模型训练 → 推理服务 → 业务应用</b> 五段式主链组织，
+            右侧虚线回路表示 <b>评估与运维闭环</b>（指标反馈、权重下发、资源告警）。
+        </div>
+
+        <div class="zhang_panel">
+            <div class="zhang_panel-head">
+                图像识别系统 · 六层架构
+                <span class="zhang_tag">inline svg · 31 modules</span>
+            </div>
+            <div class="zhang_figure">
+        <svg viewBox="0 0 1180 856" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="图像识别系统总体架构图">
+        <defs>
+        <linearGradient id="zhang_paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf9"/><stop offset="1" stop-color="#fbf7f0"/></linearGradient>
+        <marker id="zhang_arr_solid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#5d7f99"/></marker>
+        <marker id="zhang_arr_dash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#9a6a35"/></marker>
+        </defs>
+        <rect x="0" y="0" width="1180" height="856" fill="url(#zhang_paper)"/>
+        <text x="26" y="40" font-size="23" font-weight="700" fill="#16222e" letter-spacing="0.02em">基于图像识别的智能分析系统 · 总体架构</text>
+        <text x="26" y="63" font-size="11.5" fill="#6a7a87" letter-spacing="0.12em">IMAGE RECOGNITION SYSTEM ARCHITECTURE · 6 LAYERS / 31 MODULES · RESEARCH EDITION</text>
+        <text x="1154" y="40" text-anchor="end" font-size="10.5" fill="#8b98a2" letter-spacing="0.1em">FIG. 1</text>
+        <text x="1154" y="60" text-anchor="end" font-size="10" fill="#a1adb6">数据流 ↓ · 反馈回传 ↖</text>
+        <g class="zhang_layer">
+        <rect x="26" y="92" width="1128" height="96" rx="9" fill="#3a6ea5" fill-opacity="0.055" stroke="#3a6ea5" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="102" width="4" height="76" rx="2" fill="#3a6ea5" fill-opacity="0.85"/>
+        <text transform="translate(51,142) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#3a6ea5" letter-spacing="0.14em">数据采集层</text>
+        <text x="1120" y="109" text-anchor="end" font-size="9" fill="#3a6ea5" fill-opacity="0.55" letter-spacing="0.16em">DATA ACQUISITION</text>
+        <text x="1120" y="180" text-anchor="end" font-size="9" fill="#9aa7b1">01</text>
+        </g>
+        <g class="zhang_layer">
+        <rect x="26" y="204" width="1128" height="96" rx="9" fill="#2f7d7a" fill-opacity="0.055" stroke="#2f7d7a" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="214" width="4" height="76" rx="2" fill="#2f7d7a" fill-opacity="0.85"/>
+        <text transform="translate(51,254) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#2f7d7a" letter-spacing="0.14em">预处理与标注层</text>
+        <text x="1120" y="221" text-anchor="end" font-size="9" fill="#2f7d7a" fill-opacity="0.55" letter-spacing="0.16em">PREPROCESS & LABELING</text>
+        <text x="1120" y="292" text-anchor="end" font-size="9" fill="#9aa7b1">02</text>
+        </g>
+        <g class="zhang_layer">
+        <rect x="26" y="316" width="1128" height="104" rx="9" fill="#8a6a2b" fill-opacity="0.055" stroke="#8a6a2b" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="326" width="4" height="84" rx="2" fill="#8a6a2b" fill-opacity="0.85"/>
+        <text transform="translate(51,370) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#8a6a2b" letter-spacing="0.14em">模型训练层</text>
+        <text x="1120" y="333" text-anchor="end" font-size="9" fill="#8a6a2b" fill-opacity="0.55" letter-spacing="0.16em">MODEL TRAINING</text>
+        <text x="1120" y="412" text-anchor="end" font-size="9" fill="#9aa7b1">03</text>
+        </g>
+        <g class="zhang_layer">
+        <rect x="26" y="436" width="1128" height="96" rx="9" fill="#556b86" fill-opacity="0.055" stroke="#556b86" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="446" width="4" height="76" rx="2" fill="#556b86" fill-opacity="0.85"/>
+        <text transform="translate(51,486) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#556b86" letter-spacing="0.14em">推理服务层</text>
+        <text x="1120" y="453" text-anchor="end" font-size="9" fill="#556b86" fill-opacity="0.55" letter-spacing="0.16em">INFERENCE SERVING</text>
+        <text x="1120" y="524" text-anchor="end" font-size="9" fill="#9aa7b1">04</text>
+        </g>
+        <g class="zhang_layer">
+        <rect x="26" y="548" width="1128" height="96" rx="9" fill="#7a5a8c" fill-opacity="0.055" stroke="#7a5a8c" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="558" width="4" height="76" rx="2" fill="#7a5a8c" fill-opacity="0.85"/>
+        <text transform="translate(51,598) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#7a5a8c" letter-spacing="0.14em">应用层</text>
+        <text x="1120" y="565" text-anchor="end" font-size="9" fill="#7a5a8c" fill-opacity="0.55" letter-spacing="0.16em">APPLICATION</text>
+        <text x="1120" y="636" text-anchor="end" font-size="9" fill="#9aa7b1">05</text>
+        </g>
+        <g class="zhang_layer">
+        <rect x="26" y="660" width="1128" height="96" rx="9" fill="#a0543f" fill-opacity="0.055" stroke="#a0543f" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="30" y="670" width="4" height="76" rx="2" fill="#a0543f" fill-opacity="0.85"/>
+        <text transform="translate(51,710) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="700" fill="#a0543f" letter-spacing="0.14em">评估与运维层</text>
+        <text x="1120" y="677" text-anchor="end" font-size="9" fill="#a0543f" fill-opacity="0.55" letter-spacing="0.16em">EVALUATION & MLOPS</text>
+        <text x="1120" y="748" text-anchor="end" font-size="9" fill="#9aa7b1">06</text>
+        </g>
+        <path d="M175.4,168 C175.4,194 175.4,198 175.4,224" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M384.2,168 C384.2,194 175.4,198 175.4,224" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M593,168 C593,194 175.4,198 175.4,224" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M801.8,168 C801.8,194 1010.6,198 1010.6,224" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,168 C1010.6,194 1010.6,198 1010.6,224" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M593,280 C593,306 158,314 158,340" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M801.8,280 C801.8,306 680,314 680,340" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,280 C1010.6,306 854,314 854,340" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M158,396 C158,422 175.4,430 175.4,456" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M332,396 C332,422 384.2,430 384.2,456" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M506,396 C506,422 384.2,430 384.2,456" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1028,396 C1028,422 175.4,430 175.4,456" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,512 C1010.6,538 175.4,542 175.4,568" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,512 C1010.6,538 384.2,542 384.2,568" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,512 C1010.6,538 593,542 593,568" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,512 C1010.6,538 801.8,542 801.8,568" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path d="M1010.6,512 C1010.6,538 1010.6,542 1010.6,568" fill="none" stroke="#5d7f99" stroke-opacity="0.5" stroke-width="1.3" marker-end="url(#zhang_arr_solid)"/>
+        <path class="zhang_loop" d="M384.2,680.0 L384.2,662.0 Q384.2,655.0 391.2,655.0 L1141.0,655.0 Q1148.0,655.0 1148.0,648.0 L1148.0,432.0 Q1148.0,425.0 1141.0,425.0 L687.0,425.0 Q680.0,425.0 680.0,418.0 L680.0,396.0" fill="none" stroke="#9a6a35" stroke-opacity="0.75" stroke-width="1.2" stroke-dasharray="6 5" marker-end="url(#zhang_arr_dash)"/>
+        <path class="zhang_loop" d="M593.0,680.0 L593.0,658.0 Q593.0,651.0 600.0,651.0 L1135.0,651.0 Q1142.0,651.0 1142.0,644.0 L1142.0,549.0 Q1142.0,542.0 1135.0,542.0 L391.2,542.0 Q384.2,542.0 384.2,535.0 L384.2,512.0" fill="none" stroke="#9a6a35" stroke-opacity="0.75" stroke-width="1.2" stroke-dasharray="6 5" marker-end="url(#zhang_arr_dash)"/>
+        <path class="zhang_loop" d="M1010.6,680.0 L1010.6,654.0 Q1010.6,647.0 1017.6,647.0 L1129.0,647.0 Q1136.0,647.0 1136.0,640.0 L1136.0,554.0 Q1136.0,547.0 1129.0,547.0 L600.0,547.0 Q593.0,547.0 593.0,540.0 L593.0,512.0" fill="none" stroke="#9a6a35" stroke-opacity="0.75" stroke-width="1.2" stroke-dasharray="6 5" marker-end="url(#zhang_arr_dash)"/>
+        <text transform="translate(1164,462) rotate(-90)" text-anchor="middle" font-size="9.5" fill="#9a6a35" fill-opacity="0.85" letter-spacing="0.16em">反馈闭环 / FEEDBACK</text>
+        <g class="zhang_node">
+        <title>工业相机 — Industrial Camera</title>
+        <rect class="zhang_node-box" x="78" y="112" width="194.8" height="56" rx="7" fill="#3a6ea5" fill-opacity="0.11" stroke="#3a6ea5" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="175.4" y="136" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">工业相机</text>
+        <text x="175.4" y="153" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Industrial Camera</text>
+        </g>
+        <g class="zhang_node">
+        <title>无人机航拍 — UAV Imagery</title>
+        <rect class="zhang_node-box" x="286.8" y="112" width="194.8" height="56" rx="7" fill="#3a6ea5" fill-opacity="0.11" stroke="#3a6ea5" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="384.2" y="136" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">无人机航拍</text>
+        <text x="384.2" y="153" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">UAV Imagery</text>
+        </g>
+        <g class="zhang_node">
+        <title>移动端采集 — Mobile Capture</title>
+        <rect class="zhang_node-box" x="495.6" y="112" width="194.8" height="56" rx="7" fill="#3a6ea5" fill-opacity="0.11" stroke="#3a6ea5" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="593" y="136" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">移动端采集</text>
+        <text x="593" y="153" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Mobile Capture</text>
+        </g>
+        <g class="zhang_node">
+        <title>公开数据集 — Public Dataset</title>
+        <rect class="zhang_node-box" x="704.4" y="112" width="194.8" height="56" rx="7" fill="#3a6ea5" fill-opacity="0.11" stroke="#3a6ea5" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="801.8" y="136" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">公开数据集</text>
+        <text x="801.8" y="153" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Public Dataset</text>
+        </g>
+        <g class="zhang_node">
+        <title>历史影像库 — Image Archive</title>
+        <rect class="zhang_node-box" x="913.2" y="112" width="194.8" height="56" rx="7" fill="#3a6ea5" fill-opacity="0.11" stroke="#3a6ea5" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1010.6" y="136" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">历史影像库</text>
+        <text x="1010.6" y="153" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Image Archive</text>
+        </g>
+        <g class="zhang_node">
+        <title>图像清洗 — Denoise / Normalize</title>
+        <rect class="zhang_node-box" x="78" y="224" width="194.8" height="56" rx="7" fill="#2f7d7a" fill-opacity="0.11" stroke="#2f7d7a" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="175.4" y="248" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">图像清洗</text>
+        <text x="175.4" y="265" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Denoise / Normalize</text>
+        </g>
+        <g class="zhang_node">
+        <title>几何归一化 — Resize / Crop</title>
+        <rect class="zhang_node-box" x="286.8" y="224" width="194.8" height="56" rx="7" fill="#2f7d7a" fill-opacity="0.11" stroke="#2f7d7a" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="384.2" y="248" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">几何归一化</text>
+        <text x="384.2" y="265" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Resize / Crop</text>
+        </g>
+        <g class="zhang_node">
+        <title>数据增强 — Augmentation</title>
+        <rect class="zhang_node-box" x="495.6" y="224" width="194.8" height="56" rx="7" fill="#2f7d7a" fill-opacity="0.11" stroke="#2f7d7a" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="593" y="248" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">数据增强</text>
+        <text x="593" y="265" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Augmentation</text>
+        </g>
+        <g class="zhang_node">
+        <title>人工标注 — Labeling</title>
+        <rect class="zhang_node-box" x="704.4" y="224" width="194.8" height="56" rx="7" fill="#2f7d7a" fill-opacity="0.11" stroke="#2f7d7a" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="801.8" y="248" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">人工标注</text>
+        <text x="801.8" y="265" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Labeling</text>
+        </g>
+        <g class="zhang_node">
+        <title>数据集版本 — Dataset Version</title>
+        <rect class="zhang_node-box" x="913.2" y="224" width="194.8" height="56" rx="7" fill="#2f7d7a" fill-opacity="0.11" stroke="#2f7d7a" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1010.6" y="248" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">数据集版本</text>
+        <text x="1010.6" y="265" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Dataset Version</text>
+        </g>
+        <g class="zhang_node">
+        <title>骨干网络 — ResNet / ViT</title>
+        <rect class="zhang_node-box" x="78" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="158" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">骨干网络</text>
+        <text x="158" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">ResNet / ViT</text>
+        </g>
+        <g class="zhang_node">
+        <title>检测头 — YOLO / Faster R-CNN</title>
+        <rect class="zhang_node-box" x="252" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="332" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">检测头</text>
+        <text x="332" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">YOLO / Faster R-CNN</text>
+        </g>
+        <g class="zhang_node">
+        <title>分割头 — U-Net / SegFormer</title>
+        <rect class="zhang_node-box" x="426" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="506" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">分割头</text>
+        <text x="506" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">U-Net / SegFormer</text>
+        </g>
+        <g class="zhang_node">
+        <title>损失与优化 — CE + Dice / AdamW</title>
+        <rect class="zhang_node-box" x="600" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="680" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">损失与优化</text>
+        <text x="680" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">CE + Dice / AdamW</text>
+        </g>
+        <g class="zhang_node">
+        <title>分布式训练 — DDP + AMP</title>
+        <rect class="zhang_node-box" x="774" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="854" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">分布式训练</text>
+        <text x="854" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">DDP + AMP</text>
+        </g>
+        <g class="zhang_node">
+        <title>模型压缩 — Quant / Distill</title>
+        <rect class="zhang_node-box" x="948" y="340" width="160" height="56" rx="7" fill="#8a6a2b" fill-opacity="0.11" stroke="#8a6a2b" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1028" y="364" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">模型压缩</text>
+        <text x="1028" y="381" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Quant / Distill</text>
+        </g>
+        <g class="zhang_node">
+        <title>模型转换 — ONNX / TensorRT</title>
+        <rect class="zhang_node-box" x="78" y="456" width="194.8" height="56" rx="7" fill="#556b86" fill-opacity="0.11" stroke="#556b86" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="175.4" y="480" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">模型转换</text>
+        <text x="175.4" y="497" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">ONNX / TensorRT</text>
+        </g>
+        <g class="zhang_node">
+        <title>推理引擎 — Triton / ONNXRuntime</title>
+        <rect class="zhang_node-box" x="286.8" y="456" width="194.8" height="56" rx="7" fill="#556b86" fill-opacity="0.11" stroke="#556b86" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="384.2" y="480" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">推理引擎</text>
+        <text x="384.2" y="497" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Triton / ONNXRuntime</text>
+        </g>
+        <g class="zhang_node">
+        <title>GPU 池调度 — K8s + Autoscale</title>
+        <rect class="zhang_node-box" x="495.6" y="456" width="194.8" height="56" rx="7" fill="#556b86" fill-opacity="0.11" stroke="#556b86" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="593" y="480" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">GPU 池调度</text>
+        <text x="593" y="497" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">K8s + Autoscale</text>
+        </g>
+        <g class="zhang_node">
+        <title>边缘部署 — Jetson / RKNN</title>
+        <rect class="zhang_node-box" x="704.4" y="456" width="194.8" height="56" rx="7" fill="#556b86" fill-opacity="0.11" stroke="#556b86" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="801.8" y="480" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">边缘部署</text>
+        <text x="801.8" y="497" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Jetson / RKNN</text>
+        </g>
+        <g class="zhang_node">
+        <title>服务网关 — REST / gRPC</title>
+        <rect class="zhang_node-box" x="913.2" y="456" width="194.8" height="56" rx="7" fill="#556b86" fill-opacity="0.11" stroke="#556b86" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1010.6" y="480" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">服务网关</text>
+        <text x="1010.6" y="497" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">REST / gRPC</text>
+        </g>
+        <g class="zhang_node">
+        <title>缺陷检测 — Defect Inspection</title>
+        <rect class="zhang_node-box" x="78" y="568" width="194.8" height="56" rx="7" fill="#7a5a8c" fill-opacity="0.11" stroke="#7a5a8c" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="175.4" y="592" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">缺陷检测</text>
+        <text x="175.4" y="609" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Defect Inspection</text>
+        </g>
+        <g class="zhang_node">
+        <title>身份核验 — Face Verification</title>
+        <rect class="zhang_node-box" x="286.8" y="568" width="194.8" height="56" rx="7" fill="#7a5a8c" fill-opacity="0.11" stroke="#7a5a8c" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="384.2" y="592" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">身份核验</text>
+        <text x="384.2" y="609" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Face Verification</text>
+        </g>
+        <g class="zhang_node">
+        <title>医学影像 — Medical Imaging</title>
+        <rect class="zhang_node-box" x="495.6" y="568" width="194.8" height="56" rx="7" fill="#7a5a8c" fill-opacity="0.11" stroke="#7a5a8c" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="593" y="592" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">医学影像</text>
+        <text x="593" y="609" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Medical Imaging</text>
+        </g>
+        <g class="zhang_node">
+        <title>遥感解译 — Remote Sensing</title>
+        <rect class="zhang_node-box" x="704.4" y="568" width="194.8" height="56" rx="7" fill="#7a5a8c" fill-opacity="0.11" stroke="#7a5a8c" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="801.8" y="592" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">遥感解译</text>
+        <text x="801.8" y="609" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Remote Sensing</text>
+        </g>
+        <g class="zhang_node">
+        <title>OCR 识别 — Text Recognition</title>
+        <rect class="zhang_node-box" x="913.2" y="568" width="194.8" height="56" rx="7" fill="#7a5a8c" fill-opacity="0.11" stroke="#7a5a8c" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1010.6" y="592" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">OCR 识别</text>
+        <text x="1010.6" y="609" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Text Recognition</text>
+        </g>
+        <g class="zhang_node">
+        <title>实验追踪 — MLflow / W&B</title>
+        <rect class="zhang_node-box" x="78" y="680" width="194.8" height="56" rx="7" fill="#a0543f" fill-opacity="0.11" stroke="#a0543f" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="175.4" y="704" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">实验追踪</text>
+        <text x="175.4" y="721" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">MLflow / W&B</text>
+        </g>
+        <g class="zhang_node">
+        <title>指标评估 — mAP / IoU / F1</title>
+        <rect class="zhang_node-box" x="286.8" y="680" width="194.8" height="56" rx="7" fill="#a0543f" fill-opacity="0.11" stroke="#a0543f" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="384.2" y="704" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">指标评估</text>
+        <text x="384.2" y="721" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">mAP / IoU / F1</text>
+        </g>
+        <g class="zhang_node">
+        <title>模型注册 — Model Registry</title>
+        <rect class="zhang_node-box" x="495.6" y="680" width="194.8" height="56" rx="7" fill="#a0543f" fill-opacity="0.11" stroke="#a0543f" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="593" y="704" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">模型注册</text>
+        <text x="593" y="721" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Model Registry</text>
+        </g>
+        <g class="zhang_node">
+        <title>模型仓库 — Object Store / DB</title>
+        <rect class="zhang_node-box" x="704.4" y="680" width="194.8" height="56" rx="7" fill="#a0543f" fill-opacity="0.11" stroke="#a0543f" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="801.8" y="704" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">模型仓库</text>
+        <text x="801.8" y="721" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Object Store / DB</text>
+        </g>
+        <g class="zhang_node">
+        <title>监控告警 — Metrics / Logs</title>
+        <rect class="zhang_node-box" x="913.2" y="680" width="194.8" height="56" rx="7" fill="#a0543f" fill-opacity="0.11" stroke="#a0543f" stroke-opacity="0.52" stroke-width="1"/>
+        <text x="1010.6" y="704" text-anchor="middle" font-size="13.5" font-weight="700" fill="#16222e">监控告警</text>
+        <text x="1010.6" y="721" text-anchor="middle" font-size="9" fill="#66757f" letter-spacing="0.03em">Metrics / Logs</text>
+        </g>
+        <text x="26" y="792" font-size="11" fill="#4c5a66">图 1　基于图像识别的智能分析系统总体架构：数据采集 → 预处理标注 → 模型训练 → 推理服务 → 业务应用，评估与运维构成闭环。</text>
+        <g class="zhang_legend">
+        <path d="M26,818 L60,818" stroke="#5d7f99" stroke-width="1.5" marker-end="url(#zhang_arr_solid)"/>
+        <text x="68" y="822" font-size="10.5" fill="#56646f">数据 / 推理流</text>
+        <path d="M166,818 L200,818" stroke="#9a6a35" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#zhang_arr_dash)"/>
+        <text x="208" y="822" font-size="10.5" fill="#56646f">反馈 / 模型与权重回传</text>
+        <rect x="376" y="812" width="14" height="10" rx="2" fill="#556b86" fill-opacity="0.14" stroke="#556b86" stroke-opacity="0.55"/>
+        <text x="398" y="822" font-size="10.5" fill="#56646f">功能模块（圆角矩形 = 模块）</text>
+        </g>
+        <text x="26" y="844" font-size="10" fill="#8b98a2">注：骨干可选 ResNet-50 / ViT-B/16；训练采用 DDP + AMP；推理侧经 ONNX → TensorRT 优化；评价指标含 mAP@0.5、IoU、F1 与端到端时延。</text>
+        </svg>
+            </div>
+            <div class="zhang_legend-note">
+                悬停任意模块可高亮该模块；虚线回路带有行进动画，表示反馈方向的持续流动。
+            </div>
+        </div>
+
+        <div class="zhang_notes">
+            <div class="zhang_note">
+                <h3>研究链路完整性</h3>
+                <p>从多源采集（相机 / 无人机 / 移动端 / 公开数据集）到数据集版本管理，
+                再到骨干—检测头—分割头的多任务训练，覆盖图像识别研究的完整实验链路。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>工程落地部分</h3>
+                <p>训练侧引入 DDP + AMP 与量化蒸馏压缩；推理侧经 ONNX / TensorRT 转换，
+                由 Triton 与 K8s 弹性调度，并支持 Jetson 边缘部署与 gRPC/REST 网关。</p>
+            </div>
+            <div class="zhang_note">
+                <h3>评估与闭环</h3>
+                <p>实验追踪（MLflow）、指标评估（mAP / IoU / F1）、模型注册与监控告警共同构成 MLOps 闭环，
+                指标回传驱动损失与超参调整，权重下发驱动在线推理更新。</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
